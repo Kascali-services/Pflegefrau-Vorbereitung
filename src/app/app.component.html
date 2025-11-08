@@ -1,0 +1,21 @@
+<header class="app-header">
+  <nav class="app-nav">
+    <h1 class="app-title">Pflegefachfrau Vorbereitung</h1>
+    <ul class="nav-links">
+      <li>
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+          >Home</a
+        >
+      </li>
+      <li><a routerLink="/courses" routerLinkActive="active">Courses</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main class="app-content">
+  <router-outlet />
+</main>
+
+<footer class="app-footer">
+  <p>&copy; 2025 Pflegefachfrau Vorbereitung - Educational Platform</p>
+</footer>

@@ -1,0 +1,34 @@
+// ============================================
+// Main Styles Entry Point
+// Medical Platform Design System
+// ============================================
+
+// 1. CSS Variables (must be first)
+@use 'styles/variables';
+
+// 2. CSS Reset (must come early)
+@use 'styles/reset';
+
+// 3. Material Theme
+@use 'styles/theme';
+
+// 4. Typography System
+@use 'styles/typography';
+
+// 5. Utility Classes
+@use 'styles/utilities';
+
+// ============================================
+// Global Base Styles
+// ============================================
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family-primary);
+  background-color: var(--color-background-light);
+}
