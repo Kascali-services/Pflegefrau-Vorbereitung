@@ -1,0 +1,20 @@
+<div class="courses-container">
+  <h1>Verfügbare Kurse</h1>
+  <p class="intro-text">
+    Entdecken Sie unsere Kurse zur Vorbereitung auf die Pflegefachfrau Ausbildung
+  </p>
+
+  <div class="courses-grid">
+    <div class="course-card" *ngFor="let course of courses">
+      <div class="course-header">
+        <h3>{{ course.title }}</h3>
+        <span class="course-level">{{ course.level }}</span>
+      </div>
+      <p class="course-description">{{ course.description }}</p>
+      <div class="course-footer">
+        <span class="course-duration">⏱️ {{ course.duration }}</span>
+        <a [routerLink]="['/courses', course.id]" class="view-course-btn">Details ansehen</a>
+      </div>
+    </div>
+  </div>
+</div>

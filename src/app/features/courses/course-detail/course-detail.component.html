@@ -1,0 +1,38 @@
+<div class="course-detail-container">
+  <div class="breadcrumb">
+    <a routerLink="/courses">← Zurück zu den Kursen</a>
+  </div>
+
+  <div class="course-detail" *ngIf="course">
+    <h1>{{ course.title }}</h1>
+
+    <div class="course-meta">
+      <span class="meta-item"><strong>Level:</strong> {{ course.level }}</span>
+      <span class="meta-item"><strong>Dauer:</strong> {{ course.duration }}</span>
+    </div>
+
+    <div class="course-content">
+      <h2>Kursbeschreibung</h2>
+      <p>{{ course.description }}</p>
+
+      <h2>Was Sie lernen werden</h2>
+      <ul class="learning-objectives">
+        <li>Grundlegende Konzepte und Prinzipien</li>
+        <li>Praktische Anwendungen im Pflegealltag</li>
+        <li>Wichtige Richtlinien und Standards</li>
+        <li>Vorbereitung auf die Ausbildung</li>
+      </ul>
+
+      <div class="course-actions">
+        <button class="start-course-btn">Kurs starten</button>
+        <button class="save-course-btn">Für später speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="not-found" *ngIf="!course">
+    <h2>Kurs nicht gefunden</h2>
+    <p>Der angeforderte Kurs existiert nicht.</p>
+    <a routerLink="/courses" class="back-link">Zurück zur Kursübersicht</a>
+  </div>
+</div>
