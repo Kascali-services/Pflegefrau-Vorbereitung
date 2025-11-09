@@ -1,14 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-
-interface Course {
-  id: number;
-  title: string;
-  description: string;
-  level: string;
-  duration: string;
-}
+import { CourseService } from '../../../core/services/course.service';
+import { Module } from '../../../models/course.model';
 
 @Component({
   selector: 'app-courses',
@@ -16,35 +10,35 @@ interface Course {
   templateUrl: './courses.component.html',
   styleUrl: './courses.component.scss',
 })
-export class CoursesComponent {
-  courses: Course[] = [
-    {
-      id: 1,
-      title: 'Grundlagen der Pflege',
-      description: 'Einführung in die Grundlagen der professionellen Pflege und Betreuung',
-      level: 'Anfänger',
-      duration: '4 Wochen',
-    },
-    {
-      id: 2,
-      title: 'Medizinische Terminologie',
-      description: 'Lernen Sie die wichtigsten medizinischen Fachbegriffe und deren Bedeutung',
-      level: 'Anfänger',
-      duration: '3 Wochen',
-    },
-    {
-      id: 3,
-      title: 'Anatomie und Physiologie',
-      description: 'Verstehen Sie den menschlichen Körper und seine Funktionen',
-      level: 'Fortgeschritten',
-      duration: '6 Wochen',
-    },
-    {
-      id: 4,
-      title: 'Hygiene und Infektionsprävention',
-      description: 'Wichtige Hygienestandards und Maßnahmen zur Infektionsprävention',
-      level: 'Anfänger',
-      duration: '2 Wochen',
-    },
-  ];
+export class CoursesComponent implements OnInit {
+  private courseService = inject(CourseService);
+  modules: Module[] = [];
+
+  ngOnInit(): void {
+    this.courseService.getAllModules().subscribe(modules => {
+      this.modules = modules;
+    });
+  }
+
+  getLevelLabel(level: string): string {
+    const levelMap: Record<string, string> = {
+      beginner: 'Anfänger',
+      intermediate: 'Fortgeschritten',
+      advanced: 'Experte',
+    };
+    return levelMap[level] || level;
+  }
+
+  getEstimatedDuration(module: Module): string {
+    const totalMinutes = module.chapters.reduce((sum, chapter) => sum + chapter.estimatedTime, 0);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    if (hours > 0 && minutes > 0) {
+      return `${hours} Std. ${minutes} Min.`;
+    } else if (hours > 0) {
+      return `${hours} Std.`;
+    } else {
+      return `${minutes} Min.`;
+    }
+  }
 }

@@ -5,15 +5,15 @@
   </p>
 
   <div class="courses-grid">
-    <div class="course-card" *ngFor="let course of courses">
+    <div class="course-card" *ngFor="let module of modules">
       <div class="course-header">
-        <h3>{{ course.title }}</h3>
-        <span class="course-level">{{ course.level }}</span>
+        <h3>{{ module.title }}</h3>
+        <span class="course-level">{{ getLevelLabel(module.level) }}</span>
       </div>
-      <p class="course-description">{{ course.description }}</p>
+      <p class="course-description">{{ module.description }}</p>
       <div class="course-footer">
-        <span class="course-duration">⏱️ {{ course.duration }}</span>
-        <a [routerLink]="['/courses', course.id]" class="view-course-btn">Details ansehen</a>
+        <span class="course-duration">⏱️ {{ getEstimatedDuration(module) }}</span>
+        <a [routerLink]="['/courses', module.id]" class="view-course-btn">Details ansehen</a>
       </div>
     </div>
   </div>
