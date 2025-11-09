@@ -15,18 +15,22 @@
 }
 
 .drawer-container {
+  position: absolute;
+  visibility: hidden;
+  z-index: var(--z-index-fixed);
+}
+
+.drawer-container.mat-drawer-container-has-open {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  pointer-events: none;
-  z-index: var(--z-index-fixed);
+  visibility: visible;
 }
 
 .mobile-drawer {
   width: 280px;
-  pointer-events: auto;
   background-color: var(--color-background);
 }
 
