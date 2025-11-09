@@ -1,0 +1,72 @@
+@use '../../../../styles/variables';
+
+.header-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-index-sticky);
+  background-color: var(--color-background);
+  transition: box-shadow var(--transition-base);
+  height: 56px;
+  padding: 0;
+
+  @media (min-width: 768px) {
+    height: 64px;
+  }
+
+  &.scrolled {
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+  height: 100%;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  outline: none;
+  transition: opacity var(--transition-base);
+
+  &:hover,
+  &:focus {
+    opacity: 0.8;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 4px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+.logo {
+  height: 32px;
+  width: auto;
+}
+
+.desktop-nav {
+  display: none;
+
+  @media (min-width: 768px) {
+    display: block;
+  }
+}
+
+.mobile-nav {
+  display: block;
+
+  @media (min-width: 768px) {
+    display: none;
+  }
+}

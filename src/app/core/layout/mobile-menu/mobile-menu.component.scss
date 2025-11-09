@@ -1,0 +1,113 @@
+@use '../../../../styles/variables';
+
+.mobile-menu-container {
+  display: flex;
+  align-items: center;
+}
+
+.menu-button {
+  color: var(--color-text-primary);
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+.drawer-container {
+  position: absolute;
+  visibility: hidden;
+  z-index: var(--z-index-fixed);
+}
+
+.drawer-container.mat-drawer-container-has-open {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  visibility: visible;
+}
+
+.mobile-drawer {
+  width: 280px;
+  background-color: var(--color-background);
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.drawer-title {
+  margin: 0;
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.close-button {
+  color: var(--color-text-primary);
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+.drawer-nav {
+  padding: var(--spacing-md) 0;
+}
+
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-item {
+  width: 100%;
+}
+
+.nav-link {
+  width: 100%;
+  justify-content: flex-start;
+  padding: var(--spacing-md);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  text-align: left;
+  transition: background-color var(--transition-base);
+
+  &:hover {
+    background-color: var(--color-background-light);
+  }
+
+  &.active {
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    background-color: var(--color-background-light);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+  }
+}
+
+// Backdrop styling
+::ng-deep .mat-drawer-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+// Drawer animation
+::ng-deep .mat-drawer {
+  transition: transform var(--transition-base) !important;
+}

@@ -1,0 +1,50 @@
+<div class="mobile-menu-container">
+  <button
+    mat-icon-button
+    (click)="toggleMenu()"
+    class="menu-button"
+    aria-label="Open navigation menu"
+  >
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <mat-drawer-container class="drawer-container" autosize>
+    <mat-drawer
+      #drawer
+      class="mobile-drawer"
+      mode="over"
+      position="end"
+      [disableClose]="false"
+    >
+      <div class="drawer-header">
+        <h2 class="drawer-title">Menu</h2>
+        <button
+          mat-icon-button
+          (click)="closeMenu()"
+          class="close-button"
+          aria-label="Close navigation menu"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <nav class="drawer-nav" aria-label="Mobile navigation">
+        <ul class="nav-list">
+          <li *ngFor="let link of navLinks" class="nav-item">
+            <a
+              mat-button
+              [routerLink]="link.path"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: link.exact }"
+              (click)="closeMenu()"
+              class="nav-link"
+              [attr.aria-label]="'Navigate to ' + link.label"
+            >
+              {{ link.label }}
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </mat-drawer>
+  </mat-drawer-container>
+</div>

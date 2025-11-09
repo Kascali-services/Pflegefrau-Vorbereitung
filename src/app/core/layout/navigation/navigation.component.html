@@ -1,0 +1,16 @@
+<nav class="navigation" aria-label="Main navigation">
+  <ul class="nav-list">
+    <li *ngFor="let link of navLinks" class="nav-item">
+      <a
+        mat-button
+        [routerLink]="link.path"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: link.exact }"
+        class="nav-link"
+        [attr.aria-label]="'Navigate to ' + link.label"
+      >
+        {{ link.label }}
+      </a>
+    </li>
+  </ul>
+</nav>
