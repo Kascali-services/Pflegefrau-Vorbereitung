@@ -3,25 +3,40 @@
     <a routerLink="/courses">← Zurück zu den Kursen</a>
   </div>
 
-  <div class="course-detail" *ngIf="course">
-    <h1>{{ course.title }}</h1>
+  <div class="course-detail" *ngIf="module">
+    <h1>{{ module.title }}</h1>
 
     <div class="course-meta">
-      <span class="meta-item"><strong>Level:</strong> {{ course.level }}</span>
-      <span class="meta-item"><strong>Dauer:</strong> {{ course.duration }}</span>
+      <span class="meta-item"><strong>Level:</strong> {{ getLevelLabel(module.level) }}</span>
+      <span class="meta-item"><strong>Dauer:</strong> {{ getEstimatedDuration(module) }}</span>
+      <span class="meta-item"><strong>Kapitel:</strong> {{ module.chapters.length }}</span>
+      <span class="meta-item"><strong>Lektionen:</strong> {{ getTotalLessons(module) }}</span>
     </div>
 
     <div class="course-content">
       <h2>Kursbeschreibung</h2>
-      <p>{{ course.description }}</p>
+      <p>{{ module.description }}</p>
 
-      <h2>Was Sie lernen werden</h2>
-      <ul class="learning-objectives">
-        <li>Grundlegende Konzepte und Prinzipien</li>
-        <li>Praktische Anwendungen im Pflegealltag</li>
-        <li>Wichtige Richtlinien und Standards</li>
-        <li>Vorbereitung auf die Ausbildung</li>
-      </ul>
+      <h2>Kursinhalt</h2>
+      <div class="chapters-list">
+        <div class="chapter-card" *ngFor="let chapter of module.chapters">
+          <div class="chapter-header">
+            <h3>{{ chapter.title }}</h3>
+            <span class="chapter-time">⏱️ {{ chapter.estimatedTime }} Min.</span>
+          </div>
+          <div class="lessons-list">
+            <div class="lesson-item" *ngFor="let lesson of chapter.lessons">
+              <span class="lesson-icon">
+                <span *ngIf="lesson.type === 'text'">📄</span>
+                <span *ngIf="lesson.type === 'video'">🎥</span>
+                <span *ngIf="lesson.type === 'interactive'">💻</span>
+              </span>
+              <span class="lesson-title">{{ lesson.title }}</span>
+              <span class="lesson-duration">{{ lesson.duration }} Min.</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div class="course-actions">
         <button class="start-course-btn">Kurs starten</button>
@@ -30,7 +45,7 @@
     </div>
   </div>
 
-  <div class="not-found" *ngIf="!course">
+  <div class="not-found" *ngIf="!module">
     <h2>Kurs nicht gefunden</h2>
     <p>Der angeforderte Kurs existiert nicht.</p>
     <a routerLink="/courses" class="back-link">Zurück zur Kursübersicht</a>
