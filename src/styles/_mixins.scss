@@ -142,12 +142,12 @@
   cursor: pointer;
   transition: all var(--transition-fast);
   user-select: none;
-  
+
   &:focus {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
-  
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -158,13 +158,13 @@
   @include button-base;
   background-color: var(--color-primary);
   color: white;
-  
+
   &:hover:not(:disabled) {
     background-color: var(--color-primary-dark);
     transform: translateY(-1px);
     box-shadow: var(--shadow-sm);
   }
-  
+
   &:active:not(:disabled) {
     transform: translateY(0);
   }
@@ -174,13 +174,13 @@
   @include button-base;
   background-color: var(--color-accent);
   color: white;
-  
+
   &:hover:not(:disabled) {
     background-color: var(--color-accent-dark);
     transform: translateY(-1px);
     box-shadow: var(--shadow-sm);
   }
-  
+
   &:active:not(:disabled) {
     transform: translateY(0);
   }
@@ -191,7 +191,7 @@
   background-color: transparent;
   color: var(--color-primary);
   border: 2px solid var(--color-primary);
-  
+
   &:hover:not(:disabled) {
     background-color: var(--color-primary);
     color: white;
@@ -260,7 +260,7 @@
   margin-right: auto;
   padding-left: var(--spacing-md);
   padding-right: var(--spacing-md);
-  
+
   @include desktop {
     padding-left: var(--spacing-lg);
     padding-right: var(--spacing-lg);
@@ -275,11 +275,11 @@
   display: grid;
   grid-template-columns: repeat($columns, 1fr);
   gap: var(--spacing-#{$gap});
-  
+
   @include tablet {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   @include mobile {
     grid-template-columns: 1fr;
   }
