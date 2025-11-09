@@ -8,13 +8,7 @@ import { MobileMenuComponent } from '../mobile-menu/mobile-menu.component';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatToolbarModule,
-    RouterLink,
-    NavigationComponent,
-    MobileMenuComponent,
-  ],
+  imports: [CommonModule, MatToolbarModule, RouterLink, NavigationComponent, MobileMenuComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
 })
