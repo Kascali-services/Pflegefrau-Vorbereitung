@@ -1,6 +1,22 @@
 <div class="quiz-container" *ngIf="quiz">
+  <!-- Quiz Already Passed Message -->
+  <div class="quiz-passed-message" *ngIf="alreadyPassed && !isSubmitted">
+    <div class="success-icon">🎉</div>
+    <h2>Quiz déjà réussi</h2>
+    <p>
+      Vous avez déjà réussi ce quiz avec succès. Vous ne pouvez plus le repasser, mais vous pouvez
+      toujours consulter le contenu de la leçon.
+    </p>
+    <div class="passed-actions">
+      <button class="secondary-btn" (click)="goBackToCourse()">Retour au cours</button>
+      <button class="primary-btn" (click)="continueToNextLesson()">
+        Continuer vers la prochaine leçon →
+      </button>
+    </div>
+  </div>
+
   <!-- Quiz Header -->
-  <div class="quiz-header">
+  <div class="quiz-header" *ngIf="!alreadyPassed || isSubmitted">
     <h1>{{ quiz.title }}</h1>
     <div class="quiz-info">
       <span>{{ quiz.questions.length }} Fragen</span>
@@ -11,12 +27,12 @@
   </div>
 
   <!-- Progress Bar -->
-  <div class="progress-bar" *ngIf="!isSubmitted">
+  <div class="progress-bar" *ngIf="!isSubmitted && !alreadyPassed">
     <div class="progress-fill" [style.width.%]="progress"></div>
   </div>
 
   <!-- Question Section -->
-  <div class="question-section" *ngIf="currentQuestion && !isSubmitted">
+  <div class="question-section" *ngIf="currentQuestion && !isSubmitted && !alreadyPassed">
     <div class="question-header">
       <span class="question-number"
         >Frage {{ currentQuestionIndex + 1 }} von {{ quiz.questions.length }}</span

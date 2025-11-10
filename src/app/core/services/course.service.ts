@@ -127,6 +127,13 @@ export class CourseService {
           for (const chapter of module.chapters) {
             const lessonIndex = chapter.lessons.findIndex(l => l.id === lessonId);
             if (lessonIndex !== -1) {
+              const currentLesson = chapter.lessons[lessonIndex];
+
+              // If lesson is already completed, always allow access (for review)
+              if (progress.completedLessons.includes(currentLesson.id)) {
+                return true;
+              }
+
               // First lesson is always accessible
               if (lessonIndex === 0 && chapter.order === 1) {
                 return true;
@@ -366,6 +373,18 @@ export class CourseService {
 
     this.updateProgress(currentProgress);
     return of(void 0);
+  }
+
+  /**
+   * Check if a quiz has been passed
+   */
+  isQuizPassed(quizId: string): Observable<boolean> {
+    return this.progress$.pipe(
+      map(progress => {
+        const quizScore = progress.quizScores.find(qs => qs.quizId === quizId);
+        return quizScore?.passed || false;
+      })
+    );
   }
 
   /**

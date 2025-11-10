@@ -31,17 +31,25 @@ export class QuizComponent implements OnInit {
   passed = false;
   attempts = 1;
   showExplanation = false;
+  alreadyPassed = false;
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       const quizId = params['quizId'];
       if (quizId) {
+        this.checkIfQuizPassed(quizId);
         this.loadQuiz(quizId);
       }
     });
 
     this.route.queryParams.subscribe(params => {
       this.lessonId = params['lessonId'];
+    });
+  }
+
+  private checkIfQuizPassed(quizId: string): void {
+    this.courseService.isQuizPassed(quizId).subscribe(isPassed => {
+      this.alreadyPassed = isPassed;
     });
   }
 

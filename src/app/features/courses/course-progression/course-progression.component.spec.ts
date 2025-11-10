@@ -19,6 +19,7 @@ describe('CourseProgressionComponent', () => {
       'isLessonAccessible',
       'getNextLesson',
       'markLessonCompleted',
+      'updateLastAccessedLesson',
     ]);
 
     mockActivatedRoute = jasmine.createSpyObj('ActivatedRoute', [], {
@@ -35,9 +36,22 @@ describe('CourseProgressionComponent', () => {
         moduleProgress: [],
       })
     );
-    mockCourseService.getLessonById.and.returnValue(of(undefined));
+    mockCourseService.getLessonById.and.returnValue(
+      of({
+        id: 'lesson-1',
+        chapterId: 'chapter-1',
+        title: 'Test Lesson',
+        content: 'Test content',
+        type: 'text',
+        duration: 10,
+        order: 1,
+      })
+    );
     mockCourseService.isLessonAccessible.and.returnValue(of(true));
     mockCourseService.getNextLesson.and.returnValue(of(undefined));
+    mockCourseService.updateLastAccessedLesson.and.returnValue(of(void 0));
+    mockCourseService.getChapterById.and.returnValue(of(undefined));
+    mockCourseService.getModuleById.and.returnValue(of(undefined));
 
     await TestBed.configureTestingModule({
       imports: [CourseProgressionComponent],

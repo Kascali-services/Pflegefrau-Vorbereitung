@@ -120,8 +120,8 @@ export class CourseProgressionComponent implements OnInit {
           this.router.navigate(['/courses', this.module.id]);
         }
       });
-    } else if (this.lesson && this.hasQuiz) {
-      // Navigate to quiz
+    } else if (this.lesson && this.hasQuiz && !this.quizPassed) {
+      // Navigate to quiz only if not already passed
       this.router.navigate(['/courses/quiz', this.lesson.quizId], {
         queryParams: { lessonId: this.lesson.id },
       });
