@@ -37,4 +37,12 @@ export class MobileMenuComponent {
   closeMenu(): void {
     this.drawer.close();
   }
+
+  onLogout(): void {
+    // TODO: Implement actual logout logic
+    console.log('Logout clicked from mobile menu');
+    this.closeMenu();
+    // For now, just log the action
+    // In a real application, this would clear auth tokens and redirect to login
+  }
 }
