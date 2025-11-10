@@ -1,9 +1,7 @@
 <div class="course-progression-container" *ngIf="lesson && isAccessible">
   <!-- Navigation header -->
   <div class="progression-header">
-    <button class="back-btn" (click)="goBack()">
-      ← Zurück zum Kurs
-    </button>
+    <button class="back-btn" (click)="goBack()">← Zurück zum Kurs</button>
     <div class="lesson-info">
       <span class="module-title" *ngIf="module">{{ module.title }}</span>
       <span class="separator" *ngIf="module && chapter">›</span>
@@ -33,9 +31,7 @@
 
     <!-- Video if present -->
     <div class="lesson-video" *ngIf="lesson.videoUrl">
-      <video controls [src]="lesson.videoUrl">
-        Ihr Browser unterstützt das Video-Tag nicht.
-      </video>
+      <video controls [src]="lesson.videoUrl">Ihr Browser unterstützt das Video-Tag nicht.</video>
     </div>
 
     <!-- Content (markdown formatted) -->
@@ -45,17 +41,30 @@
 
     <!-- Action buttons -->
     <div class="lesson-actions">
-      <button class="secondary-btn" (click)="goBack()">
-        Zurück zum Kurs
-      </button>
+      <button class="secondary-btn" (click)="goBack()">Zurück zum Kurs</button>
       <button
         class="primary-btn"
         (click)="completeLesson()"
         [disabled]="isCompleted && !hasQuiz"
+        *ngIf="!isLastLessonInChapter || !isCompleted || hasQuiz"
       >
         <span *ngIf="!hasQuiz && !isCompleted">Lektion abschließen</span>
         <span *ngIf="!hasQuiz && isCompleted">Abgeschlossen ✓</span>
         <span *ngIf="hasQuiz">Quiz starten →</span>
+      </button>
+      <button
+        class="next-chapter-btn primary-btn"
+        (click)="goToNextChapter()"
+        *ngIf="isLastLessonInChapter && isCompleted && !hasQuiz && nextChapter"
+      >
+        Nächstes Kapitel: {{ nextChapter.title }} →
+      </button>
+      <button
+        class="back-to-course-btn primary-btn"
+        (click)="goBack()"
+        *ngIf="isLastLessonInChapter && isCompleted && !hasQuiz && !nextChapter"
+      >
+        Zurück zur Kursübersicht
       </button>
     </div>
   </div>
@@ -65,9 +74,7 @@
   <div class="message">
     <h2>🔒 Lektion gesperrt</h2>
     <p>Sie müssen zuerst die vorherigen Lektionen abschließen, um auf diese Lektion zuzugreifen.</p>
-    <button class="primary-btn" (click)="goBack()">
-      Zurück zum Kurs
-    </button>
+    <button class="primary-btn" (click)="goBack()">Zurück zum Kurs</button>
   </div>
 </div>
 

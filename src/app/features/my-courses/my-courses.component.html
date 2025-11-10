@@ -2,7 +2,8 @@
   <div class="header">
     <h1>Mes Cours</h1>
     <p class="welcome-text" *ngIf="currentUser">
-      Bienvenue, <strong>{{ currentUser.name }}</strong>!
+      Bienvenue, <strong>{{ currentUser.name }}</strong
+      >!
     </p>
   </div>
 
@@ -20,27 +21,32 @@
       <div class="course-info">
         <div class="course-header">
           <h2>{{ course.module.title }}</h2>
-          <span class="status-badge" [style.background-color]="getProgressBarColor(course.progressPercentage)">
+          <span
+            class="status-badge"
+            [style.background-color]="getProgressBarColor(course.progressPercentage)"
+          >
             {{ getCompletionStatus(course.progressPercentage) }}
           </span>
         </div>
-        
+
         <p class="course-description">{{ course.module.description }}</p>
-        
+
         <div class="course-details">
           <div class="detail-item">
             <span class="detail-label">Date de début:</span>
             <span class="detail-value">{{ formatDate(course.enrollment.startDate) }}</span>
           </div>
-          
+
           <div class="detail-item">
             <span class="detail-label">Dernière activité:</span>
             <span class="detail-value">{{ formatDate(course.enrollment.lastAccessedDate) }}</span>
           </div>
-          
+
           <div class="detail-item">
             <span class="detail-label">Chapitres terminés:</span>
-            <span class="detail-value">{{ course.completedChapters }} / {{ course.totalChapters }}</span>
+            <span class="detail-value"
+              >{{ course.completedChapters }} / {{ course.totalChapters }}</span
+            >
           </div>
         </div>
       </div>
@@ -51,8 +57,8 @@
           <span class="progress-percentage">{{ course.progressPercentage.toFixed(0) }}%</span>
         </div>
         <div class="progress-bar-container">
-          <div 
-            class="progress-bar" 
+          <div
+            class="progress-bar"
             [style.width.%]="course.progressPercentage"
             [style.background-color]="getProgressBarColor(course.progressPercentage)"
           ></div>

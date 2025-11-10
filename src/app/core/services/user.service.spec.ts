@@ -13,7 +13,7 @@ describe('UserService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should have a current user', (done) => {
+  it('should have a current user', done => {
     service.getCurrentUser().subscribe(user => {
       expect(user).toBeTruthy();
       expect(user?.id).toBe('user-001');
@@ -23,7 +23,7 @@ describe('UserService', () => {
     });
   });
 
-  it('should get user by id', (done) => {
+  it('should get user by id', done => {
     service.getUserById('user-001').subscribe(user => {
       expect(user).toBeTruthy();
       expect(user?.id).toBe('user-001');
@@ -31,7 +31,7 @@ describe('UserService', () => {
     });
   });
 
-  it('should return null for unknown user id', (done) => {
+  it('should return null for unknown user id', done => {
     service.getUserById('unknown').subscribe(user => {
       expect(user).toBeNull();
       done();
