@@ -3,18 +3,19 @@
   <div class="progression-header">
     <button class="back-btn" (click)="goBack()">← Zurück zum Kurs</button>
     <div class="lesson-info">
-      <span class="module-title" *ngIf="module">{{ module.title }}</span>
-      <span class="separator" *ngIf="module && chapter">›</span>
-      <span class="chapter-title" *ngIf="chapter">{{ chapter.title }}</span>
+      <span class="course-title" *ngIf="course">{{ course.title }}</span>
+      <span class="lesson-position" *ngIf="totalLessons">
+        › Lektion {{ lessonIndex }} / {{ totalLessons }}
+      </span>
     </div>
   </div>
 
   <!-- Lesson content -->
   <div class="lesson-container">
     <div class="lesson-header">
-      <h1>{{ lesson.title }}</h1>
+      <h1>{{ getLessonTypeIcon() }} {{ lesson.title }}</h1>
       <div class="lesson-meta">
-        <span class="duration">⏱️ {{ lesson.duration }} Min.</span>
+        <span class="duration">⏱️ {{ lesson.durationMinutes }} Min.</span>
         <span class="type">
           <span *ngIf="lesson.type === 'text'">📄 Lektion</span>
           <span *ngIf="lesson.type === 'video'">🎥 Video</span>
@@ -22,29 +23,20 @@
         </span>
         <span class="status" *ngIf="isCompleted">✅ Abgeschlossen</span>
       </div>
-    </div>
-
-    <!-- Image if present -->
-    <div class="lesson-image" *ngIf="lesson.imageUrl">
-      <img [src]="lesson.imageUrl" [alt]="lesson.title" />
-    </div>
-
-    <!-- Video if present -->
-    <div class="lesson-video" *ngIf="lesson.videoUrl">
-      <video controls [src]="lesson.videoUrl">Ihr Browser unterstützt das Video-Tag nicht.</video>
+      <p class="lesson-description" *ngIf="lesson.description">{{ lesson.description }}</p>
     </div>
 
     <!-- Content (markdown formatted) -->
     <div class="lesson-content">
-      <div [innerHTML]="formatContent(lesson.content)"></div>
+      <div [innerHTML]="formatContent(lessonContent)"></div>
     </div>
 
     <!-- Lesson navigation (Previous/Next) -->
-    <div class="lesson-navigation" *ngIf="isCompleted">
+    <div class="lesson-navigation">
       <button
         class="nav-btn prev-btn"
         (click)="goToPreviousLesson()"
-        *ngIf="previousLesson && isPreviousLessonCompleted"
+        *ngIf="previousLesson"
         [title]="'Vorherige Lektion: ' + previousLesson.title"
       >
         ← Vorherige Lektion
@@ -66,24 +58,16 @@
         class="primary-btn"
         (click)="completeLesson()"
         [disabled]="(isCompleted && !hasQuiz) || (hasQuiz && quizPassed)"
-        *ngIf="!isLastLessonInChapter || !isCompleted || (hasQuiz && !quizPassed)"
       >
         <span *ngIf="!hasQuiz && !isCompleted">Lektion abschließen</span>
         <span *ngIf="!hasQuiz && isCompleted">Abgeschlossen ✓</span>
         <span *ngIf="hasQuiz && !quizPassed">Quiz starten →</span>
-        <span *ngIf="hasQuiz && quizPassed">Quiz réussi ✓</span>
-      </button>
-      <button
-        class="next-chapter-btn primary-btn"
-        (click)="goToNextChapter()"
-        *ngIf="isLastLessonInChapter && isCompleted && (!hasQuiz || quizPassed) && nextChapter"
-      >
-        Nächstes Kapitel: {{ nextChapter.title }} →
+        <span *ngIf="hasQuiz && quizPassed">Quiz bestanden ✓</span>
       </button>
       <button
         class="back-to-course-btn primary-btn"
         (click)="goBack()"
-        *ngIf="isLastLessonInChapter && isCompleted && (!hasQuiz || quizPassed) && !nextChapter"
+        *ngIf="isCompleted && !nextLesson && (!hasQuiz || quizPassed)"
       >
         Zurück zur Kursübersicht
       </button>
