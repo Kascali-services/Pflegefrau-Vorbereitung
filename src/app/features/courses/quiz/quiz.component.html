@@ -2,15 +2,14 @@
   <!-- Quiz Already Passed Message -->
   <div class="quiz-passed-message" *ngIf="alreadyPassed && !isSubmitted">
     <div class="success-icon">🎉</div>
-    <h2>Quiz déjà réussi</h2>
+    <h2>Quiz bereits bestanden</h2>
     <p>
-      Vous avez déjà réussi ce quiz avec succès. Vous ne pouvez plus le repasser, mais vous pouvez
-      toujours consulter le contenu de la leçon.
+      Sie haben dieses Quiz bereits erfolgreich bestanden. Sie können den Kurs fortsetzen.
     </p>
     <div class="passed-actions">
-      <button class="secondary-btn" (click)="goBackToCourse()">Retour au cours</button>
+      <button class="secondary-btn" (click)="goToLesson()">Zurück zur Lektion</button>
       <button class="primary-btn" (click)="continueToNextLesson()">
-        Continuer vers la prochaine leçon →
+        Weiter zur nächsten Lektion →
       </button>
     </div>
   </div>
@@ -19,46 +18,52 @@
   <div class="quiz-header" *ngIf="!alreadyPassed || isSubmitted">
     <h1>{{ quiz.title }}</h1>
     <div class="quiz-info">
-      <span>{{ quiz.questions.length }} Fragen</span>
+      <span>{{ questions.length }} Fragen</span>
       <span>Mindestpunktzahl: {{ quiz.passingScore }}%</span>
-      <span *ngIf="quiz.timeLimit">⏱️ {{ quiz.timeLimit }} Min.</span>
-      <span *ngIf="attempts > 1">Versuch: {{ attempts }}</span>
+      <span *ngIf="quiz.timeLimitMinutes" [class]="getTimerClass()">⏱️ {{ getTimerDisplay() }}</span>
+      <span *ngIf="attempts > 0">Versuch: {{ attempts + 1 }}</span>
     </div>
   </div>
 
   <!-- Progress Bar -->
   <div class="progress-bar" *ngIf="!isSubmitted && !alreadyPassed">
     <div class="progress-fill" [style.width.%]="progress"></div>
+    <span class="progress-text">{{ answeredCount }} / {{ questions.length }} beantwortet</span>
   </div>
 
   <!-- Question Section -->
   <div class="question-section" *ngIf="currentQuestion && !isSubmitted && !alreadyPassed">
     <div class="question-header">
       <span class="question-number"
-        >Frage {{ currentQuestionIndex + 1 }} von {{ quiz.questions.length }}</span
+        >Frage {{ currentQuestionIndex + 1 }} von {{ questions.length }}</span
       >
+      <span class="question-type">{{ getQuestionTypeLabel(currentQuestion.question.type) }}</span>
     </div>
 
-    <h2 class="question-text">{{ currentQuestion.question }}</h2>
+    <h2 class="question-text">{{ currentQuestion.question.questionText }}</h2>
 
     <div class="answers-list">
       <div
-        *ngFor="let answer of currentQuestion.answers; let i = index"
+        *ngFor="let option of currentQuestion.options"
         class="answer-option"
-        [class.selected]="currentAnswer?.selectedAnswer === i"
-        (click)="selectAnswer(i)"
-        (keyup.enter)="selectAnswer(i)"
-        (keyup.space)="selectAnswer(i)"
+        [class.selected]="isOptionSelected(option.id)"
+        (click)="selectOption(option.id)"
+        (keyup.enter)="selectOption(option.id)"
+        (keyup.space)="selectOption(option.id)"
         tabindex="0"
-        role="radio"
-        [attr.aria-checked]="currentAnswer?.selectedAnswer === i"
+        role="checkbox"
+        [attr.aria-checked]="isOptionSelected(option.id)"
       >
-        <div class="answer-radio">
-          <span *ngIf="currentAnswer?.selectedAnswer === i">✓</span>
+        <div class="answer-checkbox">
+          <span *ngIf="isOptionSelected(option.id)">✓</span>
         </div>
-        <span class="answer-text">{{ answer }}</span>
+        <span class="answer-text">{{ option.optionText }}</span>
       </div>
     </div>
+
+    <p class="question-hint" *ngIf="currentQuestion.question.type === 'qcm_multiple'">
+      ℹ️ Mehrere Antworten möglich
+    </p>
 
     <!-- Navigation Buttons -->
     <div class="question-navigation">
@@ -71,78 +76,86 @@
       </button>
       <button
         class="primary-btn"
-        *ngIf="currentQuestionIndex < quiz.questions.length - 1"
+        *ngIf="currentQuestionIndex < questions.length - 1"
         (click)="nextQuestion()"
       >
         Weiter →
       </button>
       <button
         class="submit-btn"
-        *ngIf="currentQuestionIndex === quiz.questions.length - 1"
+        *ngIf="currentQuestionIndex === questions.length - 1"
         (click)="submitQuiz()"
         [disabled]="!canSubmit()"
       >
-        Quiz absenden
+        Quiz abschließen
       </button>
+    </div>
+
+    <!-- Question Overview -->
+    <div class="questions-overview">
+      <div class="overview-title">Fragenübersicht:</div>
+      <div class="overview-buttons">
+        <button
+          *ngFor="let q of questions; let i = index"
+          class="overview-btn"
+          [class.current]="i === currentQuestionIndex"
+          [class.answered]="q.isAnswered"
+          (click)="goToQuestion(i)"
+          [title]="'Frage ' + (i + 1)"
+        >
+          {{ i + 1 }}
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- Results Section -->
   <div class="results-section" *ngIf="isSubmitted">
     <div class="results-header" [class.passed]="passed" [class.failed]="!passed">
-      <div class="result-icon">
-        <span *ngIf="passed">🎉</span>
-        <span *ngIf="!passed">😞</span>
-      </div>
-      <h2 *ngIf="passed">Herzlichen Glückwunsch!</h2>
-      <h2 *ngIf="!passed">Leider nicht bestanden</h2>
-      <div class="score-display">
-        <span class="score">{{ score }}%</span>
-        <span class="score-label">Ihr Ergebnis</span>
-      </div>
-      <p *ngIf="passed">Sie haben das Quiz erfolgreich bestanden!</p>
-      <p *ngIf="!passed">
-        Sie benötigen mindestens {{ quiz.passingScore }}% zum Bestehen. Versuchen Sie es erneut!
-      </p>
+      <div class="result-icon">{{ passed ? '🎉' : '😕' }}</div>
+      <h2>{{ passed ? 'Gratulation!' : 'Nicht bestanden' }}</h2>
+      <p class="score">Ihre Punktzahl: {{ score }}%</p>
+      <p class="pass-info">Mindestpunktzahl: {{ quiz.passingScore }}%</p>
     </div>
 
-    <!-- Review Answers -->
-    <div class="review-section">
-      <h3>Antworten überprüfen</h3>
-      <div class="review-questions">
-        <div
-          *ngFor="let question of quiz.questions; let i = index"
-          class="review-question"
-          [class.correct]="answers[i].isCorrect"
-          [class.incorrect]="!answers[i].isCorrect"
-        >
-          <div class="review-header">
-            <span class="review-number">Frage {{ i + 1 }}</span>
-            <span class="review-status">
-              <span *ngIf="answers[i].isCorrect">✓ Richtig</span>
-              <span *ngIf="!answers[i].isCorrect">✗ Falsch</span>
+    <!-- Detailed Results -->
+    <div class="detailed-results">
+      <h3>Detaillierte Ergebnisse</h3>
+      <div
+        *ngFor="let q of questions; let i = index"
+        class="result-question"
+        [class.correct]="q.isCorrect"
+        [class.incorrect]="!q.isCorrect"
+      >
+        <div class="result-question-header">
+          <span class="result-number">Frage {{ i + 1 }}</span>
+          <span class="result-status">{{ q.isCorrect ? '✓ Richtig' : '✗ Falsch' }}</span>
+        </div>
+        <p class="result-question-text">{{ q.question.questionText }}</p>
+        <div class="result-options">
+          <div
+            *ngFor="let option of q.options"
+            class="result-option"
+            [class.correct]="option.isCorrect"
+            [class.selected]="q.selectedOptionIds.includes(option.id)"
+          >
+            <span class="option-icon">
+              <span *ngIf="option.isCorrect">✓</span>
+              <span *ngIf="!option.isCorrect && q.selectedOptionIds.includes(option.id)">✗</span>
             </span>
+            <span>{{ option.optionText }}</span>
           </div>
-          <p class="review-question-text">{{ question.question }}</p>
-          <div class="review-answer">
-            <p>
-              <strong>Ihre Antwort:</strong>
-              {{ question.answers[answers[i].selectedAnswer!] }}
-            </p>
-            <p *ngIf="!answers[i].isCorrect">
-              <strong>Richtige Antwort:</strong>
-              {{ question.answers[question.correctAnswer] }}
-            </p>
-            <p class="explanation"><strong>Erklärung:</strong> {{ question.explanation }}</p>
-          </div>
+        </div>
+        <div class="result-explanation" *ngIf="q.question.explanation">
+          <strong>Erklärung:</strong> {{ q.question.explanation }}
         </div>
       </div>
     </div>
 
     <!-- Action Buttons -->
     <div class="results-actions">
-      <button class="secondary-btn" (click)="goBackToCourse()">Zurück zum Kurs</button>
-      <button class="retry-btn" *ngIf="!passed" (click)="retryQuiz()">Erneut versuchen</button>
+      <button class="secondary-btn" (click)="goToLesson()">Zurück zur Lektion</button>
+      <button class="retry-btn" *ngIf="!passed" (click)="retryQuiz()">Quiz wiederholen</button>
       <button class="primary-btn" *ngIf="passed" (click)="continueToNextLesson()">
         Weiter zur nächsten Lektion →
       </button>
@@ -151,5 +164,5 @@
 </div>
 
 <div class="loading" *ngIf="!quiz">
-  <p>Quiz wird geladen...</p>
+  <p>Laden...</p>
 </div>

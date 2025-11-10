@@ -2,12 +2,13 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CourseService } from '../../../core/services/course.service';
-import { Quiz, Question } from '../../../models/course.model';
-import { QuizScore } from '../../../models/progress.model';
+import { Quiz, Question, QuizOption, Lesson } from '../../../models/course.model';
 
-interface QuizAnswer {
-  questionId: string;
-  selectedAnswer: number | null;
+interface QuizQuestionWithOptions {
+  question: Question;
+  options: QuizOption[];
+  selectedOptionIds: string[];
+  isAnswered: boolean;
   isCorrect: boolean | null;
 }
 
@@ -23,84 +24,136 @@ export class QuizComponent implements OnInit {
   private courseService = inject(CourseService);
 
   quiz: Quiz | undefined;
+  lesson: Lesson | undefined;
   lessonId: string | undefined;
+  questions: QuizQuestionWithOptions[] = [];
   currentQuestionIndex = 0;
-  answers: QuizAnswer[] = [];
   isSubmitted = false;
   score = 0;
   passed = false;
   attempts = 1;
   showExplanation = false;
   alreadyPassed = false;
+  timeRemaining: number | null = null;
+  timerInterval: any;
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       const quizId = params['quizId'];
       if (quizId) {
-        this.checkIfQuizPassed(quizId);
         this.loadQuiz(quizId);
       }
     });
 
     this.route.queryParams.subscribe(params => {
       this.lessonId = params['lessonId'];
+      if (this.lessonId) {
+        this.courseService.getLessonById(this.lessonId).subscribe(lesson => {
+          this.lesson = lesson;
+        });
+      }
     });
   }
 
-  private checkIfQuizPassed(quizId: string): void {
-    this.courseService.isQuizPassed(quizId).subscribe(isPassed => {
-      this.alreadyPassed = isPassed;
-    });
+  ngOnDestroy(): void {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
   }
 
   private loadQuiz(quizId: string): void {
     this.courseService.getQuizById(quizId).subscribe(quiz => {
       this.quiz = quiz;
       if (quiz) {
-        this.initializeAnswers(quiz.questions);
-        this.loadPreviousAttempts(quizId);
+        // Check if user already passed
+        if (quiz.lessonId) {
+          this.courseService.getLessonProgress(quiz.lessonId).subscribe(progress => {
+            this.alreadyPassed = progress?.isCompleted || false;
+            this.attempts = progress?.attemptCount || 0;
+          });
+        }
+
+        // Load questions with their options
+        this.courseService.getQuestionsByQuizId(quizId).subscribe(questions => {
+          // Load options for each question
+          const questionPromises = questions.map(question => {
+            return new Promise<QuizQuestionWithOptions>((resolve) => {
+              this.courseService.getOptionsByQuestionId(question.id).subscribe(options => {
+                resolve({
+                  question,
+                  options,
+                  selectedOptionIds: [],
+                  isAnswered: false,
+                  isCorrect: null,
+                });
+              });
+            });
+          });
+
+          Promise.all(questionPromises).then(questionsWithOptions => {
+            this.questions = questionsWithOptions;
+          });
+        });
+
+        // Start timer if time limit exists
+        if (quiz.timeLimitMinutes) {
+          this.timeRemaining = quiz.timeLimitMinutes * 60; // Convert to seconds
+          this.startTimer();
+        }
       }
     });
   }
 
-  private initializeAnswers(questions: Question[]): void {
-    this.answers = questions.map(q => ({
-      questionId: q.id,
-      selectedAnswer: null,
-      isCorrect: null,
-    }));
-  }
-
-  private loadPreviousAttempts(quizId: string): void {
-    this.courseService.getUserProgress().subscribe(progress => {
-      const previousScore = progress.quizScores.find(qs => qs.quizId === quizId);
-      if (previousScore) {
-        this.attempts = previousScore.attempts + 1;
+  private startTimer(): void {
+    this.timerInterval = setInterval(() => {
+      if (this.timeRemaining !== null && this.timeRemaining > 0) {
+        this.timeRemaining--;
+      } else if (this.timeRemaining === 0) {
+        this.submitQuiz(); // Auto-submit when time runs out
       }
-    });
+    }, 1000);
   }
 
-  get currentQuestion(): Question | undefined {
-    return this.quiz?.questions[this.currentQuestionIndex];
-  }
-
-  get currentAnswer(): QuizAnswer | undefined {
-    return this.answers[this.currentQuestionIndex];
+  get currentQuestion(): QuizQuestionWithOptions | undefined {
+    return this.questions[this.currentQuestionIndex];
   }
 
   get progress(): number {
-    if (!this.quiz) return 0;
-    return ((this.currentQuestionIndex + 1) / this.quiz.questions.length) * 100;
+    if (this.questions.length === 0) return 0;
+    return (this.currentQuestionIndex + 1) / this.questions.length * 100;
   }
 
-  selectAnswer(answerIndex: number): void {
-    if (this.currentAnswer && !this.isSubmitted) {
-      this.currentAnswer.selectedAnswer = answerIndex;
+  get answeredCount(): number {
+    return this.questions.filter(q => q.isAnswered).length;
+  }
+
+  selectOption(optionId: string): void {
+    if (!this.currentQuestion || this.isSubmitted) return;
+
+    const question = this.currentQuestion.question;
+
+    if (question.type === 'qcm' || question.type === 'vrai_faux') {
+      // Single choice - replace selection
+      this.currentQuestion.selectedOptionIds = [optionId];
+      this.currentQuestion.isAnswered = true;
+    } else if (question.type === 'qcm_multiple') {
+      // Multiple choice - toggle selection
+      const index = this.currentQuestion.selectedOptionIds.indexOf(optionId);
+      if (index > -1) {
+        this.currentQuestion.selectedOptionIds.splice(index, 1);
+      } else {
+        this.currentQuestion.selectedOptionIds.push(optionId);
+      }
+      this.currentQuestion.isAnswered = this.currentQuestion.selectedOptionIds.length > 0;
     }
   }
 
+  isOptionSelected(optionId: string): boolean {
+    return this.currentQuestion?.selectedOptionIds.includes(optionId) || false;
+  }
+
   nextQuestion(): void {
-    if (this.quiz && this.currentQuestionIndex < this.quiz.questions.length - 1) {
+    if (this.currentQuestionIndex < this.questions.length - 1) {
       this.currentQuestionIndex++;
       this.showExplanation = false;
     }
@@ -113,86 +166,119 @@ export class QuizComponent implements OnInit {
     }
   }
 
+  goToQuestion(index: number): void {
+    this.currentQuestionIndex = index;
+    this.showExplanation = false;
+  }
+
   canSubmit(): boolean {
-    return this.answers.every(a => a.selectedAnswer !== null) && !this.isSubmitted;
+    return this.questions.every(q => q.isAnswered) && !this.isSubmitted;
   }
 
   submitQuiz(): void {
-    if (!this.quiz || !this.canSubmit()) return;
+    if (!this.quiz || !this.lessonId) return;
 
-    // Calculate score
-    let correct = 0;
-    this.quiz.questions.forEach((question, index) => {
-      const answer = this.answers[index];
-      const isCorrect = answer.selectedAnswer === question.correctAnswer;
-      answer.isCorrect = isCorrect;
-      if (isCorrect) correct++;
-    });
-
-    this.score = Math.round((correct / this.quiz.questions.length) * 100);
-    this.passed = this.score >= this.quiz.passingScore;
-    this.isSubmitted = true;
-    this.showExplanation = true;
-
-    // Save quiz score
-    const quizScore: QuizScore = {
-      quizId: this.quiz.id,
-      score: this.score,
-      attempts: this.attempts,
-      lastAttempt: new Date(),
-      passed: this.passed,
-    };
-
-    this.courseService.saveQuizScore(quizScore).subscribe();
-
-    // Mark lesson as completed if passed
-    if (this.passed && this.lessonId) {
-      this.courseService.markLessonCompleted(this.lessonId).subscribe();
+    // Stop timer
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
     }
+
+    // Prepare answers for submission
+    const answers = this.questions.map(q => ({
+      questionId: q.question.id,
+      selectedOptionIds: q.selectedOptionIds,
+    }));
+
+    // Submit quiz
+    this.courseService.submitQuizAttempt(this.quiz.id, this.lessonId, answers).subscribe(attempt => {
+      this.isSubmitted = true;
+      this.score = attempt.score;
+      this.passed = attempt.passed;
+      this.attempts = attempt.attemptNumber;
+
+      // Mark each question as correct/incorrect
+      this.questions.forEach(q => {
+        const answer = attempt.answers.find(a => a.questionId === q.question.id);
+        q.isCorrect = answer?.isCorrect || false;
+      });
+
+      // Show explanation for current question
+      this.showExplanation = true;
+    });
   }
 
   retryQuiz(): void {
+    // Reset quiz state
+    this.questions.forEach(q => {
+      q.selectedOptionIds = [];
+      q.isAnswered = false;
+      q.isCorrect = null;
+    });
     this.currentQuestionIndex = 0;
-    this.initializeAnswers(this.quiz!.questions);
     this.isSubmitted = false;
+    this.score = 0;
+    this.passed = false;
     this.showExplanation = false;
-    this.attempts++;
-  }
 
-  continueToNextLesson(): void {
-    if (this.lessonId) {
-      this.courseService.getNextLesson(this.lessonId).subscribe(nextLesson => {
-        if (nextLesson) {
-          this.router.navigate(['/courses/lesson', nextLesson.id]);
-        } else {
-          // No next lesson, go back to course
-          this.courseService.getLessonById(this.lessonId!).subscribe(lesson => {
-            if (lesson) {
-              this.courseService.getChapterById(lesson.chapterId).subscribe(chapter => {
-                if (chapter) {
-                  this.router.navigate(['/courses', chapter.moduleId]);
-                }
-              });
-            }
-          });
-        }
-      });
+    // Restart timer if applicable
+    if (this.quiz?.timeLimitMinutes) {
+      this.timeRemaining = this.quiz.timeLimitMinutes * 60;
+      this.startTimer();
     }
   }
 
-  goBackToCourse(): void {
+  goToLesson(): void {
     if (this.lessonId) {
-      this.courseService.getLessonById(this.lessonId).subscribe(lesson => {
-        if (lesson) {
-          this.courseService.getChapterById(lesson.chapterId).subscribe(chapter => {
-            if (chapter) {
-              this.router.navigate(['/courses', chapter.moduleId]);
-            }
-          });
-        }
-      });
+      this.router.navigate(['/courses/lesson', this.lessonId]);
+    } else if (this.lesson) {
+      this.router.navigate(['/courses', this.lesson.courseId]);
     } else {
       this.router.navigate(['/courses']);
+    }
+  }
+
+  continueToNextLesson(): void {
+    if (!this.lessonId) {
+      this.goToLesson();
+      return;
+    }
+
+    this.courseService.getNextLesson(this.lessonId).subscribe(nextLesson => {
+      if (nextLesson) {
+        this.router.navigate(['/courses/lesson', nextLesson.id]);
+      } else if (this.lesson) {
+        // No next lesson, go to course detail
+        this.router.navigate(['/courses', this.lesson.courseId]);
+      } else {
+        this.router.navigate(['/courses']);
+      }
+    });
+  }
+
+  getTimerDisplay(): string {
+    if (this.timeRemaining === null) return '';
+    const minutes = Math.floor(this.timeRemaining / 60);
+    const seconds = this.timeRemaining % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  getTimerClass(): string {
+    if (this.timeRemaining === null) return '';
+    if (this.timeRemaining < 60) return 'timer-critical';
+    if (this.timeRemaining < 300) return 'timer-warning';
+    return '';
+  }
+
+  getQuestionTypeLabel(type: string): string {
+    switch (type) {
+      case 'qcm':
+        return 'Choix unique';
+      case 'vrai_faux':
+        return 'Vrai ou Faux';
+      case 'qcm_multiple':
+        return 'Choix multiples';
+      default:
+        return type;
     }
   }
 }

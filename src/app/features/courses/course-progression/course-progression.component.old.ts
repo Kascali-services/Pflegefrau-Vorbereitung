@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CourseService } from '../../../core/services/course.service';
-import { Lesson, Course, Quiz } from '../../../models/course.model';
+import { Lesson, Module, Chapter } from '../../../models/course.model';
 import { UserProgress } from '../../../models/progress.model';
 
 @Component({
@@ -19,20 +19,19 @@ export class CourseProgressionComponent implements OnInit {
   private sanitizer = inject(DomSanitizer);
 
   lesson: Lesson | undefined;
-  course: Course | undefined;
-  quiz: Quiz | undefined;
-  lessonContent = '';
-  lessonProgress: UserProgress | undefined;
+  module: Module | undefined;
+  chapter: Chapter | undefined;
+  progress: UserProgress | undefined;
   isAccessible = false;
   isCompleted = false;
   hasQuiz = false;
   quizPassed = false;
   nextLesson: Lesson | undefined;
   previousLesson: Lesson | undefined;
+  nextChapter: Chapter | undefined;
+  isLastLessonInChapter = false;
   isPreviousLessonCompleted = false;
   isNextLessonAccessible = false;
-  lessonIndex = 0;
-  totalLessons = 0;
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -41,53 +40,43 @@ export class CourseProgressionComponent implements OnInit {
         this.loadLesson(lessonId);
       }
     });
+
+    this.courseService.getUserProgress().subscribe(progress => {
+      this.progress = progress;
+      if (this.lesson) {
+        this.isCompleted = progress.completedLessons.includes(this.lesson.id);
+
+        // Check if quiz is passed
+        if (this.lesson.quizId) {
+          const quizScore = progress.quizScores.find(qs => qs.quizId === this.lesson!.quizId);
+          this.quizPassed = quizScore?.passed || false;
+        }
+      }
+    });
   }
 
   private loadLesson(lessonId: string): void {
     this.courseService.getLessonById(lessonId).subscribe(lesson => {
       this.lesson = lesson;
       if (lesson) {
-        // Load course
-        this.courseService.getCourseById(lesson.courseId).subscribe(course => {
-          this.course = course;
-        });
-
-        // Load lesson content
-        this.courseService.getLessonContent(lessonId).subscribe(content => {
-          this.lessonContent = content;
-        });
-
-        // Check if lesson has a quiz
-        this.courseService.getQuizByLessonId(lessonId).subscribe(quiz => {
-          this.quiz = quiz;
-          this.hasQuiz = !!quiz;
-        });
-
-        // Get lesson progress
-        this.courseService.getLessonProgress(lessonId).subscribe(progress => {
-          this.lessonProgress = progress;
-          this.isCompleted = progress?.isCompleted || false;
-          this.quizPassed = progress?.isCompleted || false;
-        });
-
-        // Get all lessons for the course to determine position
-        this.courseService.getLessonsByCourseId(lesson.courseId).subscribe(lessons => {
-          this.totalLessons = lessons.length;
-          this.lessonIndex = lessons.findIndex(l => l.id === lessonId) + 1;
-        });
-
-        // Check accessibility
+        this.hasQuiz = !!lesson.quizId;
+        this.loadChapterAndModule(lesson.chapterId);
         this.checkAccessibility(lessonId);
-        
-        // Load next and previous lessons
         this.loadNextLesson(lessonId);
         this.loadPreviousLesson(lessonId);
-        
         // Update last accessed lesson
         this.courseService.updateLastAccessedLesson(lessonId).subscribe();
-        
-        // Update course last accessed
-        this.courseService.updateCourseLastAccessed(lesson.courseId).subscribe();
+      }
+    });
+  }
+
+  private loadChapterAndModule(chapterId: string): void {
+    this.courseService.getChapterById(chapterId).subscribe(chapter => {
+      this.chapter = chapter;
+      if (chapter) {
+        this.courseService.getModuleById(chapter.moduleId).subscribe(module => {
+          this.module = module;
+        });
       }
     });
   }
@@ -95,9 +84,11 @@ export class CourseProgressionComponent implements OnInit {
   private checkAccessibility(lessonId: string): void {
     this.courseService.isLessonAccessible(lessonId).subscribe(accessible => {
       this.isAccessible = accessible;
-      if (!accessible && this.course) {
+      if (!accessible) {
         // Redirect to course detail if not accessible
-        this.router.navigate(['/courses', this.course.id]);
+        if (this.module) {
+          this.router.navigate(['/courses', this.module.id]);
+        }
       }
     });
   }
@@ -112,6 +103,21 @@ export class CourseProgressionComponent implements OnInit {
           this.isNextLessonAccessible = accessible;
         });
       }
+
+      // Check if we're at the last lesson of the chapter
+      if (this.lesson && this.chapter) {
+        const currentLessonIndex = this.chapter.lessons.findIndex(l => l.id === lessonId);
+        this.isLastLessonInChapter = currentLessonIndex === this.chapter.lessons.length - 1;
+
+        // If this is the last lesson, load the next chapter
+        if (this.isLastLessonInChapter && this.module) {
+          const nextChapterIndex =
+            this.module.chapters.findIndex(c => c.id === this.chapter!.id) + 1;
+          if (nextChapterIndex < this.module.chapters.length) {
+            this.nextChapter = this.module.chapters[nextChapterIndex];
+          }
+        }
+      }
     });
   }
 
@@ -119,51 +125,48 @@ export class CourseProgressionComponent implements OnInit {
     this.courseService.getPreviousLesson(lessonId).subscribe(previousLesson => {
       this.previousLesson = previousLesson;
 
-      // Check if previous lesson exists (user can navigate back to completed lessons)
+      // Check if previous lesson is completed (user can only navigate to completed lessons)
       if (previousLesson) {
-        this.courseService.getLessonProgress(previousLesson.id).subscribe(progress => {
-          this.isPreviousLessonCompleted = progress?.isCompleted || false;
+        this.courseService.getUserProgress().subscribe(progress => {
+          this.isPreviousLessonCompleted = progress.completedLessons.includes(previousLesson.id);
         });
       }
     });
   }
 
   completeLesson(): void {
-    if (!this.lesson) return;
-
-    if (!this.hasQuiz) {
-      // Lesson without quiz - mark as completed
+    if (this.lesson && !this.hasQuiz) {
       this.courseService.markLessonCompleted(this.lesson.id).subscribe(() => {
         this.isCompleted = true;
-        // Navigate to next lesson or back to course
         if (this.nextLesson) {
           this.router.navigate(['/courses/lesson', this.nextLesson.id]);
-        } else if (this.course) {
-          this.router.navigate(['/courses', this.course.id]);
+        } else if (this.module) {
+          this.router.navigate(['/courses', this.module.id]);
         }
       });
-    } else if (!this.quizPassed) {
-      // Lesson with quiz and not yet passed - go to quiz
-      if (this.quiz) {
-        this.router.navigate(['/courses/quiz', this.quiz.id], {
-          queryParams: { lessonId: this.lesson.id },
-        });
-      }
-    } else {
-      // Quiz already passed - just navigate to next
-      if (this.nextLesson) {
-        this.router.navigate(['/courses/lesson', this.nextLesson.id]);
-      } else if (this.course) {
-        this.router.navigate(['/courses', this.course.id]);
-      }
+    } else if (this.lesson && this.hasQuiz && !this.quizPassed) {
+      // Navigate to quiz only if not already passed
+      this.router.navigate(['/courses/quiz', this.lesson.quizId], {
+        queryParams: { lessonId: this.lesson.id },
+      });
     }
   }
 
   goBack(): void {
-    if (this.course) {
-      this.router.navigate(['/courses', this.course.id]);
+    if (this.module) {
+      this.router.navigate(['/courses', this.module.id]);
     } else {
       this.router.navigate(['/courses']);
+    }
+  }
+
+  goToNextChapter(): void {
+    if (this.nextChapter && this.nextChapter.lessons.length > 0) {
+      const firstLesson = this.nextChapter.lessons[0];
+      this.router.navigate(['/courses/lesson', firstLesson.id]);
+    } else if (this.module) {
+      // If no next chapter, go back to course overview
+      this.router.navigate(['/courses', this.module.id]);
     }
   }
 
@@ -174,7 +177,7 @@ export class CourseProgressionComponent implements OnInit {
   }
 
   goToNextLesson(): void {
-    if (this.nextLesson && this.isNextLessonAccessible) {
+    if (this.nextLesson) {
       this.router.navigate(['/courses/lesson', this.nextLesson.id]);
     }
   }
@@ -185,8 +188,8 @@ export class CourseProgressionComponent implements OnInit {
       .replace(/^# (.*$)/gim, '<h1>$1</h1>')
       .replace(/^## (.*$)/gim, '<h2>$1</h2>')
       .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-      .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+      .replace(/^\*\*(.*)\*\*/gim, '<strong>$1</strong>')
+      .replace(/^\*(.*)\*/gim, '<em>$1</em>')
       .replace(/^- (.*$)/gim, '<li>$1</li>')
       .replace(/^\d+\. (.*$)/gim, '<li>$1</li>')
       .replace(/\n\n/g, '</p><p>')
@@ -194,33 +197,8 @@ export class CourseProgressionComponent implements OnInit {
 
     formatted = '<p>' + formatted + '</p>';
     formatted = formatted.replace(/<\/li><br>/g, '</li>');
-    
-    // Fix list formatting
-    let inList = false;
-    formatted = formatted.replace(/<li>/g, (match) => {
-      if (!inList) {
-        inList = true;
-        return '<ul><li>';
-      }
-      return match;
-    });
-    formatted = formatted.replace(/<\/li>/g, (match) => {
-      return '</li>';
-    });
-    formatted = formatted.replace(/<\/li>(?!<li>)/g, '</li></ul>');
+    formatted = formatted.replace(/<li>/g, '<ul><li>').replace(/<\/li>/g, '</li></ul>');
 
     return this.sanitizer.sanitize(1, formatted) || '';
-  }
-
-  getLessonTypeIcon(): string {
-    if (!this.lesson) return '📄';
-    switch (this.lesson.type) {
-      case 'video':
-        return '🎥';
-      case 'interactive':
-        return '💻';
-      default:
-        return '📄';
-    }
   }
 }
