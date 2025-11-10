@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, BehaviorSubject } from 'rxjs';
 import { User } from '../../models/user.model';
+import { MOCK_USERS } from './mock-data';
 
 /**
  * UserService - Manages user data and authentication
@@ -40,13 +41,10 @@ export class UserService {
    * In production, this would be replaced with actual authentication
    */
   private initializeMockUser(): void {
-    const mockUser: User = {
-      id: 'user-001',
-      name: 'Marie Dupont',
-      email: 'marie.dupont@example.com',
-    };
-
-    this.currentUserSubject.next(mockUser);
+    // Use the first mock user
+    if (MOCK_USERS.length > 0) {
+      this.currentUserSubject.next(MOCK_USERS[0]);
+    }
   }
 
   /**

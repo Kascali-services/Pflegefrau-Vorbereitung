@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { CourseService } from '../../../core/services/course.service';
-import { Module, Lesson } from '../../../models/course.model';
+import { Course, Lesson } from '../../../models/course.model';
 
 @Component({
   selector: 'app-course-detail',
@@ -14,30 +14,40 @@ export class CourseDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private courseService = inject(CourseService);
-  module: Module | undefined;
+  course: Course | undefined;
+  lessons: Lesson[] = [];
   hasProgress = false;
   isEnrolled = false;
-  lastAccessedLesson: Lesson | undefined;
+  firstIncompleteLesson: Lesson | undefined;
+  progressPercentage = 0;
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
-      const moduleId = params['id'];
-      this.courseService.getModuleById(moduleId).subscribe(module => {
-        this.module = module;
-        if (module) {
-          // Check if user has progress in this course
-          this.courseService.hasUserProgressInCourse(moduleId).subscribe(hasProgress => {
-            this.hasProgress = hasProgress;
+      const courseId = params['id'];
+      
+      // Get course details
+      this.courseService.getCourseById(courseId).subscribe(course => {
+        this.course = course;
+        if (course) {
+          // Get lessons for this course
+          this.courseService.getLessonsByCourseId(courseId).subscribe(lessons => {
+            this.lessons = lessons;
+          });
+
+          // Get course progress
+          this.courseService.getCourseProgress(courseId).subscribe(progress => {
+            this.hasProgress = progress.completedLessons > 0;
+            this.progressPercentage = progress.progress;
           });
 
           // Check if user is enrolled
-          this.courseService.isUserEnrolledInCourse(moduleId).subscribe(isEnrolled => {
+          this.courseService.isUserEnrolledInCourse(courseId).subscribe(isEnrolled => {
             this.isEnrolled = isEnrolled;
           });
 
-          // Get last accessed lesson
-          this.courseService.getLastAccessedLessonForModule(moduleId).subscribe(lesson => {
-            this.lastAccessedLesson = lesson;
+          // Get first incomplete lesson
+          this.courseService.getFirstIncompleteLessonForCourse(courseId).subscribe(lesson => {
+            this.firstIncompleteLesson = lesson;
           });
         }
       });
@@ -53,8 +63,8 @@ export class CourseDetailComponent implements OnInit {
     return levelMap[level] || level;
   }
 
-  getEstimatedDuration(module: Module): string {
-    const totalMinutes = module.chapters.reduce((sum, chapter) => sum + chapter.estimatedTime, 0);
+  getEstimatedDuration(course: Course): string {
+    const totalMinutes = course.durationMinutes;
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
     if (hours > 0 && minutes > 0) {
@@ -66,42 +76,35 @@ export class CourseDetailComponent implements OnInit {
     }
   }
 
-  getTotalLessons(module: Module): number {
-    return module.chapters.reduce((sum, chapter) => sum + chapter.lessons.length, 0);
-  }
-
   startCourse(): void {
-    if (this.module && this.module.chapters.length > 0) {
-      const firstChapter = this.module.chapters[0];
-      if (firstChapter.lessons.length > 0) {
-        const firstLesson = firstChapter.lessons[0];
-        // Enroll user in course
-        this.courseService.enrollUserInCourse(this.module.id).subscribe(() => {
-          // Navigate to first lesson
-          this.router.navigate(['/courses/lesson', firstLesson.id]);
-        });
-      }
+    if (this.course && this.lessons.length > 0) {
+      const firstLesson = this.lessons[0];
+      // Enroll user in course
+      this.courseService.enrollUserInCourse(this.course.id).subscribe(() => {
+        // Navigate to first lesson
+        this.router.navigate(['/courses/lesson', firstLesson.id]);
+      });
     }
   }
 
   continueCourse(): void {
-    if (this.lastAccessedLesson) {
+    if (this.firstIncompleteLesson) {
       // Update last accessed date
-      if (this.module) {
-        this.courseService.updateCourseLastAccessed(this.module.id).subscribe();
+      if (this.course) {
+        this.courseService.updateCourseLastAccessed(this.course.id).subscribe();
       }
-      // Navigate to last accessed lesson
-      this.router.navigate(['/courses/lesson', this.lastAccessedLesson.id]);
+      // Navigate to first incomplete lesson
+      this.router.navigate(['/courses/lesson', this.firstIncompleteLesson.id]);
     } else {
-      // If no last accessed lesson, start from beginning
+      // If no incomplete lesson, start from beginning
       this.startCourse();
     }
   }
 
   saveCourseForLater(): void {
-    if (this.module) {
+    if (this.course) {
       // Enroll user but don't navigate
-      this.courseService.enrollUserInCourse(this.module.id).subscribe(() => {
+      this.courseService.enrollUserInCourse(this.course.id).subscribe(() => {
         // Could show a success message here
         this.isEnrolled = true;
       });

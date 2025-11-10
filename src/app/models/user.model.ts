@@ -1,18 +1,27 @@
 /**
  * User interface - Represents a user in the system
+ * Maps to: User table in database
  */
 export interface User {
-  id: string;
-  name: string;
-  email: string;
+  id: string; // VARCHAR(50) [PK]
+  email: string; // VARCHAR(255) UNIQUE NOT NULL
+  passwordHash?: string; // VARCHAR(255) NOT NULL - not exposed in frontend
+  firstName?: string; // VARCHAR(100)
+  lastName?: string; // VARCHAR(100)
+  avatarUrl?: string; // VARCHAR(500)
+  createdAt?: Date; // TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  updatedAt?: Date; // TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  lastLoginAt?: Date; // TIMESTAMP
 }
 
 /**
  * UserCourseEnrollment interface - Tracks user enrollment in courses
+ * Maps to: UserCourseEnrollment table in database
  */
 export interface UserCourseEnrollment {
-  userId: string;
-  moduleId: string;
-  startDate: Date;
-  lastAccessedDate: Date;
+  id: string; // VARCHAR(50) [PK]
+  userId: string; // VARCHAR(50) [FK → User.id] NOT NULL
+  courseId: string; // VARCHAR(50) [FK → Course.id] NOT NULL
+  enrolledAt?: Date; // TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  lastAccessedAt?: Date; // TIMESTAMP
 }

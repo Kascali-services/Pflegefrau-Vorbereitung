@@ -3,38 +3,34 @@
     <a routerLink="/courses">← Zurück zu den Kursen</a>
   </div>
 
-  <div class="course-detail" *ngIf="module">
-    <h1>{{ module.title }}</h1>
+  <div class="course-detail" *ngIf="course">
+    <h1>{{ course.title }}</h1>
 
     <div class="course-meta">
-      <span class="meta-item"><strong>Level:</strong> {{ getLevelLabel(module.level) }}</span>
-      <span class="meta-item"><strong>Dauer:</strong> {{ getEstimatedDuration(module) }}</span>
-      <span class="meta-item"><strong>Kapitel:</strong> {{ module.chapters.length }}</span>
-      <span class="meta-item"><strong>Lektionen:</strong> {{ getTotalLessons(module) }}</span>
+      <span class="meta-item"><strong>Level:</strong> {{ getLevelLabel(course.level) }}</span>
+      <span class="meta-item"><strong>Dauer:</strong> {{ getEstimatedDuration(course) }}</span>
+      <span class="meta-item"><strong>Lektionen:</strong> {{ lessons.length }}</span>
+      <span class="meta-item" *ngIf="hasProgress"><strong>Fortschritt:</strong> {{ progressPercentage | number:'1.0-0' }}%</span>
     </div>
 
     <div class="course-content">
       <h2>Kursbeschreibung</h2>
-      <p>{{ module.description }}</p>
+      <p>{{ course.description }}</p>
 
       <h2>Kursinhalt</h2>
-      <div class="chapters-list">
-        <div class="chapter-card" *ngFor="let chapter of module.chapters">
-          <div class="chapter-header">
-            <h3>{{ chapter.title }}</h3>
-            <span class="chapter-time">⏱️ {{ chapter.estimatedTime }} Min.</span>
+      <div class="lessons-list">
+        <div class="lesson-item" *ngFor="let lesson of lessons; let i = index">
+          <span class="lesson-number">{{ i + 1 }}.</span>
+          <span class="lesson-icon">
+            <span *ngIf="lesson.type === 'text'">📄</span>
+            <span *ngIf="lesson.type === 'video'">🎥</span>
+            <span *ngIf="lesson.type === 'interactive'">💻</span>
+          </span>
+          <div class="lesson-details">
+            <span class="lesson-title">{{ lesson.title }}</span>
+            <span class="lesson-description" *ngIf="lesson.description">{{ lesson.description }}</span>
           </div>
-          <div class="lessons-list">
-            <div class="lesson-item" *ngFor="let lesson of chapter.lessons">
-              <span class="lesson-icon">
-                <span *ngIf="lesson.type === 'text'">📄</span>
-                <span *ngIf="lesson.type === 'video'">🎥</span>
-                <span *ngIf="lesson.type === 'interactive'">💻</span>
-              </span>
-              <span class="lesson-title">{{ lesson.title }}</span>
-              <span class="lesson-duration">{{ lesson.duration }} Min.</span>
-            </div>
-          </div>
+          <span class="lesson-duration">{{ lesson.durationMinutes }} Min.</span>
         </div>
       </div>
 
@@ -50,13 +46,13 @@
           Für später speichern
         </button>
         <button class="continue-course-btn" (click)="continueCourse()" *ngIf="hasProgress">
-          Poursuivre
+          Fortsetzen
         </button>
       </div>
     </div>
   </div>
 
-  <div class="not-found" *ngIf="!module">
+  <div class="not-found" *ngIf="!course">
     <h2>Kurs nicht gefunden</h2>
     <p>Der angeforderte Kurs existiert nicht.</p>
     <a routerLink="/courses" class="back-link">Zurück zur Kursübersicht</a>
