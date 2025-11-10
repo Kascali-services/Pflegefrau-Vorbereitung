@@ -1,8 +1,10 @@
-import { Injectable } from '@angular/core';
-import { Observable, of, BehaviorSubject } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { Observable, of, BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Module, Chapter, Lesson, Quiz } from '../../models/course.model';
 import { UserProgress, QuizScore } from '../../models/progress.model';
+import { UserCourseEnrollment } from '../../models/user.model';
+import { UserService } from './user.service';
 
 /**
  * CourseService - Manages course data and user progress
@@ -12,6 +14,8 @@ import { UserProgress, QuizScore } from '../../models/progress.model';
   providedIn: 'root',
 })
 export class CourseService {
+  private userService = inject(UserService);
+  
   private modulesSubject = new BehaviorSubject<Module[]>([]);
   private quizzesSubject = new BehaviorSubject<Quiz[]>([]);
   private progressSubject = new BehaviorSubject<UserProgress>({
@@ -20,10 +24,12 @@ export class CourseService {
     totalProgress: 0,
     moduleProgress: [],
   });
+  private enrollmentsSubject = new BehaviorSubject<UserCourseEnrollment[]>([]);
 
   modules$ = this.modulesSubject.asObservable();
   quizzes$ = this.quizzesSubject.asObservable();
   progress$ = this.progressSubject.asObservable();
+  enrollments$ = this.enrollmentsSubject.asObservable();
 
   constructor() {
     this.initializeMockData();
@@ -189,6 +195,98 @@ export class CourseService {
           }
         }
         return undefined;
+      })
+    );
+  }
+
+  /**
+   * Get user's enrolled courses with progress information
+   */
+  getUserEnrolledCourses(): Observable<{
+    module: Module;
+    enrollment: UserCourseEnrollment;
+    progressPercentage: number;
+    completedChapters: number;
+    totalChapters: number;
+  }[]> {
+    return combineLatest([
+      this.modules$,
+      this.enrollments$,
+      this.progress$
+    ]).pipe(
+      map(([modules, enrollments, progress]) => {
+        return enrollments.map(enrollment => {
+          const module = modules.find(m => m.id === enrollment.moduleId);
+          if (!module) {
+            return null;
+          }
+
+          const moduleProgress = progress.moduleProgress.find(
+            mp => mp.moduleId === enrollment.moduleId
+          );
+
+          return {
+            module,
+            enrollment,
+            progressPercentage: moduleProgress?.progress || 0,
+            completedChapters: moduleProgress?.completedChapters || 0,
+            totalChapters: module.chapters.length,
+          };
+        }).filter(item => item !== null) as {
+          module: Module;
+          enrollment: UserCourseEnrollment;
+          progressPercentage: number;
+          completedChapters: number;
+          totalChapters: number;
+        }[];
+      })
+    );
+  }
+
+  /**
+   * Enroll user in a course
+   */
+  enrollUserInCourse(moduleId: string): Observable<void> {
+    return this.userService.getCurrentUser().pipe(
+      map(user => {
+        if (!user) return;
+
+        const enrollments = this.enrollmentsSubject.value;
+        const existingEnrollment = enrollments.find(
+          e => e.userId === user.id && e.moduleId === moduleId
+        );
+
+        if (!existingEnrollment) {
+          const newEnrollment: UserCourseEnrollment = {
+            userId: user.id,
+            moduleId,
+            startDate: new Date(),
+            lastAccessedDate: new Date(),
+          };
+          enrollments.push(newEnrollment);
+          this.enrollmentsSubject.next(enrollments);
+        }
+      })
+    );
+  }
+
+  /**
+   * Update last accessed date for a course
+   */
+  updateCourseLastAccessed(moduleId: string): Observable<void> {
+    return this.userService.getCurrentUser().pipe(
+      map(user => {
+        if (!user) return;
+
+        const enrollments = this.enrollmentsSubject.value;
+        const enrollment = enrollments.find(
+          e => e.userId === user.id && e.moduleId === moduleId
+        );
+
+        if (enrollment) {
+          enrollment.lastAccessedDate = new Date();
+          this.enrollmentsSubject.next([...enrollments]);
+        }
       })
     );
   }
@@ -891,6 +989,45 @@ Même technique de frottage mais avec une solution hydro-alcoolique.
 
     this.modulesSubject.next(mockModules);
     this.quizzesSubject.next(mockQuizzes);
+
+    // Initialize mock enrollments
+    this.userService.getCurrentUser().subscribe(user => {
+      if (user) {
+        const mockEnrollments: UserCourseEnrollment[] = [
+          {
+            userId: user.id,
+            moduleId: 'module-1',
+            startDate: new Date('2025-01-15'),
+            lastAccessedDate: new Date('2025-02-10'),
+          },
+          {
+            userId: user.id,
+            moduleId: 'module-2',
+            startDate: new Date('2025-02-01'),
+            lastAccessedDate: new Date('2025-02-08'),
+          },
+        ];
+        this.enrollmentsSubject.next(mockEnrollments);
+
+        // Initialize some mock progress
+        const mockProgress: UserProgress = {
+          userId: user.id,
+          completedLessons: ['lesson-1', 'lesson-2'],
+          quizScores: [
+            {
+              quizId: 'quiz-1',
+              score: 90,
+              attempts: 1,
+              lastAttempt: new Date('2025-02-05'),
+              passed: true,
+            },
+          ],
+          totalProgress: 0,
+          moduleProgress: [],
+        };
+        this.updateProgress(mockProgress);
+      }
+    });
   }
 
   /**
