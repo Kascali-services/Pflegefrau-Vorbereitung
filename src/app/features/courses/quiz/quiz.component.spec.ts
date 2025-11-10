@@ -19,6 +19,7 @@ describe('QuizComponent', () => {
       'getNextLesson',
       'getLessonById',
       'getChapterById',
+      'isQuizPassed',
     ]);
 
     mockActivatedRoute = jasmine.createSpyObj('ActivatedRoute', [], {
@@ -37,6 +38,7 @@ describe('QuizComponent', () => {
     );
     mockCourseService.getQuizById.and.returnValue(of(undefined));
     mockCourseService.saveQuizScore.and.returnValue(of(void 0));
+    mockCourseService.isQuizPassed.and.returnValue(of(false));
 
     await TestBed.configureTestingModule({
       imports: [QuizComponent],
