@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CourseService } from '../../../core/services/course.service';
-import { Module } from '../../../models/course.model';
+import { Course } from '../../../models/course.model';
 
 @Component({
   selector: 'app-courses',
@@ -12,11 +12,11 @@ import { Module } from '../../../models/course.model';
 })
 export class CoursesComponent implements OnInit {
   private courseService = inject(CourseService);
-  modules: Module[] = [];
+  courses: Course[] = [];
 
   ngOnInit(): void {
-    this.courseService.getAllModules().subscribe(modules => {
-      this.modules = modules;
+    this.courseService.getAllCourses().subscribe(courses => {
+      this.courses = courses;
     });
   }
 
@@ -29,8 +29,8 @@ export class CoursesComponent implements OnInit {
     return levelMap[level] || level;
   }
 
-  getEstimatedDuration(module: Module): string {
-    const totalMinutes = module.chapters.reduce((sum, chapter) => sum + chapter.estimatedTime, 0);
+  getEstimatedDuration(course: Course): string {
+    const totalMinutes = course.durationMinutes;
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
     if (hours > 0 && minutes > 0) {

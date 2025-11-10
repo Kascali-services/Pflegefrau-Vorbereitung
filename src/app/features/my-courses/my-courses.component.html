@@ -1,26 +1,25 @@
 <div class="my-courses-container">
   <div class="header">
-    <h1>Mes Cours</h1>
+    <h1>Meine Kurse</h1>
     <p class="welcome-text" *ngIf="currentUser">
-      Bienvenue, <strong>{{ currentUser.name }}</strong
-      >!
+      Willkommen, <strong>{{ getUserDisplayName() }}</strong>!
     </p>
   </div>
 
   <div *ngIf="isLoading" class="loading">
-    <p>Chargement de vos cours...</p>
+    <p>Laden Ihrer Kurse...</p>
   </div>
 
   <div *ngIf="!isLoading && enrolledCourses.length === 0" class="no-courses">
-    <p>Vous n'êtes inscrit à aucun cours pour le moment.</p>
-    <a [routerLink]="['/courses']" class="browse-courses-btn">Parcourir les cours disponibles</a>
+    <p>Sie sind derzeit in keinem Kurs eingeschrieben.</p>
+    <a [routerLink]="['/courses']" class="browse-courses-btn">Verfügbare Kurse durchsuchen</a>
   </div>
 
   <div *ngIf="!isLoading && enrolledCourses.length > 0" class="courses-list">
     <div class="course-item" *ngFor="let course of enrolledCourses">
       <div class="course-info">
         <div class="course-header">
-          <h2>{{ course.module.title }}</h2>
+          <h2>{{ course.course.title }}</h2>
           <span
             class="status-badge"
             [style.background-color]="getProgressBarColor(course.progressPercentage)"
@@ -29,23 +28,23 @@
           </span>
         </div>
 
-        <p class="course-description">{{ course.module.description }}</p>
+        <p class="course-description">{{ course.course.description }}</p>
 
         <div class="course-details">
           <div class="detail-item">
-            <span class="detail-label">Date de début:</span>
-            <span class="detail-value">{{ formatDate(course.enrollment.startDate) }}</span>
+            <span class="detail-label">Einschreibedatum:</span>
+            <span class="detail-value">{{ formatDate(course.enrollment.enrolledAt) }}</span>
           </div>
 
           <div class="detail-item">
-            <span class="detail-label">Dernière activité:</span>
-            <span class="detail-value">{{ formatDate(course.enrollment.lastAccessedDate) }}</span>
+            <span class="detail-label">Letzte Aktivität:</span>
+            <span class="detail-value">{{ formatDate(course.enrollment.lastAccessedAt) }}</span>
           </div>
 
           <div class="detail-item">
-            <span class="detail-label">Chapitres terminés:</span>
+            <span class="detail-label">Abgeschlossene Lektionen:</span>
             <span class="detail-value"
-              >{{ course.completedChapters }} / {{ course.totalChapters }}</span
+              >{{ course.completedLessons }} / {{ course.totalLessons }}</span
             >
           </div>
         </div>
@@ -53,7 +52,7 @@
 
       <div class="progress-section">
         <div class="progress-info">
-          <span class="progress-label">Progression</span>
+          <span class="progress-label">Fortschritt</span>
           <span class="progress-percentage">{{ course.progressPercentage.toFixed(0) }}%</span>
         </div>
         <div class="progress-bar-container">
@@ -63,8 +62,8 @@
             [style.background-color]="getProgressBarColor(course.progressPercentage)"
           ></div>
         </div>
-        <a [routerLink]="['/courses', course.module.id]" class="continue-btn">
-          {{ course.progressPercentage === 0 ? 'Commencer' : 'Continuer' }}
+        <a [routerLink]="['/courses', course.course.id]" class="continue-btn">
+          {{ course.progressPercentage === 0 ? 'Starten' : 'Fortsetzen' }}
         </a>
       </div>
     </div>

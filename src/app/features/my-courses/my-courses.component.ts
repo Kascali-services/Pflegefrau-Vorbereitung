@@ -3,15 +3,15 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CourseService } from '../../core/services/course.service';
 import { UserService } from '../../core/services/user.service';
-import { Module } from '../../models/course.model';
+import { Course } from '../../models/course.model';
 import { UserCourseEnrollment, User } from '../../models/user.model';
 
 interface EnrolledCourse {
-  module: Module;
+  course: Course;
   enrollment: UserCourseEnrollment;
   progressPercentage: number;
-  completedChapters: number;
-  totalChapters: number;
+  completedLessons: number;
+  totalLessons: number;
 }
 
 @Component({
@@ -41,8 +41,9 @@ export class MyCoursesComponent implements OnInit {
     });
   }
 
-  formatDate(date: Date): string {
-    return new Date(date).toLocaleDateString('fr-FR', {
+  formatDate(date: Date | undefined): string {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleDateString('de-DE', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -56,8 +57,16 @@ export class MyCoursesComponent implements OnInit {
   }
 
   getCompletionStatus(percentage: number): string {
-    if (percentage === 0) return 'Non commencé';
-    if (percentage === 100) return 'Terminé';
-    return 'En cours';
+    if (percentage === 0) return 'Nicht begonnen';
+    if (percentage === 100) return 'Abgeschlossen';
+    return 'In Bearbeitung';
+  }
+
+  getUserDisplayName(): string {
+    if (!this.currentUser) return 'Benutzer';
+    if (this.currentUser.firstName && this.currentUser.lastName) {
+      return `${this.currentUser.firstName} ${this.currentUser.lastName}`;
+    }
+    return this.currentUser.email;
   }
 }
