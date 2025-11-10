@@ -209,6 +209,35 @@ export class CourseService {
   }
 
   /**
+   * Get the previous lesson before the current one
+   */
+  getPreviousLesson(currentLessonId: string): Observable<Lesson | undefined> {
+    return this.modules$.pipe(
+      map(modules => {
+        for (const module of modules) {
+          for (const chapter of module.chapters) {
+            const currentIndex = chapter.lessons.findIndex(l => l.id === currentLessonId);
+
+            if (currentIndex !== -1) {
+              // Check if there's a previous lesson in current chapter
+              if (currentIndex > 0) {
+                return chapter.lessons[currentIndex - 1];
+              }
+
+              // Look for last lesson of previous chapter
+              const prevChapter = module.chapters.find(c => c.order === chapter.order - 1);
+              if (prevChapter && prevChapter.lessons.length > 0) {
+                return prevChapter.lessons[prevChapter.lessons.length - 1];
+              }
+            }
+          }
+        }
+        return undefined;
+      })
+    );
+  }
+
+  /**
    * Get user's enrolled courses with progress information
    */
   getUserEnrolledCourses(): Observable<

@@ -39,6 +39,26 @@
       <div [innerHTML]="formatContent(lesson.content)"></div>
     </div>
 
+    <!-- Lesson navigation (Previous/Next) -->
+    <div class="lesson-navigation" *ngIf="isCompleted">
+      <button
+        class="nav-btn prev-btn"
+        (click)="goToPreviousLesson()"
+        *ngIf="previousLesson && isPreviousLessonCompleted"
+        [title]="'Vorherige Lektion: ' + previousLesson.title"
+      >
+        ← Vorherige Lektion
+      </button>
+      <button
+        class="nav-btn next-btn"
+        (click)="goToNextLesson()"
+        *ngIf="nextLesson && isNextLessonAccessible"
+        [title]="'Nächste Lektion: ' + nextLesson.title"
+      >
+        Nächste Lektion →
+      </button>
+    </div>
+
     <!-- Action buttons -->
     <div class="lesson-actions">
       <button class="secondary-btn" (click)="goBack()">Zurück zum Kurs</button>
