@@ -46,7 +46,7 @@
         class="primary-btn"
         (click)="completeLesson()"
         [disabled]="isCompleted && !hasQuiz"
-        *ngIf="!isLastLessonInChapter || !isCompleted || hasQuiz"
+        *ngIf="!isLastLessonInChapter || !isCompleted || (hasQuiz && !quizPassed)"
       >
         <span *ngIf="!hasQuiz && !isCompleted">Lektion abschließen</span>
         <span *ngIf="!hasQuiz && isCompleted">Abgeschlossen ✓</span>
@@ -55,14 +55,14 @@
       <button
         class="next-chapter-btn primary-btn"
         (click)="goToNextChapter()"
-        *ngIf="isLastLessonInChapter && isCompleted && !hasQuiz && nextChapter"
+        *ngIf="isLastLessonInChapter && isCompleted && (!hasQuiz || quizPassed) && nextChapter"
       >
         Nächstes Kapitel: {{ nextChapter.title }} →
       </button>
       <button
         class="back-to-course-btn primary-btn"
         (click)="goBack()"
-        *ngIf="isLastLessonInChapter && isCompleted && !hasQuiz && !nextChapter"
+        *ngIf="isLastLessonInChapter && isCompleted && (!hasQuiz || quizPassed) && !nextChapter"
       >
         Zurück zur Kursübersicht
       </button>

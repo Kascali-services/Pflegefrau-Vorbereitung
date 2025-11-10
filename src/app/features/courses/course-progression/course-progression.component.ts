@@ -25,6 +25,7 @@ export class CourseProgressionComponent implements OnInit {
   isAccessible = false;
   isCompleted = false;
   hasQuiz = false;
+  quizPassed = false;
   nextLesson: Lesson | undefined;
   nextChapter: Chapter | undefined;
   isLastLessonInChapter = false;
@@ -41,6 +42,12 @@ export class CourseProgressionComponent implements OnInit {
       this.progress = progress;
       if (this.lesson) {
         this.isCompleted = progress.completedLessons.includes(this.lesson.id);
+
+        // Check if quiz is passed
+        if (this.lesson.quizId) {
+          const quizScore = progress.quizScores.find(qs => qs.quizId === this.lesson!.quizId);
+          this.quizPassed = quizScore?.passed || false;
+        }
       }
     });
   }
