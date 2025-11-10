@@ -27,8 +27,11 @@ export class CourseProgressionComponent implements OnInit {
   hasQuiz = false;
   quizPassed = false;
   nextLesson: Lesson | undefined;
+  previousLesson: Lesson | undefined;
   nextChapter: Chapter | undefined;
   isLastLessonInChapter = false;
+  isPreviousLessonCompleted = false;
+  isNextLessonAccessible = false;
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -60,6 +63,7 @@ export class CourseProgressionComponent implements OnInit {
         this.loadChapterAndModule(lesson.chapterId);
         this.checkAccessibility(lessonId);
         this.loadNextLesson(lessonId);
+        this.loadPreviousLesson(lessonId);
         // Update last accessed lesson
         this.courseService.updateLastAccessedLesson(lessonId).subscribe();
       }
@@ -93,6 +97,13 @@ export class CourseProgressionComponent implements OnInit {
     this.courseService.getNextLesson(lessonId).subscribe(nextLesson => {
       this.nextLesson = nextLesson;
 
+      // Check if next lesson is accessible
+      if (nextLesson) {
+        this.courseService.isLessonAccessible(nextLesson.id).subscribe(accessible => {
+          this.isNextLessonAccessible = accessible;
+        });
+      }
+
       // Check if we're at the last lesson of the chapter
       if (this.lesson && this.chapter) {
         const currentLessonIndex = this.chapter.lessons.findIndex(l => l.id === lessonId);
@@ -106,6 +117,19 @@ export class CourseProgressionComponent implements OnInit {
             this.nextChapter = this.module.chapters[nextChapterIndex];
           }
         }
+      }
+    });
+  }
+
+  private loadPreviousLesson(lessonId: string): void {
+    this.courseService.getPreviousLesson(lessonId).subscribe(previousLesson => {
+      this.previousLesson = previousLesson;
+
+      // Check if previous lesson is completed (user can only navigate to completed lessons)
+      if (previousLesson) {
+        this.courseService.getUserProgress().subscribe(progress => {
+          this.isPreviousLessonCompleted = progress.completedLessons.includes(previousLesson.id);
+        });
       }
     });
   }
@@ -143,6 +167,18 @@ export class CourseProgressionComponent implements OnInit {
     } else if (this.module) {
       // If no next chapter, go back to course overview
       this.router.navigate(['/courses', this.module.id]);
+    }
+  }
+
+  goToPreviousLesson(): void {
+    if (this.previousLesson) {
+      this.router.navigate(['/courses/lesson', this.previousLesson.id]);
+    }
+  }
+
+  goToNextLesson(): void {
+    if (this.nextLesson) {
+      this.router.navigate(['/courses/lesson', this.nextLesson.id]);
     }
   }
 

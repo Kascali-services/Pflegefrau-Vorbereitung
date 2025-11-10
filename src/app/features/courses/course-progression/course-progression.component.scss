@@ -142,6 +142,48 @@
   }
 }
 
+.lesson-navigation {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 40px;
+  padding: 20px 0;
+  border-top: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+
+  .nav-btn {
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid #2196f3;
+    background: white;
+    color: #2196f3;
+    font-weight: 500;
+
+    &:hover {
+      background: #2196f3;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+    }
+
+    &.prev-btn {
+      margin-right: auto;
+    }
+
+    &.next-btn {
+      margin-left: auto;
+    }
+  }
+
+  // When only one button is shown, center it
+  &:has(.nav-btn:only-child) {
+    justify-content: center;
+  }
+}
+
 .lesson-actions {
   display: flex;
   justify-content: space-between;
@@ -243,6 +285,15 @@
 
   .lesson-header h1 {
     font-size: 24px;
+  }
+
+  .lesson-navigation {
+    flex-direction: column;
+
+    .nav-btn {
+      width: 100%;
+      margin: 0 !important;
+    }
   }
 
   .lesson-actions {
