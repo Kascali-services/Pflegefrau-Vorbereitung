@@ -1,0 +1,76 @@
+<div class="course-progression-container" *ngIf="lesson && isAccessible">
+  <!-- Navigation header -->
+  <div class="progression-header">
+    <button class="back-btn" (click)="goBack()">
+      ← Zurück zum Kurs
+    </button>
+    <div class="lesson-info">
+      <span class="module-title" *ngIf="module">{{ module.title }}</span>
+      <span class="separator" *ngIf="module && chapter">›</span>
+      <span class="chapter-title" *ngIf="chapter">{{ chapter.title }}</span>
+    </div>
+  </div>
+
+  <!-- Lesson content -->
+  <div class="lesson-container">
+    <div class="lesson-header">
+      <h1>{{ lesson.title }}</h1>
+      <div class="lesson-meta">
+        <span class="duration">⏱️ {{ lesson.duration }} Min.</span>
+        <span class="type">
+          <span *ngIf="lesson.type === 'text'">📄 Lektion</span>
+          <span *ngIf="lesson.type === 'video'">🎥 Video</span>
+          <span *ngIf="lesson.type === 'interactive'">💻 Interaktiv</span>
+        </span>
+        <span class="status" *ngIf="isCompleted">✅ Abgeschlossen</span>
+      </div>
+    </div>
+
+    <!-- Image if present -->
+    <div class="lesson-image" *ngIf="lesson.imageUrl">
+      <img [src]="lesson.imageUrl" [alt]="lesson.title" />
+    </div>
+
+    <!-- Video if present -->
+    <div class="lesson-video" *ngIf="lesson.videoUrl">
+      <video controls [src]="lesson.videoUrl">
+        Ihr Browser unterstützt das Video-Tag nicht.
+      </video>
+    </div>
+
+    <!-- Content (markdown formatted) -->
+    <div class="lesson-content">
+      <div [innerHTML]="formatContent(lesson.content)"></div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="lesson-actions">
+      <button class="secondary-btn" (click)="goBack()">
+        Zurück zum Kurs
+      </button>
+      <button
+        class="primary-btn"
+        (click)="completeLesson()"
+        [disabled]="isCompleted && !hasQuiz"
+      >
+        <span *ngIf="!hasQuiz && !isCompleted">Lektion abschließen</span>
+        <span *ngIf="!hasQuiz && isCompleted">Abgeschlossen ✓</span>
+        <span *ngIf="hasQuiz">Quiz starten →</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="access-denied" *ngIf="!isAccessible && lesson">
+  <div class="message">
+    <h2>🔒 Lektion gesperrt</h2>
+    <p>Sie müssen zuerst die vorherigen Lektionen abschließen, um auf diese Lektion zuzugreifen.</p>
+    <button class="primary-btn" (click)="goBack()">
+      Zurück zum Kurs
+    </button>
+  </div>
+</div>
+
+<div class="loading" *ngIf="!lesson">
+  <p>Laden...</p>
+</div>

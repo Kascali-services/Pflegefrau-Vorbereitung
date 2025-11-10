@@ -49,4 +49,20 @@ export class CourseDetailComponent implements OnInit {
   getTotalLessons(module: Module): number {
     return module.chapters.reduce((sum, chapter) => sum + chapter.lessons.length, 0);
   }
+
+  startCourse(): void {
+    if (this.module && this.module.chapters.length > 0) {
+      const firstChapter = this.module.chapters[0];
+      if (firstChapter.lessons.length > 0) {
+        const firstLesson = firstChapter.lessons[0];
+        // Navigate to first lesson using router
+        this.courseService
+          .getModuleById(this.module.id)
+          .subscribe(() => {
+            // Using window.location for navigation to ensure proper routing
+            window.location.href = `/courses/lesson/${firstLesson.id}`;
+          });
+      }
+    }
+  }
 }

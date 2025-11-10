@@ -18,6 +18,18 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'courses/lesson/:lessonId',
+    loadComponent: () =>
+      import('./features/courses/course-progression/course-progression.component').then(
+        m => m.CourseProgressionComponent
+      ),
+  },
+  {
+    path: 'courses/quiz/:quizId',
+    loadComponent: () =>
+      import('./features/courses/quiz/quiz.component').then(m => m.QuizComponent),
+  },
+  {
     path: 'about',
     loadComponent: () => import('./features/about/about.component').then(m => m.AboutComponent),
   },

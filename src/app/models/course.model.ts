@@ -35,6 +35,8 @@ export interface Lesson {
   quizId?: string; // Optional quiz
   duration: number; // Reading time in minutes
   order: number;
+  imageUrl?: string; // Optional image for the lesson
+  videoUrl?: string; // Optional video URL
 }
 
 /**
