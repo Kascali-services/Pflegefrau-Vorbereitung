@@ -25,7 +25,10 @@ export class CourseProgressionComponent implements OnInit {
   isAccessible = false;
   isCompleted = false;
   hasQuiz = false;
+  quizPassed = false;
   nextLesson: Lesson | undefined;
+  nextChapter: Chapter | undefined;
+  isLastLessonInChapter = false;
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -39,6 +42,12 @@ export class CourseProgressionComponent implements OnInit {
       this.progress = progress;
       if (this.lesson) {
         this.isCompleted = progress.completedLessons.includes(this.lesson.id);
+
+        // Check if quiz is passed
+        if (this.lesson.quizId) {
+          const quizScore = progress.quizScores.find(qs => qs.quizId === this.lesson!.quizId);
+          this.quizPassed = quizScore?.passed || false;
+        }
       }
     });
   }
@@ -51,6 +60,8 @@ export class CourseProgressionComponent implements OnInit {
         this.loadChapterAndModule(lesson.chapterId);
         this.checkAccessibility(lessonId);
         this.loadNextLesson(lessonId);
+        // Update last accessed lesson
+        this.courseService.updateLastAccessedLesson(lessonId).subscribe();
       }
     });
   }
@@ -81,6 +92,21 @@ export class CourseProgressionComponent implements OnInit {
   private loadNextLesson(lessonId: string): void {
     this.courseService.getNextLesson(lessonId).subscribe(nextLesson => {
       this.nextLesson = nextLesson;
+
+      // Check if we're at the last lesson of the chapter
+      if (this.lesson && this.chapter) {
+        const currentLessonIndex = this.chapter.lessons.findIndex(l => l.id === lessonId);
+        this.isLastLessonInChapter = currentLessonIndex === this.chapter.lessons.length - 1;
+
+        // If this is the last lesson, load the next chapter
+        if (this.isLastLessonInChapter && this.module) {
+          const nextChapterIndex =
+            this.module.chapters.findIndex(c => c.id === this.chapter!.id) + 1;
+          if (nextChapterIndex < this.module.chapters.length) {
+            this.nextChapter = this.module.chapters[nextChapterIndex];
+          }
+        }
+      }
     });
   }
 
@@ -110,6 +136,16 @@ export class CourseProgressionComponent implements OnInit {
     }
   }
 
+  goToNextChapter(): void {
+    if (this.nextChapter && this.nextChapter.lessons.length > 0) {
+      const firstLesson = this.nextChapter.lessons[0];
+      this.router.navigate(['/courses/lesson', firstLesson.id]);
+    } else if (this.module) {
+      // If no next chapter, go back to course overview
+      this.router.navigate(['/courses', this.module.id]);
+    }
+  }
+
   formatContent(content: string): SafeHtml {
     // Simple markdown-like formatting
     let formatted = content
@@ -122,11 +158,11 @@ export class CourseProgressionComponent implements OnInit {
       .replace(/^\d+\. (.*$)/gim, '<li>$1</li>')
       .replace(/\n\n/g, '</p><p>')
       .replace(/\n/g, '<br>');
-    
+
     formatted = '<p>' + formatted + '</p>';
     formatted = formatted.replace(/<\/li><br>/g, '</li>');
     formatted = formatted.replace(/<li>/g, '<ul><li>').replace(/<\/li>/g, '</li></ul>');
-    
+
     return this.sanitizer.sanitize(1, formatted) || '';
   }
 }

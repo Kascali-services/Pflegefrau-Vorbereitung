@@ -15,7 +15,7 @@ import { UserService } from './user.service';
 })
 export class CourseService {
   private userService = inject(UserService);
-  
+
   private modulesSubject = new BehaviorSubject<Module[]>([]);
   private quizzesSubject = new BehaviorSubject<Quiz[]>([]);
   private progressSubject = new BehaviorSubject<UserProgress>({
@@ -121,7 +121,7 @@ export class CourseService {
     return this.modules$.pipe(
       map(modules => {
         const progress = this.progressSubject.value;
-        
+
         // Find the lesson and its chapter
         for (const module of modules) {
           for (const chapter of module.chapters) {
@@ -131,36 +131,38 @@ export class CourseService {
               if (lessonIndex === 0 && chapter.order === 1) {
                 return true;
               }
-              
+
               // Check if previous lesson is completed
               if (lessonIndex > 0) {
                 const previousLesson = chapter.lessons[lessonIndex - 1];
                 const isPreviousCompleted = progress.completedLessons.includes(previousLesson.id);
-                
+
                 // If previous lesson had a quiz, check if it was passed
                 if (previousLesson.quizId) {
-                  const quizScore = progress.quizScores.find(qs => qs.quizId === previousLesson.quizId);
+                  const quizScore = progress.quizScores.find(
+                    qs => qs.quizId === previousLesson.quizId
+                  );
                   return isPreviousCompleted && (quizScore?.passed || false);
                 }
-                
+
                 return isPreviousCompleted;
               }
-              
+
               // Check if previous chapter's last lesson is completed
               const prevChapter = module.chapters.find(c => c.order === chapter.order - 1);
               if (prevChapter) {
                 const lastLesson = prevChapter.lessons[prevChapter.lessons.length - 1];
                 const isLastLessonCompleted = progress.completedLessons.includes(lastLesson.id);
-                
+
                 // Check quiz if exists
                 if (lastLesson.quizId) {
                   const quizScore = progress.quizScores.find(qs => qs.quizId === lastLesson.quizId);
                   return isLastLessonCompleted && (quizScore?.passed || false);
                 }
-                
+
                 return isLastLessonCompleted;
               }
-              
+
               return false;
             }
           }
@@ -179,13 +181,13 @@ export class CourseService {
         for (const module of modules) {
           for (const chapter of module.chapters) {
             const currentIndex = chapter.lessons.findIndex(l => l.id === currentLessonId);
-            
+
             if (currentIndex !== -1) {
               // Check if there's a next lesson in current chapter
               if (currentIndex < chapter.lessons.length - 1) {
                 return chapter.lessons[currentIndex + 1];
               }
-              
+
               // Look for first lesson of next chapter
               const nextChapter = module.chapters.find(c => c.order === chapter.order + 1);
               if (nextChapter && nextChapter.lessons.length > 0) {
@@ -202,37 +204,37 @@ export class CourseService {
   /**
    * Get user's enrolled courses with progress information
    */
-  getUserEnrolledCourses(): Observable<{
-    module: Module;
-    enrollment: UserCourseEnrollment;
-    progressPercentage: number;
-    completedChapters: number;
-    totalChapters: number;
-  }[]> {
-    return combineLatest([
-      this.modules$,
-      this.enrollments$,
-      this.progress$
-    ]).pipe(
+  getUserEnrolledCourses(): Observable<
+    {
+      module: Module;
+      enrollment: UserCourseEnrollment;
+      progressPercentage: number;
+      completedChapters: number;
+      totalChapters: number;
+    }[]
+  > {
+    return combineLatest([this.modules$, this.enrollments$, this.progress$]).pipe(
       map(([modules, enrollments, progress]) => {
-        return enrollments.map(enrollment => {
-          const module = modules.find(m => m.id === enrollment.moduleId);
-          if (!module) {
-            return null;
-          }
+        return enrollments
+          .map(enrollment => {
+            const module = modules.find(m => m.id === enrollment.moduleId);
+            if (!module) {
+              return null;
+            }
 
-          const moduleProgress = progress.moduleProgress.find(
-            mp => mp.moduleId === enrollment.moduleId
-          );
+            const moduleProgress = progress.moduleProgress.find(
+              mp => mp.moduleId === enrollment.moduleId
+            );
 
-          return {
-            module,
-            enrollment,
-            progressPercentage: moduleProgress?.progress || 0,
-            completedChapters: moduleProgress?.completedChapters || 0,
-            totalChapters: module.chapters.length,
-          };
-        }).filter(item => item !== null) as {
+            return {
+              module,
+              enrollment,
+              progressPercentage: moduleProgress?.progress || 0,
+              completedChapters: moduleProgress?.completedChapters || 0,
+              totalChapters: module.chapters.length,
+            };
+          })
+          .filter(item => item !== null) as {
           module: Module;
           enrollment: UserCourseEnrollment;
           progressPercentage: number;
@@ -279,14 +281,58 @@ export class CourseService {
         if (!user) return;
 
         const enrollments = this.enrollmentsSubject.value;
-        const enrollment = enrollments.find(
-          e => e.userId === user.id && e.moduleId === moduleId
-        );
+        const enrollment = enrollments.find(e => e.userId === user.id && e.moduleId === moduleId);
 
         if (enrollment) {
           enrollment.lastAccessedDate = new Date();
           this.enrollmentsSubject.next([...enrollments]);
         }
+      })
+    );
+  }
+
+  /**
+   * Check if user is enrolled in a course
+   */
+  isUserEnrolledInCourse(moduleId: string): Observable<boolean> {
+    return combineLatest([this.userService.getCurrentUser(), this.enrollments$]).pipe(
+      map(([user, enrollments]) => {
+        if (!user) return false;
+        return enrollments.some(e => e.userId === user.id && e.moduleId === moduleId);
+      })
+    );
+  }
+
+  /**
+   * Check if user has any progress in a course
+   */
+  hasUserProgressInCourse(moduleId: string): Observable<boolean> {
+    return this.modules$.pipe(
+      map(modules => {
+        const module = modules.find(m => m.id === moduleId);
+        if (!module) return false;
+
+        const progress = this.progressSubject.value;
+
+        // Check if any lesson in this module is completed
+        for (const chapter of module.chapters) {
+          for (const lesson of chapter.lessons) {
+            if (progress.completedLessons.includes(lesson.id)) {
+              return true;
+            }
+          }
+        }
+
+        // Check if last accessed lesson is in this module
+        if (progress.lastAccessedLesson) {
+          for (const chapter of module.chapters) {
+            if (chapter.lessons.some(l => l.id === progress.lastAccessedLesson)) {
+              return true;
+            }
+          }
+        }
+
+        return false;
       })
     );
   }
@@ -330,6 +376,47 @@ export class CourseService {
     currentProgress.lastAccessedLesson = lessonId;
     this.progressSubject.next(currentProgress);
     return of(void 0);
+  }
+
+  /**
+   * Get last accessed lesson for a module or the first lesson if none accessed
+   */
+  getLastAccessedLessonForModule(moduleId: string): Observable<Lesson | undefined> {
+    return this.modules$.pipe(
+      map(modules => {
+        const module = modules.find(m => m.id === moduleId);
+        if (!module) return undefined;
+
+        const progress = this.progressSubject.value;
+        const lastAccessedLessonId = progress.lastAccessedLesson;
+
+        // Check if the last accessed lesson belongs to this module
+        if (lastAccessedLessonId) {
+          for (const chapter of module.chapters) {
+            const lesson = chapter.lessons.find(l => l.id === lastAccessedLessonId);
+            if (lesson) {
+              return lesson;
+            }
+          }
+        }
+
+        // If no last accessed lesson, find the first incomplete lesson
+        for (const chapter of module.chapters) {
+          for (const lesson of chapter.lessons) {
+            if (!progress.completedLessons.includes(lesson.id)) {
+              return lesson;
+            }
+          }
+        }
+
+        // If all lessons are completed, return the first lesson
+        if (module.chapters.length > 0 && module.chapters[0].lessons.length > 0) {
+          return module.chapters[0].lessons[0];
+        }
+
+        return undefined;
+      })
+    );
   }
 
   /**
@@ -626,21 +713,22 @@ Même technique de frottage mais avec une solution hydro-alcoolique.
           {
             id: 'q1-1',
             quizId: 'quiz-1',
-            question: "Quelle est la position de référence en anatomie?",
+            question: 'Quelle est la position de référence en anatomie?',
             answers: [
               'Allongé sur le dos',
-              'Debout, bras le long du corps, paumes vers l\'avant',
+              "Debout, bras le long du corps, paumes vers l'avant",
               'Assis avec les jambes croisées',
               'Debout avec les bras levés',
             ],
             correctAnswer: 1,
-            explanation: 'La position anatomique de référence est debout, face à l\'observateur, bras le long du corps, paumes tournées vers l\'avant.',
+            explanation:
+              "La position anatomique de référence est debout, face à l'observateur, bras le long du corps, paumes tournées vers l'avant.",
             type: 'single',
           },
           {
             id: 'q1-2',
             quizId: 'quiz-1',
-            question: "Quel plan divise le corps en parties droite et gauche?",
+            question: 'Quel plan divise le corps en parties droite et gauche?',
             answers: ['Plan frontal', 'Plan sagittal', 'Plan transversal', 'Plan oblique'],
             correctAnswer: 1,
             explanation: 'Le plan sagittal divise le corps en parties droite et gauche.',
@@ -650,9 +738,9 @@ Même technique de frottage mais avec une solution hydro-alcoolique.
             id: 'q1-3',
             quizId: 'quiz-1',
             question: "Que signifie le terme 'antérieur'?",
-            answers: ['Vers l\'arrière', 'Vers l\'avant', 'Vers le haut', 'Vers le bas'],
+            answers: ["Vers l'arrière", "Vers l'avant", 'Vers le haut', 'Vers le bas'],
             correctAnswer: 1,
-            explanation: 'Antérieur (ou ventral) signifie vers l\'avant du corps.',
+            explanation: "Antérieur (ou ventral) signifie vers l'avant du corps.",
             type: 'single',
           },
           {
@@ -660,19 +748,19 @@ Même technique de frottage mais avec une solution hydro-alcoolique.
             quizId: 'quiz-1',
             question: "Le terme 'proximal' signifie:",
             answers: [
-              'Près du point d\'attache',
-              'Loin du point d\'attache',
+              "Près du point d'attache",
+              "Loin du point d'attache",
               'Vers le milieu',
               'Vers le côté',
             ],
             correctAnswer: 0,
-            explanation: 'Proximal signifie près du point d\'attache ou de référence.',
+            explanation: "Proximal signifie près du point d'attache ou de référence.",
             type: 'single',
           },
           {
             id: 'q1-5',
             quizId: 'quiz-1',
-            question: "Quel terme désigne la partie vers le haut du corps?",
+            question: 'Quel terme désigne la partie vers le haut du corps?',
             answers: ['Inférieur', 'Distal', 'Supérieur', 'Latéral'],
             correctAnswer: 2,
             explanation: 'Supérieur (ou crânial) désigne ce qui est vers le haut du corps.',
@@ -681,7 +769,7 @@ Même technique de frottage mais avec une solution hydro-alcoolique.
           {
             id: 'q1-6',
             quizId: 'quiz-1',
-            question: "Le plan transversal divise le corps en:",
+            question: 'Le plan transversal divise le corps en:',
             answers: [
               'Parties droite et gauche',
               'Parties antérieure et postérieure',
@@ -689,14 +777,15 @@ Même technique de frottage mais avec une solution hydro-alcoolique.
               'Parties médiale et latérale',
             ],
             correctAnswer: 2,
-            explanation: 'Le plan transversal (ou horizontal) divise le corps en parties supérieure et inférieure.',
+            explanation:
+              'Le plan transversal (ou horizontal) divise le corps en parties supérieure et inférieure.',
             type: 'single',
           },
           {
             id: 'q1-7',
             quizId: 'quiz-1',
             question: "Que signifie 'médial'?",
-            answers: ['Vers le côté', 'Vers le milieu', 'Vers l\'avant', 'Vers l\'arrière'],
+            answers: ['Vers le côté', 'Vers le milieu', "Vers l'avant", "Vers l'arrière"],
             correctAnswer: 1,
             explanation: 'Médial signifie vers le milieu ou la ligne médiane du corps.',
             type: 'single',
@@ -707,30 +796,32 @@ Même technique de frottage mais avec une solution hydro-alcoolique.
             question: "Le terme 'dorsal' est synonyme de:",
             answers: ['Antérieur', 'Postérieur', 'Supérieur', 'Inférieur'],
             correctAnswer: 1,
-            explanation: 'Dorsal est synonyme de postérieur, signifiant vers l\'arrière.',
+            explanation: "Dorsal est synonyme de postérieur, signifiant vers l'arrière.",
             type: 'single',
           },
           {
             id: 'q1-9',
             quizId: 'quiz-1',
-            question: "Quel plan divise le corps en parties antérieure et postérieure?",
+            question: 'Quel plan divise le corps en parties antérieure et postérieure?',
             answers: ['Plan sagittal', 'Plan frontal', 'Plan transversal', 'Plan médian'],
             correctAnswer: 1,
-            explanation: 'Le plan frontal (ou coronal) divise le corps en parties antérieure et postérieure.',
+            explanation:
+              'Le plan frontal (ou coronal) divise le corps en parties antérieure et postérieure.',
             type: 'single',
           },
           {
             id: 'q1-10',
             quizId: 'quiz-1',
-            question: "Pourquoi la terminologie anatomique est-elle importante?",
+            question: 'Pourquoi la terminologie anatomique est-elle importante?',
             answers: [
               'Pour impressionner les patients',
-              'Pour communiquer précisément avec l\'équipe médicale',
-              'C\'est une tradition médicale',
+              "Pour communiquer précisément avec l'équipe médicale",
+              "C'est une tradition médicale",
               'Pour compliquer les choses',
             ],
             correctAnswer: 1,
-            explanation: 'La terminologie anatomique permet une communication précise et sans ambiguïté entre professionnels de santé.',
+            explanation:
+              'La terminologie anatomique permet une communication précise et sans ambiguïté entre professionnels de santé.',
             type: 'single',
           },
         ],
@@ -754,7 +845,7 @@ Même technique de frottage mais avec une solution hydro-alcoolique.
           {
             id: 'q2-2',
             quizId: 'quiz-2',
-            question: "Le squelette axial comprend:",
+            question: 'Le squelette axial comprend:',
             answers: [
               'Les membres supérieurs et inférieurs',
               'Le crâne, la colonne vertébrale et la cage thoracique',
@@ -762,13 +853,14 @@ Même technique de frottage mais avec une solution hydro-alcoolique.
               'Uniquement les os des jambes',
             ],
             correctAnswer: 1,
-            explanation: 'Le squelette axial comprend le crâne, la colonne vertébrale et la cage thoracique (80 os).',
+            explanation:
+              'Le squelette axial comprend le crâne, la colonne vertébrale et la cage thoracique (80 os).',
             type: 'single',
           },
           {
             id: 'q2-3',
             quizId: 'quiz-2',
-            question: "Quelle est une fonction du système squelettique?",
+            question: 'Quelle est une fonction du système squelettique?',
             answers: [
               'Digestion des aliments',
               'Production de cellules sanguines',
@@ -776,13 +868,14 @@ Même technique de frottage mais avec une solution hydro-alcoolique.
               'Respiration',
             ],
             correctAnswer: 1,
-            explanation: 'La moelle osseuse produit les cellules sanguines (fonction hématopoïétique).',
+            explanation:
+              'La moelle osseuse produit les cellules sanguines (fonction hématopoïétique).',
             type: 'single',
           },
           {
             id: 'q2-4',
             quizId: 'quiz-2',
-            question: "Les os longs comme le fémur servent principalement à:",
+            question: 'Les os longs comme le fémur servent principalement à:',
             answers: [
               'Protéger les organes',
               'Servir de leviers pour le mouvement',
@@ -790,7 +883,8 @@ Même technique de frottage mais avec une solution hydro-alcoolique.
               'Produire des hormones',
             ],
             correctAnswer: 1,
-            explanation: 'Les os longs servent principalement de leviers pour faciliter les mouvements.',
+            explanation:
+              'Les os longs servent principalement de leviers pour faciliter les mouvements.',
             type: 'single',
           },
           {
@@ -823,7 +917,7 @@ Même technique de frottage mais avec une solution hydro-alcoolique.
           {
             id: 'q2-8',
             quizId: 'quiz-2',
-            question: "Quels minéraux sont principalement stockés dans les os?",
+            question: 'Quels minéraux sont principalement stockés dans les os?',
             answers: [
               'Fer et zinc',
               'Calcium et phosphore',
@@ -864,10 +958,11 @@ Même technique de frottage mais avec une solution hydro-alcoolique.
           {
             id: 'q3-1',
             quizId: 'quiz-3',
-            question: "Quelle est la durée recommandée pour un lavage simple des mains?",
+            question: 'Quelle est la durée recommandée pour un lavage simple des mains?',
             answers: ['10-20 secondes', '20-30 secondes', '40-60 secondes', '60-90 secondes'],
             correctAnswer: 2,
-            explanation: 'Un lavage simple des mains doit durer 40 à 60 secondes pour être efficace.',
+            explanation:
+              'Un lavage simple des mains doit durer 40 à 60 secondes pour être efficace.',
             type: 'single',
           },
           {
@@ -876,13 +971,13 @@ Même technique de frottage mais avec une solution hydro-alcoolique.
             question: "Combien de moments d'hygiène des mains l'OMS recommande-t-elle?",
             answers: ['3 moments', '5 moments', '7 moments', '10 moments'],
             correctAnswer: 1,
-            explanation: 'L\'OMS recommande 5 moments clés pour l\'hygiène des mains.',
+            explanation: "L'OMS recommande 5 moments clés pour l'hygiène des mains.",
             type: 'single',
           },
           {
             id: 'q3-3',
             quizId: 'quiz-3',
-            question: "Quand doit-on se laver les mains? (moment 1)",
+            question: 'Quand doit-on se laver les mains? (moment 1)',
             answers: [
               'Après le contact avec le patient',
               'Avant le contact avec le patient',
@@ -905,7 +1000,7 @@ Même technique de frottage mais avec une solution hydro-alcoolique.
           {
             id: 'q3-5',
             quizId: 'quiz-3',
-            question: "Que doit-on retirer avant de se laver les mains?",
+            question: 'Que doit-on retirer avant de se laver les mains?',
             answers: [
               'Uniquement les gants',
               'Uniquement la montre',
@@ -913,7 +1008,8 @@ Même technique de frottage mais avec une solution hydro-alcoolique.
               'Rien de particulier',
             ],
             correctAnswer: 2,
-            explanation: 'Il faut retirer les bijoux et la montre qui peuvent héberger des microbes.',
+            explanation:
+              'Il faut retirer les bijoux et la montre qui peuvent héberger des microbes.',
             type: 'single',
           },
           {
@@ -923,17 +1019,18 @@ Même technique de frottage mais avec une solution hydro-alcoolique.
             answers: [
               'Pour avoir les mains douces',
               'Pour prévenir les infections nosocomiales',
-              'C\'est une règle administrative',
+              "C'est une règle administrative",
               'Pour sentir bon',
             ],
             correctAnswer: 1,
-            explanation: 'L\'hygiène des mains est la mesure la plus efficace pour prévenir les infections nosocomiales.',
+            explanation:
+              "L'hygiène des mains est la mesure la plus efficace pour prévenir les infections nosocomiales.",
             type: 'single',
           },
           {
             id: 'q3-7',
             quizId: 'quiz-3',
-            question: "Les ongles du personnel soignant doivent être:",
+            question: 'Les ongles du personnel soignant doivent être:',
             answers: [
               'Longs et vernis',
               'Courts et propres',
@@ -941,21 +1038,23 @@ Même technique de frottage mais avec une solution hydro-alcoolique.
               'Décorés avec des bijoux',
             ],
             correctAnswer: 1,
-            explanation: 'Les ongles doivent être courts et propres, sans vernis, pour éviter l\'accumulation de microbes.',
+            explanation:
+              "Les ongles doivent être courts et propres, sans vernis, pour éviter l'accumulation de microbes.",
             type: 'single',
           },
           {
             id: 'q3-8',
             quizId: 'quiz-3',
-            question: "Après avoir rincé les mains, comment doit-on les sécher?",
+            question: 'Après avoir rincé les mains, comment doit-on les sécher?',
             answers: [
-              'Les laisser sécher à l\'air',
+              "Les laisser sécher à l'air",
               'Avec une serviette en tissu',
               'Avec une serviette jetable',
               'En les secouant',
             ],
             correctAnswer: 2,
-            explanation: 'Les mains doivent être séchées avec une serviette jetable pour éviter la recontamination.',
+            explanation:
+              'Les mains doivent être séchées avec une serviette jetable pour éviter la recontamination.',
             type: 'single',
           },
           {
@@ -965,20 +1064,22 @@ Même technique de frottage mais avec une solution hydro-alcoolique.
             answers: [
               'Quand les mains sont visiblement sales',
               'Quand les mains ne sont pas visiblement souillées',
-              'Jamais, toujours laver à l\'eau',
+              "Jamais, toujours laver à l'eau",
               'Uniquement le matin',
             ],
             correctAnswer: 1,
-            explanation: 'La friction hydro-alcoolique est appropriée quand les mains ne sont pas visiblement souillées.',
+            explanation:
+              'La friction hydro-alcoolique est appropriée quand les mains ne sont pas visiblement souillées.',
             type: 'single',
           },
           {
             id: 'q3-10',
             quizId: 'quiz-3',
-            question: "Quelle zone des mains est souvent oubliée lors du lavage?",
+            question: 'Quelle zone des mains est souvent oubliée lors du lavage?',
             answers: ['Les paumes', 'Les pouces', 'Le dos des mains', 'Les poignets'],
             correctAnswer: 1,
-            explanation: 'Les pouces sont souvent oubliés lors du lavage des mains, d\'où l\'importance de la technique complète.',
+            explanation:
+              "Les pouces sont souvent oubliés lors du lavage des mains, d'où l'importance de la technique complète.",
             type: 'single',
           },
         ],

@@ -1,8 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { CourseService } from '../../../core/services/course.service';
-import { Module } from '../../../models/course.model';
+import { Module, Lesson } from '../../../models/course.model';
 
 @Component({
   selector: 'app-course-detail',
@@ -12,14 +12,34 @@ import { Module } from '../../../models/course.model';
 })
 export class CourseDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private courseService = inject(CourseService);
   module: Module | undefined;
+  hasProgress = false;
+  isEnrolled = false;
+  lastAccessedLesson: Lesson | undefined;
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       const moduleId = params['id'];
       this.courseService.getModuleById(moduleId).subscribe(module => {
         this.module = module;
+        if (module) {
+          // Check if user has progress in this course
+          this.courseService.hasUserProgressInCourse(moduleId).subscribe(hasProgress => {
+            this.hasProgress = hasProgress;
+          });
+
+          // Check if user is enrolled
+          this.courseService.isUserEnrolledInCourse(moduleId).subscribe(isEnrolled => {
+            this.isEnrolled = isEnrolled;
+          });
+
+          // Get last accessed lesson
+          this.courseService.getLastAccessedLessonForModule(moduleId).subscribe(lesson => {
+            this.lastAccessedLesson = lesson;
+          });
+        }
       });
     });
   }
@@ -55,14 +75,36 @@ export class CourseDetailComponent implements OnInit {
       const firstChapter = this.module.chapters[0];
       if (firstChapter.lessons.length > 0) {
         const firstLesson = firstChapter.lessons[0];
-        // Navigate to first lesson using router
-        this.courseService
-          .getModuleById(this.module.id)
-          .subscribe(() => {
-            // Using window.location for navigation to ensure proper routing
-            window.location.href = `/courses/lesson/${firstLesson.id}`;
-          });
+        // Enroll user in course
+        this.courseService.enrollUserInCourse(this.module.id).subscribe(() => {
+          // Navigate to first lesson
+          this.router.navigate(['/courses/lesson', firstLesson.id]);
+        });
       }
+    }
+  }
+
+  continueCourse(): void {
+    if (this.lastAccessedLesson) {
+      // Update last accessed date
+      if (this.module) {
+        this.courseService.updateCourseLastAccessed(this.module.id).subscribe();
+      }
+      // Navigate to last accessed lesson
+      this.router.navigate(['/courses/lesson', this.lastAccessedLesson.id]);
+    } else {
+      // If no last accessed lesson, start from beginning
+      this.startCourse();
+    }
+  }
+
+  saveCourseForLater(): void {
+    if (this.module) {
+      // Enroll user but don't navigate
+      this.courseService.enrollUserInCourse(this.module.id).subscribe(() => {
+        // Could show a success message here
+        this.isEnrolled = true;
+      });
     }
   }
 }

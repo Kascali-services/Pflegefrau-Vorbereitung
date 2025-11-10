@@ -18,7 +18,9 @@
   <!-- Question Section -->
   <div class="question-section" *ngIf="currentQuestion && !isSubmitted">
     <div class="question-header">
-      <span class="question-number">Frage {{ currentQuestionIndex + 1 }} von {{ quiz.questions.length }}</span>
+      <span class="question-number"
+        >Frage {{ currentQuestionIndex + 1 }} von {{ quiz.questions.length }}</span
+      >
     </div>
 
     <h2 class="question-text">{{ currentQuestion.question }}</h2>
@@ -115,9 +117,7 @@
               <strong>Richtige Antwort:</strong>
               {{ question.answers[question.correctAnswer] }}
             </p>
-            <p class="explanation">
-              <strong>Erklärung:</strong> {{ question.explanation }}
-            </p>
+            <p class="explanation"><strong>Erklärung:</strong> {{ question.explanation }}</p>
           </div>
         </div>
       </div>
@@ -125,12 +125,8 @@
 
     <!-- Action Buttons -->
     <div class="results-actions">
-      <button class="secondary-btn" (click)="goBackToCourse()">
-        Zurück zum Kurs
-      </button>
-      <button class="retry-btn" *ngIf="!passed" (click)="retryQuiz()">
-        Erneut versuchen
-      </button>
+      <button class="secondary-btn" (click)="goBackToCourse()">Zurück zum Kurs</button>
+      <button class="retry-btn" *ngIf="!passed" (click)="retryQuiz()">Erneut versuchen</button>
       <button class="primary-btn" *ngIf="passed" (click)="continueToNextLesson()">
         Weiter zur nächsten Lektion →
       </button>

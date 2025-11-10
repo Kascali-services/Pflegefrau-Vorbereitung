@@ -23,7 +23,7 @@ interface EnrolledCourse {
 export class MyCoursesComponent implements OnInit {
   private courseService = inject(CourseService);
   private userService = inject(UserService);
-  
+
   enrolledCourses: EnrolledCourse[] = [];
   currentUser: User | null = null;
   isLoading = true;
