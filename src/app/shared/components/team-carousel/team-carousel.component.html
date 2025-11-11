@@ -1,0 +1,70 @@
+<div class="team-carousel-container">
+  <h2 class="carousel-title">Unser Team</h2>
+  <p class="carousel-subtitle">
+    Erfahrene Pflegefachkräfte und Pädagogen, die Sie auf Ihrem Weg begleiten
+  </p>
+
+  <div class="carousel-wrapper">
+    <button
+      mat-icon-button
+      class="nav-button prev-button"
+      (click)="previousSlide()"
+      [disabled]="teamMembers.length === 0"
+    >
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+
+    <div class="carousel-content">
+      <div class="cards-container">
+        <mat-card class="team-card" *ngFor="let member of visibleMembers">
+          <div class="card-header">
+            <div class="avatar-container">
+              @if (member.avatarUrl) {
+                <img [src]="member.avatarUrl" [alt]="member.firstName + ' ' + member.lastName" />
+              } @else {
+                <div class="avatar-placeholder">
+                  {{ getAvatarPlaceholder(member) }}
+                </div>
+              }
+            </div>
+          </div>
+
+          <mat-card-content>
+            <h3 class="member-name">{{ member.firstName }} {{ member.lastName }}</h3>
+            <p class="member-role">{{ member.role }}</p>
+            <p class="member-bio">{{ member.bio }}</p>
+
+            @if (member.specialties && member.specialties.length > 0) {
+              <div class="specialties">
+                <mat-chip-set>
+                  <mat-chip *ngFor="let specialty of member.specialties">
+                    {{ specialty }}
+                  </mat-chip>
+                </mat-chip-set>
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <button
+      mat-icon-button
+      class="nav-button next-button"
+      (click)="nextSlide()"
+      [disabled]="teamMembers.length === 0"
+    >
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+
+  <div class="carousel-indicators">
+    <button
+      *ngFor="let member of teamMembers; let i = index"
+      class="indicator"
+      [class.active]="i === currentIndex"
+      (click)="goToSlide(i)"
+      [attr.aria-label]="'Go to slide ' + (i + 1)"
+    ></button>
+  </div>
+</div>
