@@ -87,8 +87,7 @@
   white-space: nowrap;
 
   @media (max-width: 767px) {
-    display: block;
-    font-size: var(--font-size-body);
+    display: none;
   }
 
   @media (min-width: 768px) {
