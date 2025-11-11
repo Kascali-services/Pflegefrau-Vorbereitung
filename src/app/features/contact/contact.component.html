@@ -1,0 +1,205 @@
+<div class="contact-container">
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1 class="page-title">Kontakt</h1>
+      <p class="page-subtitle">
+        Wir freuen uns über Ihr Feedback zu unseren Inhalten
+      </p>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="content-wrapper">
+      <div class="intro-text">
+        <p>
+          Wir freuen uns über das Feedback von Unternehmen und Personen zu unserem Inhalt.
+          Ihre Rückmeldungen helfen uns, uns zu verbessern, oder ermutigen uns, weiterzumachen.
+          Ob Lob, konstruktive Kritik oder Anregungen – jede Nachricht ist willkommen!
+        </p>
+      </div>
+
+      <div class="form-container">
+        <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="contact-form">
+          <!-- Contact Type Selection -->
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                formControlName="isBusiness"
+                class="checkbox-input"
+              />
+              <span class="checkbox-text">Ich kontaktiere Sie als Unternehmen</span>
+            </label>
+          </div>
+
+          <!-- Name Field -->
+          <div class="form-group">
+            <label for="name" class="form-label">
+              Name <span class="required">*</span>
+            </label>
+            <input
+              id="name"
+              type="text"
+              formControlName="name"
+              class="form-input"
+              placeholder="Ihr Name"
+              [class.error]="isFieldInvalid('name')"
+            />
+            @if (isFieldInvalid('name')) {
+              <span class="error-message">Name ist erforderlich</span>
+            }
+          </div>
+
+          <!-- Email Field -->
+          <div class="form-group">
+            <label for="email" class="form-label">
+              E-Mail <span class="required">*</span>
+            </label>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              class="form-input"
+              placeholder="ihre.email@beispiel.de"
+              [class.error]="isFieldInvalid('email')"
+            />
+            @if (contactForm.get('email')?.hasError('required') && contactForm.get('email')?.touched) {
+              <span class="error-message">E-Mail ist erforderlich</span>
+            }
+            @if (contactForm.get('email')?.hasError('email') && contactForm.get('email')?.touched) {
+              <span class="error-message">Bitte geben Sie eine gültige E-Mail-Adresse ein</span>
+            }
+          </div>
+
+          <!-- Message Field -->
+          <div class="form-group">
+            <label for="message" class="form-label">
+              Nachricht <span class="required">*</span>
+            </label>
+            <textarea
+              id="message"
+              formControlName="message"
+              class="form-textarea"
+              placeholder="Ihre Nachricht an uns..."
+              rows="6"
+              [class.error]="isFieldInvalid('message')"
+            ></textarea>
+            @if (isFieldInvalid('message')) {
+              <span class="error-message">Nachricht ist erforderlich</span>
+            }
+          </div>
+
+          <!-- Address Fields (Conditional for Business) -->
+          @if (contactForm.get('isBusiness')?.value) {
+            <div class="address-section" formGroupName="address">
+              <h3 class="section-subtitle">Unternehmensadresse</h3>
+              
+              <div class="form-row">
+                <div class="form-group flex-2">
+                  <label for="street" class="form-label">
+                    Straße <span class="required">*</span>
+                  </label>
+                  <input
+                    id="street"
+                    type="text"
+                    formControlName="street"
+                    class="form-input"
+                    placeholder="Straßenname"
+                    [class.error]="isAddressFieldInvalid('street')"
+                  />
+                  @if (isAddressFieldInvalid('street')) {
+                    <span class="error-message">Straße ist erforderlich</span>
+                  }
+                </div>
+
+                <div class="form-group flex-1">
+                  <label for="houseNumber" class="form-label">
+                    Nr. <span class="required">*</span>
+                  </label>
+                  <input
+                    id="houseNumber"
+                    type="text"
+                    formControlName="houseNumber"
+                    class="form-input"
+                    placeholder="123"
+                    [class.error]="isAddressFieldInvalid('houseNumber')"
+                  />
+                  @if (isAddressFieldInvalid('houseNumber')) {
+                    <span class="error-message">Nr. erforderlich</span>
+                  }
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group flex-1">
+                  <label for="postalCode" class="form-label">
+                    PLZ <span class="required">*</span>
+                  </label>
+                  <input
+                    id="postalCode"
+                    type="text"
+                    formControlName="postalCode"
+                    class="form-input"
+                    placeholder="12345"
+                    [class.error]="isAddressFieldInvalid('postalCode')"
+                  />
+                  @if (isAddressFieldInvalid('postalCode')) {
+                    <span class="error-message">PLZ ist erforderlich</span>
+                  }
+                </div>
+
+                <div class="form-group flex-2">
+                  <label for="city" class="form-label">
+                    Stadt <span class="required">*</span>
+                  </label>
+                  <input
+                    id="city"
+                    type="text"
+                    formControlName="city"
+                    class="form-input"
+                    placeholder="Stadt"
+                    [class.error]="isAddressFieldInvalid('city')"
+                  />
+                  @if (isAddressFieldInvalid('city')) {
+                    <span class="error-message">Stadt ist erforderlich</span>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Submit Button -->
+          <div class="form-actions">
+            <button
+              type="submit"
+              class="submit-button"
+              [disabled]="contactForm.invalid || isSubmitting"
+            >
+              @if (isSubmitting) {
+                <span class="button-spinner"></span>
+                Wird gesendet...
+              } @else {
+                Nachricht senden
+              }
+            </button>
+          </div>
+
+          <!-- Success Message -->
+          @if (submitSuccess) {
+            <div class="success-message">
+              <div class="success-icon">✓</div>
+              <p>{{ successMessage }}</p>
+            </div>
+          }
+
+          <!-- Error Message -->
+          @if (submitError) {
+            <div class="error-banner">
+              <p>{{ errorMessage }}</p>
+            </div>
+          }
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
