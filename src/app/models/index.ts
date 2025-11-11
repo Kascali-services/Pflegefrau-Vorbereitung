@@ -3,3 +3,4 @@ export * from './course.model';
 export * from './progress.model';
 export * from './user.model';
 export * from './team.model';
+export * from './contact.model';
