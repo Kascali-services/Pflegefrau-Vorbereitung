@@ -24,23 +24,21 @@
 
       <nav class="drawer-nav" aria-label="Mobile navigation">
         <ul class="nav-list">
-          <li
-            *ngFor="let link of navLinks"
-            class="nav-item"
-            [hidden]="link.requiresAuth && (isAuthenticated$ | async) === false"
-          >
-            <a
-              mat-button
-              [routerLink]="link.path"
-              routerLinkActive="active"
-              [routerLinkActiveOptions]="{ exact: link.exact }"
-              (click)="closeMenu()"
-              class="nav-link"
-              [attr.aria-label]="'Navigate to ' + link.label"
-            >
-              {{ link.label }}
-            </a>
-          </li>
+          <ng-container *ngFor="let link of navLinks">
+            <li *ngIf="!link.requiresAuth || (isAuthenticated$ | async)" class="nav-item">
+              <a
+                mat-button
+                [routerLink]="link.path"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: link.exact }"
+                (click)="closeMenu()"
+                class="nav-link"
+                [attr.aria-label]="'Navigate to ' + link.label"
+              >
+                {{ link.label }}
+              </a>
+            </li>
+          </ng-container>
         </ul>
 
         <div class="drawer-divider"></div>
