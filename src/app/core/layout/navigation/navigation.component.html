@@ -1,6 +1,10 @@
 <nav class="navigation" aria-label="Main navigation">
   <ul class="nav-list">
-    <li *ngFor="let link of navLinks" class="nav-item">
+    <li
+      *ngFor="let link of navLinks"
+      class="nav-item"
+      [hidden]="link.requiresAuth && (isAuthenticated$ | async) === false"
+    >
       <a
         mat-button
         [routerLink]="link.path"

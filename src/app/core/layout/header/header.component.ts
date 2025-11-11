@@ -1,4 +1,4 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,6 +7,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { RouterLink } from '@angular/router';
 import { NavigationComponent } from '../navigation/navigation.component';
 import { MobileMenuComponent } from '../mobile-menu/mobile-menu.component';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -26,16 +27,35 @@ import { MobileMenuComponent } from '../mobile-menu/mobile-menu.component';
 })
 export class HeaderComponent {
   isScrolled = false;
+  private authService = inject(AuthService);
+  isAuthenticated$ = this.authService.isAuthenticated$;
 
   @HostListener('window:scroll', [])
   onWindowScroll(): void {
     this.isScrolled = window.scrollY > 0;
   }
 
+  onLogin(): void {
+    // Simulate login for demo purposes
+    // In real app, this would open a login dialog/page
+    this.authService.login('test@example.com', 'password123').subscribe({
+      next: user => {
+        console.log('Login successful:', user);
+      },
+      error: error => {
+        console.error('Login failed:', error);
+      },
+    });
+  }
+
   onLogout(): void {
-    // TODO: Implement actual logout logic
-    console.log('Logout clicked');
-    // For now, just log the action
-    // In a real application, this would clear auth tokens and redirect to login
+    this.authService.logout().subscribe({
+      next: () => {
+        console.log('Logout successful');
+      },
+      error: error => {
+        console.error('Logout failed:', error);
+      },
+    });
   }
 }

@@ -1,9 +1,10 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-mobile-menu',
@@ -21,13 +22,15 @@ import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 })
 export class MobileMenuComponent {
   @ViewChild('drawer') drawer!: MatSidenav;
+  private authService = inject(AuthService);
+  isAuthenticated$ = this.authService.isAuthenticated$;
 
   navLinks = [
-    { path: '/', label: 'Accueil', exact: true },
-    { path: '/courses', label: 'Cours', exact: false },
-    { path: '/my-courses', label: 'Mes Cours', exact: false },
-    { path: '/about', label: 'À propos', exact: false },
-    { path: '/contact', label: 'Contact', exact: false },
+    { path: '/', label: 'Accueil', exact: true, requiresAuth: false },
+    { path: '/courses', label: 'Cours', exact: false, requiresAuth: false },
+    { path: '/my-courses', label: 'Mes Cours', exact: false, requiresAuth: true },
+    { path: '/about', label: 'À propos', exact: false, requiresAuth: false },
+    { path: '/contact', label: 'Contact', exact: false, requiresAuth: false },
   ];
 
   toggleMenu(): void {
@@ -38,11 +41,28 @@ export class MobileMenuComponent {
     this.drawer.close();
   }
 
-  onLogout(): void {
-    // TODO: Implement actual logout logic
-    console.log('Logout clicked from mobile menu');
+  onLogin(): void {
+    // Simulate login for demo purposes
+    this.authService.login('test@example.com', 'password123').subscribe({
+      next: user => {
+        console.log('Login successful:', user);
+      },
+      error: error => {
+        console.error('Login failed:', error);
+      },
+    });
     this.closeMenu();
-    // For now, just log the action
-    // In a real application, this would clear auth tokens and redirect to login
+  }
+
+  onLogout(): void {
+    this.authService.logout().subscribe({
+      next: () => {
+        console.log('Logout successful from mobile menu');
+      },
+      error: error => {
+        console.error('Logout failed:', error);
+      },
+    });
+    this.closeMenu();
   }
 }
