@@ -135,10 +135,15 @@ export class CourseProgressionComponent implements OnInit {
       // Lesson without quiz - mark as completed
       this.courseService.markLessonCompleted(this.lesson.id).subscribe(() => {
         this.isCompleted = true;
-        // Navigate to next lesson or back to course
-        if (this.nextLesson) {
+        // Check if this is the last lesson
+        if (!this.nextLesson && this.course) {
+          // Last lesson - go to completion celebration
+          this.router.navigate(['/courses/completion', this.course.id]);
+        } else if (this.nextLesson) {
+          // More lessons - go to next lesson
           this.router.navigate(['/courses/lesson', this.nextLesson.id]);
         } else if (this.course) {
+          // Fallback - go back to course
           this.router.navigate(['/courses', this.course.id]);
         }
       });
@@ -150,10 +155,15 @@ export class CourseProgressionComponent implements OnInit {
         });
       }
     } else {
-      // Quiz already passed - just navigate to next
-      if (this.nextLesson) {
+      // Quiz already passed - navigate
+      if (!this.nextLesson && this.course) {
+        // Last lesson - go to completion celebration
+        this.router.navigate(['/courses/completion', this.course.id]);
+      } else if (this.nextLesson) {
+        // More lessons - go to next lesson
         this.router.navigate(['/courses/lesson', this.nextLesson.id]);
       } else if (this.course) {
+        // Fallback - go back to course
         this.router.navigate(['/courses', this.course.id]);
       }
     }
@@ -197,14 +207,14 @@ export class CourseProgressionComponent implements OnInit {
     
     // Fix list formatting
     let inList = false;
-    formatted = formatted.replace(/<li>/g, (match) => {
+    formatted = formatted.replace(/<li>/g, () => {
       if (!inList) {
         inList = true;
         return '<ul><li>';
       }
-      return match;
+      return '<li>';
     });
-    formatted = formatted.replace(/<\/li>/g, (match) => {
+    formatted = formatted.replace(/<\/li>/g, () => {
       return '</li>';
     });
     formatted = formatted.replace(/<\/li>(?!<li>)/g, '</li></ul>');

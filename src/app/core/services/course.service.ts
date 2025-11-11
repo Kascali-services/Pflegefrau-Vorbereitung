@@ -252,7 +252,7 @@ export class CourseService {
       this.quizAttempts$,
       this.userProgress$,
     ]).pipe(
-      map(([user, quiz, questions, allOptions, attempts, progressRecords]) => {
+      map(([user, quiz, questions, allOptions, attempts]) => {
         if (!user || !quiz) {
           throw new Error('User or quiz not found');
         }
@@ -260,7 +260,6 @@ export class CourseService {
         // Calculate score
         let correctAnswers = 0;
         const quizAnswers = answers.map(answer => {
-          const question = questions.find(q => q.id === answer.questionId);
           const questionOptions = allOptions.filter(o => o.questionId === answer.questionId);
           const correctOptions = questionOptions.filter(o => o.isCorrect).map(o => o.id);
 

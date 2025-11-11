@@ -35,6 +35,13 @@ export const routes: Routes = [
       import('./features/courses/quiz/quiz.component').then(m => m.QuizComponent),
   },
   {
+    path: 'courses/completion/:courseId',
+    loadComponent: () =>
+      import('./features/courses/course-completion/course-completion.component').then(
+        m => m.CourseCompletionComponent
+      ),
+  },
+  {
     path: 'about',
     loadComponent: () => import('./features/about/about.component').then(m => m.AboutComponent),
   },

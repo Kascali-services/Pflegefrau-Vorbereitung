@@ -1,0 +1,31 @@
+<div class="completion-container">
+  <div class="confetti" *ngIf="showConfetti">
+    <div class="confetti-piece" *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]"></div>
+  </div>
+
+  <div class="celebration-card">
+    <div class="icon-container">
+      <div class="trophy">🏆</div>
+    </div>
+
+    <h1 class="title">Herzlichen Glückwunsch!</h1>
+    
+    <p class="message" *ngIf="course">
+      Sie haben den Kurs <strong>{{ course.title }}</strong> erfolgreich abgeschlossen!
+    </p>
+
+    <div class="celebration-icons">
+      <span class="celebration-icon">🎉</span>
+      <span class="celebration-icon">✨</span>
+      <span class="celebration-icon">🌟</span>
+    </div>
+
+    <p class="redirect-message">
+      Sie werden in wenigen Sekunden zu Ihren Kursen weitergeleitet...
+    </p>
+
+    <button class="primary-btn" (click)="goToMyCourses()">
+      Zu Meinen Kursen
+    </button>
+  </div>
+</div>

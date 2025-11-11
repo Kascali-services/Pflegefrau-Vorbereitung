@@ -17,54 +17,59 @@
 
   <div *ngIf="!isLoading && enrolledCourses.length > 0" class="courses-list">
     <div class="course-item" *ngFor="let course of enrolledCourses">
-      <div class="course-info">
-        <div class="course-header">
-          <h2>{{ course.course.title }}</h2>
-          <span
-            class="status-badge"
-            [style.background-color]="getProgressBarColor(course.progressPercentage)"
-          >
-            {{ getCompletionStatus(course.progressPercentage) }}
-          </span>
-        </div>
-
-        <p class="course-description">{{ course.course.description }}</p>
-
-        <div class="course-details">
-          <div class="detail-item">
-            <span class="detail-label">Einschreibedatum:</span>
-            <span class="detail-value">{{ formatDate(course.enrollment.enrolledAt) }}</span>
-          </div>
-
-          <div class="detail-item">
-            <span class="detail-label">Letzte Aktivität:</span>
-            <span class="detail-value">{{ formatDate(course.enrollment.lastAccessedAt) }}</span>
-          </div>
-
-          <div class="detail-item">
-            <span class="detail-label">Abgeschlossene Lektionen:</span>
-            <span class="detail-value"
-              >{{ course.completedLessons }} / {{ course.totalLessons }}</span
-            >
-          </div>
-        </div>
+      <div class="course-thumbnail" *ngIf="course.course.thumbnailUrl">
+        <img [src]="course.course.thumbnailUrl" [alt]="course.course.title" />
       </div>
+      <div class="course-content">
+        <div class="course-info">
+          <div class="course-header">
+            <h2>{{ course.course.title }}</h2>
+            <span
+              class="status-badge"
+              [style.background-color]="getProgressBarColor(course.progressPercentage)"
+            >
+              {{ getCompletionStatus(course.progressPercentage) }}
+            </span>
+          </div>
 
-      <div class="progress-section">
-        <div class="progress-info">
-          <span class="progress-label">Fortschritt</span>
-          <span class="progress-percentage">{{ course.progressPercentage.toFixed(0) }}%</span>
+          <p class="course-description">{{ course.course.description }}</p>
+
+          <div class="course-details">
+            <div class="detail-item">
+              <span class="detail-label">Einschreibedatum:</span>
+              <span class="detail-value">{{ formatDate(course.enrollment.enrolledAt) }}</span>
+            </div>
+
+            <div class="detail-item">
+              <span class="detail-label">Letzte Aktivität:</span>
+              <span class="detail-value">{{ formatDate(course.enrollment.lastAccessedAt) }}</span>
+            </div>
+
+            <div class="detail-item">
+              <span class="detail-label">Abgeschlossene Lektionen:</span>
+              <span class="detail-value"
+                >{{ course.completedLessons }} / {{ course.totalLessons }}</span
+              >
+            </div>
+          </div>
         </div>
-        <div class="progress-bar-container">
-          <div
-            class="progress-bar"
-            [style.width.%]="course.progressPercentage"
-            [style.background-color]="getProgressBarColor(course.progressPercentage)"
-          ></div>
+
+        <div class="progress-section">
+          <div class="progress-info">
+            <span class="progress-label">Fortschritt</span>
+            <span class="progress-percentage">{{ course.progressPercentage.toFixed(0) }}%</span>
+          </div>
+          <div class="progress-bar-container">
+            <div
+              class="progress-bar"
+              [style.width.%]="course.progressPercentage"
+              [style.background-color]="getProgressBarColor(course.progressPercentage)"
+            ></div>
+          </div>
+          <a [routerLink]="['/courses', course.course.id]" class="continue-btn">
+            {{ course.progressPercentage === 0 ? 'Starten' : 'Fortsetzen' }}
+          </a>
         </div>
-        <a [routerLink]="['/courses', course.course.id]" class="continue-btn">
-          {{ course.progressPercentage === 0 ? 'Starten' : 'Fortsetzen' }}
-        </a>
       </div>
     </div>
   </div>
