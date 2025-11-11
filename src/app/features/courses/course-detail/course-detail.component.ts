@@ -24,7 +24,7 @@ export class CourseDetailComponent implements OnInit {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       const courseId = params['id'];
-      
+
       // Get course details
       this.courseService.getCourseById(courseId).subscribe(course => {
         this.course = course;

@@ -2,7 +2,8 @@
   <div class="header">
     <h1>Meine Kurse</h1>
     <p class="welcome-text" *ngIf="currentUser">
-      Willkommen, <strong>{{ getUserDisplayName() }}</strong>!
+      Willkommen, <strong>{{ getUserDisplayName() }}</strong
+      >!
     </p>
   </div>
 
@@ -28,7 +29,7 @@
           <span class="placeholder-icon">📚</span>
         </div>
       </div>
-      
+
       <div class="course-info">
         <div class="course-header">
           <h2>{{ course.course.title }}</h2>

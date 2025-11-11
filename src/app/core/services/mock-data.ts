@@ -3,18 +3,8 @@
  * Following the new database schema
  */
 
-import {
-  Course,
-  Lesson,
-  Quiz,
-  Question,
-  QuizOption,
-} from '../../models/course.model';
-import {
-  UserProgress,
-  UserQuizAttempt,
-  QuizAnswer,
-} from '../../models/progress.model';
+import { Course, Lesson, Quiz, Question, QuizOption } from '../../models/course.model';
+import { UserProgress, UserQuizAttempt } from '../../models/progress.model';
 import { User, UserCourseEnrollment } from '../../models/user.model';
 
 /**
@@ -41,7 +31,8 @@ export const MOCK_COURSES: Course[] = [
     id: 'course-1',
     title: 'Vocabulaire anatomique',
     description: 'Apprenez les termes anatomiques essentiels pour les soins infirmiers',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=500&h=300&fit=crop',
+    thumbnailUrl:
+      'https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=500&h=300&fit=crop',
     level: 'beginner',
     durationMinutes: 120,
     lessonsCount: 3,
@@ -52,7 +43,8 @@ export const MOCK_COURSES: Course[] = [
     id: 'course-2',
     title: 'Soins infirmiers de base',
     description: 'Techniques fondamentales des soins infirmiers',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1584515933487-779824d29309?w=500&h=300&fit=crop',
+    thumbnailUrl:
+      'https://images.unsplash.com/photo-1584515933487-779824d29309?w=500&h=300&fit=crop',
     level: 'intermediate',
     durationMinutes: 60,
     lessonsCount: 1,
@@ -210,8 +202,7 @@ export const MOCK_QUESTIONS: Question[] = [
     quizId: 'quiz-3',
     questionText: 'Quelle est la durée recommandée pour un lavage simple des mains?',
     type: 'qcm',
-    explanation:
-      'Un lavage simple des mains doit durer 40 à 60 secondes pour être efficace.',
+    explanation: 'Un lavage simple des mains doit durer 40 à 60 secondes pour être efficace.',
     orderIndex: 1,
     points: 1,
     createdAt: new Date('2025-01-15'),

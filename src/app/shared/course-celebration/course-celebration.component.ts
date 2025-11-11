@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-course-celebration',
   imports: [CommonModule],
   templateUrl: './course-celebration.component.html',
-  styleUrl: './course-celebration.component.scss'
+  styleUrl: './course-celebration.component.scss',
 })
 export class CourseCelebrationComponent {
   @Input() courseTitle = '';

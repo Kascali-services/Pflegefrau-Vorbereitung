@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CourseService } from '../../../core/services/course.service';
@@ -19,7 +19,7 @@ interface QuizQuestionWithOptions {
   templateUrl: './quiz.component.html',
   styleUrl: './quiz.component.scss',
 })
-export class QuizComponent implements OnInit {
+export class QuizComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private courseService = inject(CourseService);
@@ -37,7 +37,7 @@ export class QuizComponent implements OnInit {
   showExplanation = false;
   alreadyPassed = false;
   timeRemaining: number | null = null;
-  timerInterval: any;
+  timerInterval: number | undefined;
   showCelebration = false;
   totalLessons = 0;
 
@@ -91,7 +91,7 @@ export class QuizComponent implements OnInit {
         this.courseService.getQuestionsByQuizId(quizId).subscribe(questions => {
           // Load options for each question
           const questionPromises = questions.map(question => {
-            return new Promise<QuizQuestionWithOptions>((resolve) => {
+            return new Promise<QuizQuestionWithOptions>(resolve => {
               this.courseService.getOptionsByQuestionId(question.id).subscribe(options => {
                 resolve({
                   question,
@@ -134,7 +134,7 @@ export class QuizComponent implements OnInit {
 
   get progress(): number {
     if (this.questions.length === 0) return 0;
-    return (this.currentQuestionIndex + 1) / this.questions.length * 100;
+    return ((this.currentQuestionIndex + 1) / this.questions.length) * 100;
   }
 
   get answeredCount(): number {
@@ -204,21 +204,23 @@ export class QuizComponent implements OnInit {
     }));
 
     // Submit quiz
-    this.courseService.submitQuizAttempt(this.quiz.id, this.lessonId, answers).subscribe(attempt => {
-      this.isSubmitted = true;
-      this.score = attempt.score;
-      this.passed = attempt.passed;
-      this.attempts = attempt.attemptNumber;
+    this.courseService
+      .submitQuizAttempt(this.quiz.id, this.lessonId, answers)
+      .subscribe(attempt => {
+        this.isSubmitted = true;
+        this.score = attempt.score;
+        this.passed = attempt.passed;
+        this.attempts = attempt.attemptNumber;
 
-      // Mark each question as correct/incorrect
-      this.questions.forEach(q => {
-        const answer = attempt.answers.find(a => a.questionId === q.question.id);
-        q.isCorrect = answer?.isCorrect || false;
+        // Mark each question as correct/incorrect
+        this.questions.forEach(q => {
+          const answer = attempt.answers.find(a => a.questionId === q.question.id);
+          q.isCorrect = answer?.isCorrect || false;
+        });
+
+        // Show explanation for current question
+        this.showExplanation = true;
       });
-
-      // Show explanation for current question
-      this.showExplanation = true;
-    });
   }
 
   retryQuiz(): void {

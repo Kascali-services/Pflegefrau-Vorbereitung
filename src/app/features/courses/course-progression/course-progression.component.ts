@@ -80,14 +80,14 @@ export class CourseProgressionComponent implements OnInit {
 
         // Check accessibility
         this.checkAccessibility(lessonId);
-        
+
         // Load next and previous lessons
         this.loadNextLesson(lessonId);
         this.loadPreviousLesson(lessonId);
-        
+
         // Update last accessed lesson
         this.courseService.updateLastAccessedLesson(lessonId).subscribe();
-        
+
         // Update course last accessed
         this.courseService.updateCourseLastAccessed(lesson.courseId).subscribe();
       }
@@ -205,17 +205,17 @@ export class CourseProgressionComponent implements OnInit {
 
     formatted = '<p>' + formatted + '</p>';
     formatted = formatted.replace(/<\/li><br>/g, '</li>');
-    
+
     // Fix list formatting
     let inList = false;
-    formatted = formatted.replace(/<li>/g, (match) => {
+    formatted = formatted.replace(/<li>/g, match => {
       if (!inList) {
         inList = true;
         return '<ul><li>';
       }
       return match;
     });
-    formatted = formatted.replace(/<\/li>/g, (match) => {
+    formatted = formatted.replace(/<\/li>/g, () => {
       return '</li>';
     });
     formatted = formatted.replace(/<\/li>(?!<li>)/g, '</li></ul>');

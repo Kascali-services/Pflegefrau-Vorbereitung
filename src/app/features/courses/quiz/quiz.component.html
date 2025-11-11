@@ -3,9 +3,7 @@
   <div class="quiz-passed-message" *ngIf="alreadyPassed && !isSubmitted">
     <div class="success-icon">🎉</div>
     <h2>Quiz bereits bestanden</h2>
-    <p>
-      Sie haben dieses Quiz bereits erfolgreich bestanden. Sie können den Kurs fortsetzen.
-    </p>
+    <p>Sie haben dieses Quiz bereits erfolgreich bestanden. Sie können den Kurs fortsetzen.</p>
     <div class="passed-actions">
       <button class="secondary-btn" (click)="goToLesson()">Zurück zur Lektion</button>
       <button class="primary-btn" (click)="continueToNextLesson()">
@@ -20,7 +18,9 @@
     <div class="quiz-info">
       <span>{{ questions.length }} Fragen</span>
       <span>Mindestpunktzahl: {{ quiz.passingScore }}%</span>
-      <span *ngIf="quiz.timeLimitMinutes" [class]="getTimerClass()">⏱️ {{ getTimerDisplay() }}</span>
+      <span *ngIf="quiz.timeLimitMinutes" [class]="getTimerClass()"
+        >⏱️ {{ getTimerDisplay() }}</span
+      >
       <span *ngIf="attempts > 0">Versuch: {{ attempts + 1 }}</span>
     </div>
   </div>

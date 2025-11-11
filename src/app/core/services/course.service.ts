@@ -1,18 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, of, BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import {
-  Course,
-  Lesson,
-  Quiz,
-  Question,
-  QuizOption,
-} from '../../models/course.model';
-import {
-  UserProgress,
-  UserQuizAttempt,
-  CourseProgress,
-} from '../../models/progress.model';
+import { Course, Lesson, Quiz, Question, QuizOption } from '../../models/course.model';
+import { UserProgress, UserQuizAttempt, CourseProgress } from '../../models/progress.model';
 import { UserCourseEnrollment } from '../../models/user.model';
 import { UserService } from './user.service';
 import {
@@ -90,9 +80,7 @@ export class CourseService {
   getLessonsByCourseId(courseId: string): Observable<Lesson[]> {
     return this.lessons$.pipe(
       map(lessons =>
-        lessons
-          .filter(l => l.courseId === courseId)
-          .sort((a, b) => a.orderIndex - b.orderIndex)
+        lessons.filter(l => l.courseId === courseId).sort((a, b) => a.orderIndex - b.orderIndex)
       )
     );
   }
@@ -252,7 +240,7 @@ export class CourseService {
       this.quizAttempts$,
       this.userProgress$,
     ]).pipe(
-      map(([user, quiz, questions, allOptions, attempts, progressRecords]) => {
+      map(([user, quiz, questions, allOptions, attempts]) => {
         if (!user || !quiz) {
           throw new Error('User or quiz not found');
         }
@@ -260,7 +248,6 @@ export class CourseService {
         // Calculate score
         let correctAnswers = 0;
         const quizAnswers = answers.map(answer => {
-          const question = questions.find(q => q.id === answer.questionId);
           const questionOptions = allOptions.filter(o => o.questionId === answer.questionId);
           const correctOptions = questionOptions.filter(o => o.isCorrect).map(o => o.id);
 
@@ -284,9 +271,7 @@ export class CourseService {
         const passed = score >= quiz.passingScore;
 
         // Determine attempt number
-        const previousAttempts = attempts.filter(
-          a => a.quizId === quizId && a.userId === user.id
-        );
+        const previousAttempts = attempts.filter(a => a.quizId === quizId && a.userId === user.id);
         const attemptNumber = previousAttempts.length + 1;
 
         // Create new attempt
