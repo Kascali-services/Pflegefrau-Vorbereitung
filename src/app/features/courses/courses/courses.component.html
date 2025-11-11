@@ -6,17 +6,31 @@
 
   <div class="courses-grid">
     <div class="course-card" *ngFor="let course of courses">
-      <div class="course-header">
-        <h3>{{ course.title }}</h3>
-        <span class="course-level">{{ getLevelLabel(course.level) }}</span>
+      <div class="course-thumbnail">
+        <img
+          *ngIf="course.thumbnailUrl"
+          [src]="course.thumbnailUrl"
+          [alt]="course.title"
+          class="thumbnail-image"
+        />
+        <div *ngIf="!course.thumbnailUrl" class="thumbnail-placeholder">
+          <span class="placeholder-icon">📚</span>
+        </div>
       </div>
-      <p class="course-description">{{ course.description }}</p>
-      <div class="course-meta">
-        <span class="course-lessons">📚 {{ course.lessonsCount }} Lektionen</span>
-        <span class="course-duration">⏱️ {{ getEstimatedDuration(course) }}</span>
-      </div>
-      <div class="course-footer">
-        <a [routerLink]="['/courses', course.id]" class="view-course-btn">Details ansehen</a>
+      
+      <div class="course-content">
+        <div class="course-header">
+          <h3>{{ course.title }}</h3>
+          <span class="course-level">{{ getLevelLabel(course.level) }}</span>
+        </div>
+        <p class="course-description">{{ course.description }}</p>
+        <div class="course-meta">
+          <span class="course-lessons">📚 {{ course.lessonsCount }} Lektionen</span>
+          <span class="course-duration">⏱️ {{ getEstimatedDuration(course) }}</span>
+        </div>
+        <div class="course-footer">
+          <a [routerLink]="['/courses', course.id]" class="view-course-btn">Details ansehen</a>
+        </div>
       </div>
     </div>
   </div>

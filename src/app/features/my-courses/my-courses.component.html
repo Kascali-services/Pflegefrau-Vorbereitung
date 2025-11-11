@@ -17,6 +17,18 @@
 
   <div *ngIf="!isLoading && enrolledCourses.length > 0" class="courses-list">
     <div class="course-item" *ngFor="let course of enrolledCourses">
+      <div class="course-thumbnail">
+        <img
+          *ngIf="course.course.thumbnailUrl"
+          [src]="course.course.thumbnailUrl"
+          [alt]="course.course.title"
+          class="thumbnail-image"
+        />
+        <div *ngIf="!course.course.thumbnailUrl" class="thumbnail-placeholder">
+          <span class="placeholder-icon">📚</span>
+        </div>
+      </div>
+      
       <div class="course-info">
         <div class="course-header">
           <h2>{{ course.course.title }}</h2>
