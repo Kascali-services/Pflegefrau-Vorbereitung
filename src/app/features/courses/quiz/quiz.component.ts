@@ -247,8 +247,8 @@ export class QuizComponent implements OnInit {
       if (nextLesson) {
         this.router.navigate(['/courses/lesson', nextLesson.id]);
       } else if (this.lesson) {
-        // No next lesson, go to course detail
-        this.router.navigate(['/courses', this.lesson.courseId]);
+        // No next lesson - course completed, go to completion celebration
+        this.router.navigate(['/courses/completion', this.lesson.courseId]);
       } else {
         this.router.navigate(['/courses']);
       }
