@@ -10,7 +10,9 @@
       <span class="meta-item"><strong>Level:</strong> {{ getLevelLabel(course.level) }}</span>
       <span class="meta-item"><strong>Dauer:</strong> {{ getEstimatedDuration(course) }}</span>
       <span class="meta-item"><strong>Lektionen:</strong> {{ lessons.length }}</span>
-      <span class="meta-item" *ngIf="hasProgress"><strong>Fortschritt:</strong> {{ progressPercentage | number:'1.0-0' }}%</span>
+      <span class="meta-item" *ngIf="hasProgress"
+        ><strong>Fortschritt:</strong> {{ progressPercentage | number: '1.0-0' }}%</span
+      >
     </div>
 
     <div class="course-content">
@@ -28,7 +30,9 @@
           </span>
           <div class="lesson-details">
             <span class="lesson-title">{{ lesson.title }}</span>
-            <span class="lesson-description" *ngIf="lesson.description">{{ lesson.description }}</span>
+            <span class="lesson-description" *ngIf="lesson.description">{{
+              lesson.description
+            }}</span>
           </div>
           <span class="lesson-duration">{{ lesson.durationMinutes }} Min.</span>
         </div>
