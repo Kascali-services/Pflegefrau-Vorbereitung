@@ -1,10 +1,33 @@
 <mat-toolbar [class.scrolled]="isScrolled" class="header-toolbar">
   <div class="header-container">
-    <a routerLink="/" class="logo-link" aria-label="Navigate to home page">
-      <img src="/logo.svg" alt="Pflegefachfrau Vorbereitung Logo" class="logo" height="32" />
-    </a>
+    <div class="logo-section">
+      <a routerLink="/" class="logo-link" aria-label="Navigate to home page">
+        <img src="/assets/logo/OB-horizontal-logo.png" alt="Pflegefachfrau Vorbereitung Logo" class="logo" height="40" />
+        <span class="site-title">Pflegefrau Vorbereitung</span>
+      </a>
+    </div>
 
     <app-navigation class="desktop-nav"></app-navigation>
+
+    <div class="user-section desktop-nav">
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="userMenu"
+        class="user-button"
+        aria-label="User menu"
+      >
+        <mat-icon>person</mat-icon>
+      </button>
+
+      <mat-menu #userMenu="matMenu">
+        <button mat-menu-item (click)="onLogout()">
+          <mat-icon>logout</mat-icon>
+          <span>Déconnexion</span>
+        </button>
+      </mat-menu>
+    </div>
+
     <app-mobile-menu class="mobile-nav"></app-mobile-menu>
+
   </div>
 </mat-toolbar>

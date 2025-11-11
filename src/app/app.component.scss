@@ -5,10 +5,10 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-  padding-top: calc(56px + 2rem); // Header height + spacing on mobile
+  padding-top: calc(64px + 2rem); // Header height + spacing on mobile
 
   @media (min-width: 768px) {
-    padding-top: calc(64px + 2rem); // Header height + spacing on desktop
+    padding-top: calc(72px + 2rem); // Header height + spacing on desktop
   }
 }
 

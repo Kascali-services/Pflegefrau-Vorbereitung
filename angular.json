@@ -79,7 +79,16 @@
               "buildTarget": "pflegefachfrau-vorbereitung:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+          "options": {
+            "host": "0.0.0.0",
+            "port": 4200,
+            "allowedHosts": [
+              "localhost",
+              "127.0.0.1",
+              "laptop"
+            ]
+          }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n"
