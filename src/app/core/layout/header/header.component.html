@@ -2,7 +2,7 @@
   <div class="header-container">
     <div class="logo-section">
       <a routerLink="/" class="logo-link" aria-label="Navigate to home page">
-        <img src="/assets/logo/OB-orizontal-logo.svg" alt="Pflegefachfrau Vorbereitung Logo" class="logo" height="40" />
+        <img src="/assets/logo/OB-horizontal-logo.png" alt="Pflegefachfrau Vorbereitung Logo" class="logo" height="40" />
         <span class="site-title">Pflegefrau Vorbereitung</span>
       </a>
     </div>
@@ -18,6 +18,7 @@
       >
         <mat-icon>person</mat-icon>
       </button>
+
       <mat-menu #userMenu="matMenu">
         <button mat-menu-item (click)="onLogout()">
           <mat-icon>logout</mat-icon>
@@ -27,5 +28,6 @@
     </div>
 
     <app-mobile-menu class="mobile-nav"></app-mobile-menu>
+
   </div>
 </mat-toolbar>
