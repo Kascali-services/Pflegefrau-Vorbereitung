@@ -166,3 +166,12 @@
 <div class="loading" *ngIf="!quiz">
   <p>Laden...</p>
 </div>
+
+<!-- Celebration component -->
+<app-course-celebration
+  *ngIf="showCelebration && course"
+  [courseTitle]="course.title"
+  [completedLessons]="totalLessons"
+  [totalLessons]="totalLessons"
+  (continue)="onCelebrationContinue()"
+></app-course-celebration>

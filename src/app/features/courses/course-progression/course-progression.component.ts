@@ -5,10 +5,11 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CourseService } from '../../../core/services/course.service';
 import { Lesson, Course, Quiz } from '../../../models/course.model';
 import { UserProgress } from '../../../models/progress.model';
+import { CourseCelebrationComponent } from '../../../shared/course-celebration/course-celebration.component';
 
 @Component({
   selector: 'app-course-progression',
-  imports: [CommonModule],
+  imports: [CommonModule, CourseCelebrationComponent],
   templateUrl: './course-progression.component.html',
   styleUrl: './course-progression.component.scss',
 })
@@ -33,6 +34,7 @@ export class CourseProgressionComponent implements OnInit {
   isNextLessonAccessible = false;
   lessonIndex = 0;
   totalLessons = 0;
+  showCelebration = false;
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -135,11 +137,13 @@ export class CourseProgressionComponent implements OnInit {
       // Lesson without quiz - mark as completed
       this.courseService.markLessonCompleted(this.lesson.id).subscribe(() => {
         this.isCompleted = true;
-        // Navigate to next lesson or back to course
-        if (this.nextLesson) {
+        // Check if this is the last lesson
+        if (!this.nextLesson) {
+          // Show celebration for course completion
+          this.showCelebration = true;
+        } else {
+          // Navigate to next lesson
           this.router.navigate(['/courses/lesson', this.nextLesson.id]);
-        } else if (this.course) {
-          this.router.navigate(['/courses', this.course.id]);
         }
       });
     } else if (!this.quizPassed) {
@@ -150,13 +154,20 @@ export class CourseProgressionComponent implements OnInit {
         });
       }
     } else {
-      // Quiz already passed - just navigate to next
-      if (this.nextLesson) {
+      // Quiz already passed - check if last lesson or navigate to next
+      if (!this.nextLesson) {
+        // Show celebration for course completion
+        this.showCelebration = true;
+      } else {
+        // Navigate to next lesson
         this.router.navigate(['/courses/lesson', this.nextLesson.id]);
-      } else if (this.course) {
-        this.router.navigate(['/courses', this.course.id]);
       }
     }
+  }
+
+  onCelebrationContinue(): void {
+    // Navigate to my courses page
+    this.router.navigate(['/my-courses']);
   }
 
   goBack(): void {

@@ -2,7 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CourseService } from '../../../core/services/course.service';
-import { Quiz, Question, QuizOption, Lesson } from '../../../models/course.model';
+import { Quiz, Question, QuizOption, Lesson, Course } from '../../../models/course.model';
+import { CourseCelebrationComponent } from '../../../shared/course-celebration/course-celebration.component';
 
 interface QuizQuestionWithOptions {
   question: Question;
@@ -14,7 +15,7 @@ interface QuizQuestionWithOptions {
 
 @Component({
   selector: 'app-quiz',
-  imports: [CommonModule],
+  imports: [CommonModule, CourseCelebrationComponent],
   templateUrl: './quiz.component.html',
   styleUrl: './quiz.component.scss',
 })
@@ -25,6 +26,7 @@ export class QuizComponent implements OnInit {
 
   quiz: Quiz | undefined;
   lesson: Lesson | undefined;
+  course: Course | undefined;
   lessonId: string | undefined;
   questions: QuizQuestionWithOptions[] = [];
   currentQuestionIndex = 0;
@@ -36,6 +38,8 @@ export class QuizComponent implements OnInit {
   alreadyPassed = false;
   timeRemaining: number | null = null;
   timerInterval: any;
+  showCelebration = false;
+  totalLessons = 0;
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -50,6 +54,16 @@ export class QuizComponent implements OnInit {
       if (this.lessonId) {
         this.courseService.getLessonById(this.lessonId).subscribe(lesson => {
           this.lesson = lesson;
+          if (lesson) {
+            // Load course information
+            this.courseService.getCourseById(lesson.courseId).subscribe(course => {
+              this.course = course;
+            });
+            // Load total lessons count
+            this.courseService.getLessonsByCourseId(lesson.courseId).subscribe(lessons => {
+              this.totalLessons = lessons.length;
+            });
+          }
         });
       }
     });
@@ -246,13 +260,16 @@ export class QuizComponent implements OnInit {
     this.courseService.getNextLesson(this.lessonId).subscribe(nextLesson => {
       if (nextLesson) {
         this.router.navigate(['/courses/lesson', nextLesson.id]);
-      } else if (this.lesson) {
-        // No next lesson, go to course detail
-        this.router.navigate(['/courses', this.lesson.courseId]);
       } else {
-        this.router.navigate(['/courses']);
+        // No next lesson - course completed, show celebration
+        this.showCelebration = true;
       }
     });
+  }
+
+  onCelebrationContinue(): void {
+    // Navigate to my courses page
+    this.router.navigate(['/my-courses']);
   }
 
   getTimerDisplay(): string {

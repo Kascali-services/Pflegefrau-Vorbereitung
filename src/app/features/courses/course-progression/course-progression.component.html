@@ -31,8 +31,8 @@
       <div [innerHTML]="formatContent(lessonContent)"></div>
     </div>
 
-    <!-- Lesson navigation (Previous/Next) -->
-    <div class="lesson-navigation">
+    <!-- Lesson navigation (Previous/Next) - Only show if not last lesson -->
+    <div class="lesson-navigation" *ngIf="nextLesson">
       <button
         class="nav-btn prev-btn"
         (click)="goToPreviousLesson()"
@@ -44,7 +44,7 @@
       <button
         class="nav-btn next-btn"
         (click)="goToNextLesson()"
-        *ngIf="nextLesson && isNextLessonAccessible"
+        *ngIf="isNextLessonAccessible"
         [title]="'Nächste Lektion: ' + nextLesson.title"
       >
         Nächste Lektion →
@@ -74,6 +74,15 @@
     </div>
   </div>
 </div>
+
+<!-- Celebration component -->
+<app-course-celebration
+  *ngIf="showCelebration && course"
+  [courseTitle]="course.title"
+  [completedLessons]="totalLessons"
+  [totalLessons]="totalLessons"
+  (continue)="onCelebrationContinue()"
+></app-course-celebration>
 
 <div class="access-denied" *ngIf="!isAccessible && lesson">
   <div class="message">
