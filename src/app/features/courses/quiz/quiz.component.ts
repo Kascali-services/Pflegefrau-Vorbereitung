@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CourseService } from '../../../core/services/course.service';
@@ -18,7 +18,7 @@ interface QuizQuestionWithOptions {
   templateUrl: './quiz.component.html',
   styleUrl: './quiz.component.scss',
 })
-export class QuizComponent implements OnInit {
+export class QuizComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private courseService = inject(CourseService);
@@ -35,7 +35,7 @@ export class QuizComponent implements OnInit {
   showExplanation = false;
   alreadyPassed = false;
   timeRemaining: number | null = null;
-  timerInterval: any;
+  timerInterval: ReturnType<typeof setInterval> | null = null;
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {

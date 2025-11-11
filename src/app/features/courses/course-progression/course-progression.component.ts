@@ -207,14 +207,14 @@ export class CourseProgressionComponent implements OnInit {
     
     // Fix list formatting
     let inList = false;
-    formatted = formatted.replace(/<li>/g, (match) => {
+    formatted = formatted.replace(/<li>/g, () => {
       if (!inList) {
         inList = true;
         return '<ul><li>';
       }
-      return match;
+      return '<li>';
     });
-    formatted = formatted.replace(/<\/li>/g, (match) => {
+    formatted = formatted.replace(/<\/li>/g, () => {
       return '</li>';
     });
     formatted = formatted.replace(/<\/li>(?!<li>)/g, '</li></ul>');

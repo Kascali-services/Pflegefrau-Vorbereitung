@@ -13,7 +13,6 @@ import {
 import {
   UserProgress,
   UserQuizAttempt,
-  QuizAnswer,
 } from '../../models/progress.model';
 import { User, UserCourseEnrollment } from '../../models/user.model';
 
