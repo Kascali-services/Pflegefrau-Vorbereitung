@@ -15,24 +15,7 @@ import {
   UserProgress,
   UserQuizAttempt,
 } from '../../models/progress.model';
-import { User, UserCourseEnrollment } from '../../models/user.model';
-
-/**
- * Mock Users
- */
-export const MOCK_USERS: User[] = [
-  {
-    id: 'user-001',
-    email: 'marie.dupont@example.com',
-    firstName: 'Marie',
-    lastName: 'Dupont',
-    avatarUrl: undefined,
-    role: 'student',
-    createdAt: new Date('2025-01-01'),
-    updatedAt: new Date('2025-01-01'),
-    lastLoginAt: new Date('2025-02-10'),
-  },
-];
+import { UserCourseEnrollment } from '../../models/user.model';
 
 /**
  * Mock Courses
