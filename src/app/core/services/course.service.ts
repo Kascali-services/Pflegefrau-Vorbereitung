@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import {
   Course,
   Lesson,
+  LessonContent,
   Quiz,
   Question,
   QuizOption,
@@ -18,6 +19,7 @@ import { UserService } from './user.service';
 import {
   MOCK_COURSES,
   MOCK_LESSONS,
+  MOCK_LESSON_CONTENTS,
   MOCK_QUIZZES,
   MOCK_QUESTIONS,
   MOCK_QUIZ_OPTIONS,
@@ -41,6 +43,7 @@ export class CourseService {
   // Data stores
   private coursesSubject = new BehaviorSubject<Course[]>([]);
   private lessonsSubject = new BehaviorSubject<Lesson[]>([]);
+  private lessonContentsSubject = new BehaviorSubject<LessonContent[]>([]);
   private quizzesSubject = new BehaviorSubject<Quiz[]>([]);
   private questionsSubject = new BehaviorSubject<Question[]>([]);
   private quizOptionsSubject = new BehaviorSubject<QuizOption[]>([]);
@@ -51,6 +54,7 @@ export class CourseService {
   // Observables
   courses$ = this.coursesSubject.asObservable();
   lessons$ = this.lessonsSubject.asObservable();
+  lessonContents$ = this.lessonContentsSubject.asObservable();
   quizzes$ = this.quizzesSubject.asObservable();
   questions$ = this.questionsSubject.asObservable();
   quizOptions$ = this.quizOptionsSubject.asObservable();
@@ -105,7 +109,21 @@ export class CourseService {
   }
 
   /**
+   * Get all content items for a specific lesson (sorted by orderIndex)
+   */
+  getLessonContents(lessonId: string): Observable<LessonContent[]> {
+    return this.lessonContents$.pipe(
+      map(contents =>
+        contents
+          .filter(c => c.lessonId === lessonId)
+          .sort((a, b) => a.orderIndex - b.orderIndex)
+      )
+    );
+  }
+
+  /**
    * Get lesson content (markdown)
+   * @deprecated Use getLessonContents instead for the new multi-content structure
    */
   getLessonContent(lessonId: string): Observable<string> {
     // In a real app, this would fetch from contentMdPath
@@ -645,6 +663,7 @@ export class CourseService {
   private initializeMockData(): void {
     this.coursesSubject.next(MOCK_COURSES);
     this.lessonsSubject.next(MOCK_LESSONS);
+    this.lessonContentsSubject.next(MOCK_LESSON_CONTENTS);
     this.quizzesSubject.next(MOCK_QUIZZES);
     this.questionsSubject.next(MOCK_QUESTIONS);
     this.quizOptionsSubject.next(MOCK_QUIZ_OPTIONS);

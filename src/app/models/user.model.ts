@@ -9,6 +9,7 @@ export interface User {
   firstName?: string; // VARCHAR(100)
   lastName?: string; // VARCHAR(100)
   avatarUrl?: string; // VARCHAR(500)
+  role?: 'student' | 'content_manager' | 'admin'; // ENUM - User role in the system
   createdAt?: Date; // TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   updatedAt?: Date; // TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   lastLoginAt?: Date; // TIMESTAMP
