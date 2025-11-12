@@ -23,8 +23,8 @@ import { UserCourseEnrollment } from '../../models/user.model';
 export const MOCK_COURSES: Course[] = [
   {
     id: 'course-1',
-    title: 'Vocabulaire anatomique',
-    description: 'Apprenez les termes anatomiques essentiels pour les soins infirmiers',
+    title: 'Anatomisches Vokabular',
+    description: 'Lernen Sie die wesentlichen anatomischen Begriffe für die Krankenpflege',
     thumbnailUrl: '/assets/placeholders/anatomie.png',
     level: 'beginner',
     durationMinutes: 120,
@@ -34,8 +34,8 @@ export const MOCK_COURSES: Course[] = [
   },
   {
     id: 'course-2',
-    title: 'Soins infirmiers de base',
-    description: 'Techniques fondamentales des soins infirmiers',
+    title: 'Grundlegende Krankenpflege',
+    description: 'Grundlegende Techniken der Krankenpflege',
     thumbnailUrl: '/assets/placeholders/anatomie.png',
     level: 'intermediate',
     durationMinutes: 60,
@@ -53,8 +53,8 @@ export const MOCK_LESSONS: Lesson[] = [
   {
     id: 'lesson-1',
     courseId: 'course-1',
-    title: "Les bases de l'anatomie",
-    description: "Introduction à l'étude de l'anatomie humaine",
+    title: "Grundlagen der Anatomie",
+    description: "Einführung in das Studium der menschlichen Anatomie",
     durationMinutes: 15,
     orderIndex: 1,
     createdAt: new Date('2025-01-01'),
@@ -62,8 +62,8 @@ export const MOCK_LESSONS: Lesson[] = [
   {
     id: 'lesson-2',
     courseId: 'course-1',
-    title: 'Terminologie anatomique',
-    description: 'Apprenez les termes et positions anatomiques standard',
+    title: 'Anatomische Terminologie',
+    description: 'Lernen Sie die anatomischen Standardbegriffe und Positionen',
     durationMinutes: 20,
     orderIndex: 2,
     createdAt: new Date('2025-01-01'),
@@ -71,8 +71,8 @@ export const MOCK_LESSONS: Lesson[] = [
   {
     id: 'lesson-3',
     courseId: 'course-1',
-    title: 'Le système squelettique',
-    description: 'Découvrez la structure et les fonctions du squelette humain',
+    title: 'Das Skelettsystem',
+    description: 'Entdecken Sie die Struktur und Funktionen des menschlichen Skeletts',
     durationMinutes: 25,
     orderIndex: 3,
     createdAt: new Date('2025-01-01'),
@@ -81,8 +81,8 @@ export const MOCK_LESSONS: Lesson[] = [
   {
     id: 'lesson-4',
     courseId: 'course-2',
-    title: 'Lavage des mains',
-    description: 'Technique essentielle pour prévenir les infections',
+    title: 'Händewaschen',
+    description: 'Wesentliche Technik zur Infektionsprävention',
     durationMinutes: 10,
     orderIndex: 1,
     createdAt: new Date('2025-01-15'),
@@ -99,33 +99,33 @@ export const MOCK_LESSON_CONTENTS: LessonContent[] = [
     id: 'content-1-1',
     lessonId: 'lesson-1',
     contentType: 'text',
-    contentValue: `# Les bases de l'anatomie
+    contentValue: `# Grundlagen der Anatomie
 
-L'anatomie est l'étude scientifique de la structure du corps humain et de ses différentes parties. C'est une discipline fondamentale pour tous les professionnels de la santé.
+Die Anatomie ist die wissenschaftliche Untersuchung der Struktur des menschlichen Körpers und seiner verschiedenen Teile. Sie ist eine grundlegende Disziplin für alle Gesundheitsfachkräfte.
 
-## Qu'est-ce que l'anatomie?
+## Was ist Anatomie?
 
-L'anatomie humaine est une branche de la biologie qui examine:
-- La structure des organes
-- Les systèmes corporels
-- Les tissus et cellules
-- Les relations entre différentes parties du corps
+Die menschliche Anatomie ist ein Zweig der Biologie, der untersucht:
+- Die Struktur der Organe
+- Die Körpersysteme
+- Gewebe und Zellen
+- Die Beziehungen zwischen verschiedenen Körperteilen
 
-## Importance pour les soins infirmiers
+## Bedeutung für die Krankenpflege
 
-Comprendre l'anatomie est essentiel pour:
-1. Administrer correctement les soins
-2. Communiquer avec les professionnels de santé
-3. Reconnaître les anomalies
-4. Comprendre les pathologies
+Das Verständnis der Anatomie ist unerlässlich für:
+1. Die korrekte Durchführung von Pflegemaßnahmen
+2. Die Kommunikation mit medizinischem Fachpersonal
+3. Das Erkennen von Anomalien
+4. Das Verstehen von Pathologien
 
-## Niveaux d'organisation
+## Organisationsebenen
 
-Le corps humain s'organise en plusieurs niveaux:
-- **Cellulaire**: Les cellules sont les unités de base
-- **Tissulaire**: Les tissus sont des groupes de cellules similaires
-- **Organique**: Les organes sont composés de plusieurs tissus
-- **Systémique**: Les systèmes regroupent plusieurs organes`,
+Der menschliche Körper ist in mehreren Ebenen organisiert:
+- **Zellulär**: Zellen sind die Grundeinheiten
+- **Gewebe**: Gewebe sind Gruppen ähnlicher Zellen
+- **Organ**: Organe bestehen aus mehreren Geweben
+- **System**: Systeme bestehen aus mehreren Organen`,
     orderIndex: 1,
     createdAt: new Date('2025-01-01'),
   },
@@ -134,47 +134,47 @@ Le corps humain s'organise en plusieurs niveaux:
     id: 'content-2-1',
     lessonId: 'lesson-2',
     contentType: 'text',
-    contentValue: `# Terminologie anatomique
+    contentValue: `# Anatomische Terminologie
 
-La terminologie anatomique utilise des termes spécifiques pour décrire précisément les positions et structures du corps humain.
+Die anatomische Terminologie verwendet spezifische Begriffe, um Positionen und Strukturen des menschlichen Körpers präzise zu beschreiben.
 
-## Position anatomique standard
+## Anatomische Standardposition
 
-La position anatomique de référence est:
-- Debout, face à l'observateur
-- Bras le long du corps
-- Paumes tournées vers l'avant
-- Pieds légèrement écartés
+Die anatomische Referenzposition ist:
+- Aufrecht stehend, dem Betrachter zugewandt
+- Arme entlang des Körpers
+- Handflächen nach vorne gedreht
+- Füße leicht gespreizt
 
-## Plans de coupe
+## Schnittebenen
 
-### Plan sagittal
-Divise le corps en parties droite et gauche.
+### Sagittalebene
+Teilt den Körper in rechte und linke Teile.
 
-### Plan frontal (coronal)
-Divise le corps en parties antérieure et postérieure.
+### Frontalebene (koronal)
+Teilt den Körper in vordere und hintere Teile.
 
-### Plan transversal (horizontal)
-Divise le corps en parties supérieure et inférieure.
+### Transversalebene (horizontal)
+Teilt den Körper in obere und untere Teile.
 
-## Termes de position
+## Positionsbegriffe
 
-- **Antérieur/Ventral**: Vers l'avant
-- **Postérieur/Dorsal**: Vers l'arrière
-- **Supérieur/Crânial**: Vers le haut
-- **Inférieur/Caudal**: Vers le bas
-- **Médial**: Vers le milieu
-- **Latéral**: Vers le côté
-- **Proximal**: Près du point d'attache
-- **Distal**: Loin du point d'attache
+- **Anterior/Ventral**: Nach vorne
+- **Posterior/Dorsal**: Nach hinten
+- **Superior/Kranial**: Nach oben
+- **Inferior/Kaudal**: Nach unten
+- **Medial**: Zur Mitte hin
+- **Lateral**: Zur Seite hin
+- **Proximal**: Nahe am Befestigungspunkt
+- **Distal**: Weit vom Befestigungspunkt
 
-## Application pratique
+## Praktische Anwendung
 
-Ces termes sont utilisés quotidiennement pour:
-- Documenter les observations
-- Communiquer avec l'équipe médicale
-- Localiser les symptômes
-- Décrire les procédures`,
+Diese Begriffe werden täglich verwendet für:
+- Dokumentation von Beobachtungen
+- Kommunikation mit dem medizinischen Team
+- Lokalisierung von Symptomen
+- Beschreibung von Verfahren`,
     orderIndex: 1,
     createdAt: new Date('2025-01-01'),
   },
@@ -183,48 +183,48 @@ Ces termes sont utilisés quotidiennement pour:
     id: 'content-3-1',
     lessonId: 'lesson-3',
     contentType: 'text',
-    contentValue: `# Le système squelettique
+    contentValue: `# Das Skelettsystem
 
-Le système squelettique comprend tous les os du corps humain et joue un rôle crucial dans notre fonctionnement.
+Das Skelettsystem umfasst alle Knochen des menschlichen Körpers und spielt eine entscheidende Rolle für unsere Funktion.
 
-## Composition du squelette
+## Zusammensetzung des Skeletts
 
-Le squelette adulte comprend **206 os** divisés en deux parties:
+Das erwachsene Skelett umfasst **206 Knochen**, die in zwei Teile unterteilt sind:
 
-### Squelette axial (80 os)
-- Crâne: 22 os
-- Colonne vertébrale: 26 os (vertèbres et os sacrés)
-- Cage thoracique: 25 os (côtes et sternum)
-- Os hyoïde: 1 os
+### Axialskelett (80 Knochen)
+- Schädel: 22 Knochen
+- Wirbelsäule: 26 Knochen (Wirbel und Sakralbeinknochen)
+- Brustkorb: 25 Knochen (Rippen und Brustbein)
+- Zungenbein: 1 Knochen
 
-### Squelette appendiculaire (126 os)
-- Ceinture scapulaire: 4 os (clavicules et omoplates)
-- Membres supérieurs: 60 os
-- Ceinture pelvienne: 2 os (os coxaux)
-- Membres inférieurs: 60 os
+### Appendikuläres Skelett (126 Knochen)
+- Schultergürtel: 4 Knochen (Schlüsselbeine und Schulterblätter)
+- Obere Extremitäten: 60 Knochen
+- Beckengürtel: 2 Knochen (Hüftknochen)
+- Untere Extremitäten: 60 Knochen
 
-## Fonctions du système squelettique
+## Funktionen des Skelettsystems
 
-1. **Support**: Maintient la structure du corps
-2. **Protection**: Protège les organes vitaux
-3. **Mouvement**: Sert de point d'ancrage aux muscles
-4. **Production**: Fabrique les cellules sanguines (moelle osseuse)
-5. **Stockage**: Réserve de minéraux (calcium, phosphore)
+1. **Stützfunktion**: Erhält die Körperstruktur
+2. **Schutzfunktion**: Schützt lebenswichtige Organe
+3. **Bewegung**: Dient als Ansatzpunkt für Muskeln
+4. **Produktion**: Produziert Blutzellen (Knochenmark)
+5. **Speicherung**: Speicher für Mineralien (Kalzium, Phosphor)
 
-## Types d'os
+## Knochenarten
 
-- **Os longs**: Fémur, humérus (leviers pour le mouvement)
-- **Os courts**: Carpiens, tarsiens (stabilité)
-- **Os plats**: Crâne, côtes (protection)
-- **Os irréguliers**: Vertèbres (fonctions spécialisées)
+- **Lange Knochen**: Oberschenkelknochen, Oberarmknochen (Hebel für Bewegung)
+- **Kurze Knochen**: Handwurzel-, Fußwurzelknochen (Stabilität)
+- **Flache Knochen**: Schädel, Rippen (Schutz)
+- **Unregelmäßige Knochen**: Wirbel (spezialisierte Funktionen)
 
-## Importance clinique
+## Klinische Bedeutung
 
-La connaissance du système squelettique permet de:
-- Comprendre les fractures
-- Identifier les déformations
-- Assister dans les mobilisations
-- Reconnaître les pathologies osseuses`,
+Die Kenntnis des Skelettsystems ermöglicht:
+- Das Verstehen von Frakturen
+- Das Erkennen von Deformationen
+- Die Unterstützung bei Mobilisierungen
+- Das Erkennen von Knochenpathologien`,
     orderIndex: 1,
     createdAt: new Date('2025-01-01'),
   },
@@ -233,17 +233,17 @@ La connaissance du système squelettique permet de:
     id: 'content-4-1',
     lessonId: 'lesson-4',
     contentType: 'text',
-    contentValue: `# Lavage des mains
+    contentValue: `# Händewaschen
 
-Le lavage des mains est une procédure essentielle pour prévenir les infections nosocomiales.
+Händewaschen ist ein wesentliches Verfahren zur Vorbeugung von nosokomialen Infektionen.
 
-## Pourquoi se laver les mains?
+## Warum Hände waschen?
 
-L'hygiène des mains est la mesure la plus efficace pour:
-- Prévenir la transmission des infections
-- Protéger les patients
-- Protéger le personnel soignant
-- Réduire la résistance aux antibiotiques`,
+Händehygiene ist die wirksamste Maßnahme zur:
+- Verhinderung der Übertragung von Infektionen
+- Schutz der Patienten
+- Schutz des Pflegepersonals
+- Verringerung der Antibiotikaresistenz`,
     orderIndex: 1,
     createdAt: new Date('2025-01-15'),
   },
@@ -259,37 +259,37 @@ L'hygiène des mains est la mesure la plus efficace pour:
     id: 'content-4-3',
     lessonId: 'lesson-4',
     contentType: 'text',
-    contentValue: `## Les 5 moments de l'hygiène des mains
+    contentValue: `## Die 5 Momente der Händehygiene
 
-1. **Avant le contact avec le patient**
-2. **Avant un geste aseptique**
-3. **Après exposition à un liquide biologique**
-4. **Après contact avec le patient**
-5. **Après contact avec l'environnement du patient**
+1. **Vor Patientenkontakt**
+2. **Vor aseptischen Tätigkeiten**
+3. **Nach Kontakt mit potenziell infektiösem Material**
+4. **Nach Patientenkontakt**
+5. **Nach Kontakt mit der unmittelbaren Patientenumgebung**
 
-## Technique de lavage
+## Waschtechnik
 
-### Lavage simple (40-60 secondes)
-1. Mouiller les mains
-2. Appliquer du savon
-3. Frotter paume contre paume
-4. Frotter le dos des mains
-5. Frotter entre les doigts
-6. Frotter les pouces
-7. Frotter le bout des doigts
-8. Rincer abondamment
-9. Sécher avec une serviette jetable
+### Einfaches Waschen (40-60 Sekunden)
+1. Hände befeuchten
+2. Seife auftragen
+3. Handfläche gegen Handfläche reiben
+4. Handrücken reiben
+5. Zwischen den Fingern reiben
+6. Daumen reiben
+7. Fingerspitzen reiben
+8. Gründlich abspülen
+9. Mit Einweghandtuch trocknen
 
-### Friction hydro-alcoolique (20-30 secondes)
-Même technique de frottage mais avec une solution hydro-alcoolique.
+### Händedesinfektion (20-30 Sekunden)
+Gleiche Reibetechnik, aber mit alkoholischer Händedesinfektionslösung.
 
-## Points importants
+## Wichtige Punkte
 
-- Retirer bijoux et montre
-- Ongles courts et propres
-- Pas de vernis à ongles
-- Couvrir les plaies
-- Ne pas toucher les robinets avec les mains propres`,
+- Schmuck und Uhr abnehmen
+- Kurze und saubere Nägel
+- Kein Nagellack
+- Wunden abdecken
+- Wasserhähne nicht mit sauberen Händen berühren`,
     orderIndex: 3,
     createdAt: new Date('2025-01-15'),
   },
@@ -302,7 +302,7 @@ export const MOCK_QUIZZES: Quiz[] = [
   {
     id: 'quiz-1',
     lessonId: 'lesson-2',
-    title: 'Quiz: Terminologie anatomique',
+    title: 'Quiz: Anatomische Terminologie',
     passingScore: 80,
     questionsCount: 10,
     timeLimitMinutes: 15,
@@ -311,7 +311,7 @@ export const MOCK_QUIZZES: Quiz[] = [
   {
     id: 'quiz-2',
     lessonId: 'lesson-3',
-    title: 'Quiz: Le système squelettique',
+    title: 'Quiz: Das Skelettsystem',
     passingScore: 80,
     questionsCount: 10,
     timeLimitMinutes: 15,
@@ -320,7 +320,7 @@ export const MOCK_QUIZZES: Quiz[] = [
   {
     id: 'quiz-3',
     lessonId: 'lesson-4',
-    title: 'Quiz: Lavage des mains',
+    title: 'Quiz: Händewaschen',
     passingScore: 80,
     questionsCount: 10,
     timeLimitMinutes: 15,
@@ -336,10 +336,10 @@ export const MOCK_QUESTIONS: Question[] = [
   {
     id: 'q1-1',
     quizId: 'quiz-1',
-    questionText: 'Quelle est la position de référence en anatomie?',
+    questionText: 'Was ist die Referenzposition in der Anatomie?',
     type: 'qcm',
     explanation:
-      "La position anatomique de référence est debout, face à l'observateur, bras le long du corps, paumes tournées vers l'avant.",
+      'Die anatomische Referenzposition ist aufrecht stehend, dem Betrachter zugewandt, Arme entlang des Körpers, Handflächen nach vorne gedreht.',
     orderIndex: 1,
     points: 1,
     createdAt: new Date('2025-01-01'),
@@ -347,9 +347,9 @@ export const MOCK_QUESTIONS: Question[] = [
   {
     id: 'q1-2',
     quizId: 'quiz-1',
-    questionText: 'Quel plan divise le corps en parties droite et gauche?',
+    questionText: 'Welche Ebene teilt den Körper in rechte und linke Teile?',
     type: 'qcm',
-    explanation: 'Le plan sagittal divise le corps en parties droite et gauche.',
+    explanation: 'Die Sagittalebene teilt den Körper in rechte und linke Teile.',
     orderIndex: 2,
     points: 1,
     createdAt: new Date('2025-01-01'),
@@ -357,9 +357,9 @@ export const MOCK_QUESTIONS: Question[] = [
   {
     id: 'q1-3',
     quizId: 'quiz-1',
-    questionText: "Le terme 'antérieur' signifie vers l'avant du corps.",
+    questionText: "Der Begriff 'anterior' bedeutet nach vorne zum Körper.",
     type: 'vrai_faux',
-    explanation: "Antérieur (ou ventral) signifie vers l'avant du corps.",
+    explanation: "Anterior (oder ventral) bedeutet nach vorne zum Körper.",
     orderIndex: 3,
     points: 1,
     createdAt: new Date('2025-01-01'),
@@ -368,9 +368,9 @@ export const MOCK_QUESTIONS: Question[] = [
   {
     id: 'q2-1',
     quizId: 'quiz-2',
-    questionText: "Combien d'os comprend le squelette d'un adulte?",
+    questionText: "Wie viele Knochen hat das Skelett eines Erwachsenen?",
     type: 'qcm',
-    explanation: 'Le squelette adulte comprend 206 os.',
+    explanation: 'Das erwachsene Skelett besteht aus 206 Knochen.',
     orderIndex: 1,
     points: 1,
     createdAt: new Date('2025-01-01'),
@@ -378,10 +378,10 @@ export const MOCK_QUESTIONS: Question[] = [
   {
     id: 'q2-2',
     quizId: 'quiz-2',
-    questionText: 'Le squelette axial comprend:',
+    questionText: 'Das Axialskelett umfasst:',
     type: 'qcm',
     explanation:
-      'Le squelette axial comprend le crâne, la colonne vertébrale et la cage thoracique (80 os).',
+      'Das Axialskelett umfasst den Schädel, die Wirbelsäule und den Brustkorb (80 Knochen).',
     orderIndex: 2,
     points: 1,
     createdAt: new Date('2025-01-01'),
@@ -390,10 +390,10 @@ export const MOCK_QUESTIONS: Question[] = [
   {
     id: 'q3-1',
     quizId: 'quiz-3',
-    questionText: 'Quelle est la durée recommandée pour un lavage simple des mains?',
+    questionText: 'Wie lange ist die empfohlene Dauer für einfaches Händewaschen?',
     type: 'qcm',
     explanation:
-      'Un lavage simple des mains doit durer 40 à 60 secondes pour être efficace.',
+      'Einfaches Händewaschen sollte 40 bis 60 Sekunden dauern, um wirksam zu sein.',
     orderIndex: 1,
     points: 1,
     createdAt: new Date('2025-01-15'),
@@ -401,10 +401,10 @@ export const MOCK_QUESTIONS: Question[] = [
   {
     id: 'q3-2',
     quizId: 'quiz-3',
-    questionText: "L'hygiène des mains prévient les infections nosocomiales.",
+    questionText: "Händehygiene beugt nosokomialen Infektionen vor.",
     type: 'vrai_faux',
     explanation:
-      "L'hygiène des mains est la mesure la plus efficace pour prévenir les infections nosocomiales.",
+      "Händehygiene ist die wirksamste Maßnahme zur Vorbeugung nosokomialer Infektionen.",
     orderIndex: 2,
     points: 1,
     createdAt: new Date('2025-01-15'),
@@ -419,7 +419,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q1-1-1',
     questionId: 'q1-1',
-    optionText: 'Allongé sur le dos',
+    optionText: 'Auf dem Rücken liegend',
     isCorrect: false,
     orderIndex: 1,
     createdAt: new Date('2025-01-01'),
@@ -427,7 +427,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q1-1-2',
     questionId: 'q1-1',
-    optionText: "Debout, bras le long du corps, paumes vers l'avant",
+    optionText: 'Aufrecht stehend, Arme entlang des Körpers, Handflächen nach vorne',
     isCorrect: true,
     orderIndex: 2,
     createdAt: new Date('2025-01-01'),
@@ -435,7 +435,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q1-1-3',
     questionId: 'q1-1',
-    optionText: 'Assis avec les jambes croisées',
+    optionText: 'Sitzend mit gekreuzten Beinen',
     isCorrect: false,
     orderIndex: 3,
     createdAt: new Date('2025-01-01'),
@@ -443,7 +443,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q1-1-4',
     questionId: 'q1-1',
-    optionText: 'Debout avec les bras levés',
+    optionText: 'Stehend mit erhobenen Armen',
     isCorrect: false,
     orderIndex: 4,
     createdAt: new Date('2025-01-01'),
@@ -452,7 +452,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q1-2-1',
     questionId: 'q1-2',
-    optionText: 'Plan frontal',
+    optionText: 'Frontalebene',
     isCorrect: false,
     orderIndex: 1,
     createdAt: new Date('2025-01-01'),
@@ -460,7 +460,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q1-2-2',
     questionId: 'q1-2',
-    optionText: 'Plan sagittal',
+    optionText: 'Sagittalebene',
     isCorrect: true,
     orderIndex: 2,
     createdAt: new Date('2025-01-01'),
@@ -468,7 +468,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q1-2-3',
     questionId: 'q1-2',
-    optionText: 'Plan transversal',
+    optionText: 'Transversalebene',
     isCorrect: false,
     orderIndex: 3,
     createdAt: new Date('2025-01-01'),
@@ -476,7 +476,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q1-2-4',
     questionId: 'q1-2',
-    optionText: 'Plan oblique',
+    optionText: 'Schräge Ebene',
     isCorrect: false,
     orderIndex: 4,
     createdAt: new Date('2025-01-01'),
@@ -485,7 +485,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q1-3-1',
     questionId: 'q1-3',
-    optionText: 'Vrai',
+    optionText: 'Wahr',
     isCorrect: true,
     orderIndex: 1,
     createdAt: new Date('2025-01-01'),
@@ -493,7 +493,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q1-3-2',
     questionId: 'q1-3',
-    optionText: 'Faux',
+    optionText: 'Falsch',
     isCorrect: false,
     orderIndex: 2,
     createdAt: new Date('2025-01-01'),
@@ -502,7 +502,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q2-1-1',
     questionId: 'q2-1',
-    optionText: '186 os',
+    optionText: '186 Knochen',
     isCorrect: false,
     orderIndex: 1,
     createdAt: new Date('2025-01-01'),
@@ -510,7 +510,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q2-1-2',
     questionId: 'q2-1',
-    optionText: '196 os',
+    optionText: '196 Knochen',
     isCorrect: false,
     orderIndex: 2,
     createdAt: new Date('2025-01-01'),
@@ -518,7 +518,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q2-1-3',
     questionId: 'q2-1',
-    optionText: '206 os',
+    optionText: '206 Knochen',
     isCorrect: true,
     orderIndex: 3,
     createdAt: new Date('2025-01-01'),
@@ -526,7 +526,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q2-1-4',
     questionId: 'q2-1',
-    optionText: '216 os',
+    optionText: '216 Knochen',
     isCorrect: false,
     orderIndex: 4,
     createdAt: new Date('2025-01-01'),
@@ -535,7 +535,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q2-2-1',
     questionId: 'q2-2',
-    optionText: 'Les membres supérieurs et inférieurs',
+    optionText: 'Die oberen und unteren Extremitäten',
     isCorrect: false,
     orderIndex: 1,
     createdAt: new Date('2025-01-01'),
@@ -543,7 +543,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q2-2-2',
     questionId: 'q2-2',
-    optionText: 'Le crâne, la colonne vertébrale et la cage thoracique',
+    optionText: 'Den Schädel, die Wirbelsäule und den Brustkorb',
     isCorrect: true,
     orderIndex: 2,
     createdAt: new Date('2025-01-01'),
@@ -551,7 +551,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q2-2-3',
     questionId: 'q2-2',
-    optionText: 'Uniquement les os des bras',
+    optionText: 'Nur die Armknochen',
     isCorrect: false,
     orderIndex: 3,
     createdAt: new Date('2025-01-01'),
@@ -559,7 +559,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q2-2-4',
     questionId: 'q2-2',
-    optionText: 'Uniquement les os des jambes',
+    optionText: 'Nur die Beinknochen',
     isCorrect: false,
     orderIndex: 4,
     createdAt: new Date('2025-01-01'),
@@ -568,7 +568,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q3-1-1',
     questionId: 'q3-1',
-    optionText: '10-20 secondes',
+    optionText: '10-20 Sekunden',
     isCorrect: false,
     orderIndex: 1,
     createdAt: new Date('2025-01-15'),
@@ -576,7 +576,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q3-1-2',
     questionId: 'q3-1',
-    optionText: '20-30 secondes',
+    optionText: '20-30 Sekunden',
     isCorrect: false,
     orderIndex: 2,
     createdAt: new Date('2025-01-15'),
@@ -584,7 +584,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q3-1-3',
     questionId: 'q3-1',
-    optionText: '40-60 secondes',
+    optionText: '40-60 Sekunden',
     isCorrect: true,
     orderIndex: 3,
     createdAt: new Date('2025-01-15'),
@@ -592,7 +592,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q3-1-4',
     questionId: 'q3-1',
-    optionText: '60-90 secondes',
+    optionText: '60-90 Sekunden',
     isCorrect: false,
     orderIndex: 4,
     createdAt: new Date('2025-01-15'),
@@ -601,7 +601,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q3-2-1',
     questionId: 'q3-2',
-    optionText: 'Vrai',
+    optionText: 'Wahr',
     isCorrect: true,
     orderIndex: 1,
     createdAt: new Date('2025-01-15'),
@@ -609,7 +609,7 @@ export const MOCK_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: 'opt-q3-2-2',
     questionId: 'q3-2',
-    optionText: 'Faux',
+    optionText: 'Falsch',
     isCorrect: false,
     orderIndex: 2,
     createdAt: new Date('2025-01-15'),
@@ -701,165 +701,3 @@ export const MOCK_QUIZ_ATTEMPTS: UserQuizAttempt[] = [
     completedAt: new Date('2025-02-05'),
   },
 ];
-
-/**
- * Content for lessons (inline for now, will be in separate .md files later)
- */
-export const MOCK_LESSON_CONTENT: Record<string, string> = {
-  'lesson-1': `# Les bases de l'anatomie
-
-L'anatomie est l'étude scientifique de la structure du corps humain et de ses différentes parties. C'est une discipline fondamentale pour tous les professionnels de la santé.
-
-## Qu'est-ce que l'anatomie?
-
-L'anatomie humaine est une branche de la biologie qui examine:
-- La structure des organes
-- Les systèmes corporels
-- Les tissus et cellules
-- Les relations entre différentes parties du corps
-
-## Importance pour les soins infirmiers
-
-Comprendre l'anatomie est essentiel pour:
-1. Administrer correctement les soins
-2. Communiquer avec les professionnels de santé
-3. Reconnaître les anomalies
-4. Comprendre les pathologies
-
-## Niveaux d'organisation
-
-Le corps humain s'organise en plusieurs niveaux:
-- **Cellulaire**: Les cellules sont les unités de base
-- **Tissulaire**: Les tissus sont des groupes de cellules similaires
-- **Organique**: Les organes sont composés de plusieurs tissus
-- **Systémique**: Les systèmes regroupent plusieurs organes`,
-
-  'lesson-2': `# Terminologie anatomique
-
-La terminologie anatomique utilise des termes spécifiques pour décrire précisément les positions et structures du corps humain.
-
-## Position anatomique standard
-
-La position anatomique de référence est:
-- Debout, face à l'observateur
-- Bras le long du corps
-- Paumes tournées vers l'avant
-- Pieds légèrement écartés
-
-## Plans de coupe
-
-### Plan sagittal
-Divise le corps en parties droite et gauche.
-
-### Plan frontal (coronal)
-Divise le corps en parties antérieure et postérieure.
-
-### Plan transversal (horizontal)
-Divise le corps en parties supérieure et inférieure.
-
-## Termes de position
-
-- **Antérieur/Ventral**: Vers l'avant
-- **Postérieur/Dorsal**: Vers l'arrière
-- **Supérieur/Crânial**: Vers le haut
-- **Inférieur/Caudal**: Vers le bas
-- **Médial**: Vers le milieu
-- **Latéral**: Vers le côté
-- **Proximal**: Près du point d'attache
-- **Distal**: Loin du point d'attache
-
-## Application pratique
-
-Ces termes sont utilisés quotidiennement pour:
-- Documenter les observations
-- Communiquer avec l'équipe médicale
-- Localiser les symptômes
-- Décrire les procédures`,
-
-  'lesson-3': `# Le système squelettique
-
-Le système squelettique comprend tous les os du corps humain et joue un rôle crucial dans notre fonctionnement.
-
-## Composition du squelette
-
-Le squelette adulte comprend **206 os** divisés en deux parties:
-
-### Squelette axial (80 os)
-- Crâne: 22 os
-- Colonne vertébrale: 26 os (vertèbres et os sacrés)
-- Cage thoracique: 25 os (côtes et sternum)
-- Os hyoïde: 1 os
-
-### Squelette appendiculaire (126 os)
-- Ceinture scapulaire: 4 os (clavicules et omoplates)
-- Membres supérieurs: 60 os
-- Ceinture pelvienne: 2 os (os coxaux)
-- Membres inférieurs: 60 os
-
-## Fonctions du système squelettique
-
-1. **Support**: Maintient la structure du corps
-2. **Protection**: Protège les organes vitaux
-3. **Mouvement**: Sert de point d'ancrage aux muscles
-4. **Production**: Fabrique les cellules sanguines (moelle osseuse)
-5. **Stockage**: Réserve de minéraux (calcium, phosphore)
-
-## Types d'os
-
-- **Os longs**: Fémur, humérus (leviers pour le mouvement)
-- **Os courts**: Carpiens, tarsiens (stabilité)
-- **Os plats**: Crâne, côtes (protection)
-- **Os irréguliers**: Vertèbres (fonctions spécialisées)
-
-## Importance clinique
-
-La connaissance du système squelettique permet de:
-- Comprendre les fractures
-- Identifier les déformations
-- Assister dans les mobilisations
-- Reconnaître les pathologies osseuses`,
-
-  'lesson-4': `# Lavage des mains
-
-Le lavage des mains est une procédure essentielle pour prévenir les infections nosocomiales.
-
-## Pourquoi se laver les mains?
-
-L'hygiène des mains est la mesure la plus efficace pour:
-- Prévenir la transmission des infections
-- Protéger les patients
-- Protéger le personnel soignant
-- Réduire la résistance aux antibiotiques
-
-## Les 5 moments de l'hygiène des mains
-
-1. **Avant le contact avec le patient**
-2. **Avant un geste aseptique**
-3. **Après exposition à un liquide biologique**
-4. **Après contact avec le patient**
-5. **Après contact avec l'environnement du patient**
-
-## Technique de lavage
-
-### Lavage simple (40-60 secondes)
-1. Mouiller les mains
-2. Appliquer du savon
-3. Frotter paume contre paume
-4. Frotter le dos des mains
-5. Frotter entre les doigts
-6. Frotter les pouces
-7. Frotter le bout des doigts
-8. Rincer abondamment
-9. Sécher avec une serviette jetable
-
-### Friction hydro-alcoolique (20-30 secondes)
-Même technique de frottage mais avec une solution hydro-alcoolique.
-
-## Points importants
-
-- Retirer bijoux et montre
-- Ongles courts et propres
-- Pas de vernis à ongles
-- Couvrir les plaies
-- Ne pas toucher les robinets avec les mains propres`,
-};

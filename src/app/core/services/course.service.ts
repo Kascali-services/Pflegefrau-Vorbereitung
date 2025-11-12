@@ -26,7 +26,6 @@ import {
   MOCK_ENROLLMENTS,
   MOCK_USER_PROGRESS,
   MOCK_QUIZ_ATTEMPTS,
-  MOCK_LESSON_CONTENT,
 } from './mock-data';
 
 /**
@@ -127,7 +126,14 @@ export class CourseService {
    */
   getLessonContent(lessonId: string): Observable<string> {
     // In a real app, this would fetch from contentMdPath
-    return of(MOCK_LESSON_CONTENT[lessonId] || '# Content not found');
+    // Combine all text contents from MOCK_LESSON_CONTENTS for this lesson
+    const lessonContents = MOCK_LESSON_CONTENTS.filter(
+      c => c.lessonId === lessonId && c.contentType === 'text'
+    );
+    const combinedContent = lessonContents
+      .map(c => c.contentValue)
+      .join('\n\n---\n\n');
+    return of(combinedContent || '# Inhalt nicht gefunden');
   }
 
   /**
