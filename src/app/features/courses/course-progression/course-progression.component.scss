@@ -101,6 +101,39 @@
   color: #333;
   margin-bottom: 40px;
 
+  .content-item {
+    margin-bottom: 30px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .video-container {
+    margin: 20px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    video {
+      width: 100%;
+      max-height: 500px;
+      display: block;
+    }
+  }
+
+  .image-container {
+    margin: 20px 0;
+    text-align: center;
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+
   :deep(h1) {
     font-size: 28px;
     margin: 30px 0 20px 0;
