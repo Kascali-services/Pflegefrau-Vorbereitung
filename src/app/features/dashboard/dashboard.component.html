@@ -1,12 +1,12 @@
 <div class="dashboard-container">
   <div class="dashboard-header">
     <div>
-      <h1 class="dashboard-title">Tableau de bord - Gestion des cours</h1>
-      <p class="dashboard-subtitle">Gérez tous les cours et leurs leçons</p>
+      <h1 class="dashboard-title">Dashboard - Kursverwaltung</h1>
+      <p class="dashboard-subtitle">Verwalten Sie alle Kurse und deren Lektionen</p>
     </div>
     <button mat-raised-button color="primary" (click)="createNewCourse()" class="create-course-btn">
       <mat-icon>add</mat-icon>
-      Créer un nouveau cours
+      Neuen Kurs erstellen
     </button>
   </div>
 
@@ -20,7 +20,7 @@
             (click)="toggleCourse(item.course.id)"
             [attr.aria-expanded]="item.expanded"
             [attr.aria-label]="
-              item.expanded ? 'Masquer les leçons de ' + item.course.title : 'Afficher les leçons de ' + item.course.title
+              item.expanded ? 'Lektionen verbergen von ' + item.course.title : 'Lektionen anzeigen von ' + item.course.title
             "
           >
             <mat-icon>{{ item.expanded ? 'expand_less' : 'expand_more' }}</mat-icon>
@@ -39,11 +39,11 @@
             </span>
             <span class="meta-item">
               <mat-icon class="meta-icon">list</mat-icon>
-              {{ item.course.lessonsCount }} leçon(s)
+              {{ item.course.lessonsCount }} Lektion(en)
             </span>
             <span class="meta-item">
               <mat-icon class="meta-icon">schedule</mat-icon>
-              {{ item.course.durationMinutes }} min
+              {{ item.course.durationMinutes }} Min.
             </span>
           </div>
         </div>
@@ -51,7 +51,7 @@
         <!-- Lessons list (shown when expanded) -->
         <div *ngIf="item.expanded" class="lessons-section">
           <div class="lessons-header">
-            <h3 class="lessons-title">Leçons</h3>
+            <h3 class="lessons-title">Lektionen</h3>
             <button
               mat-raised-button
               color="accent"
@@ -59,7 +59,7 @@
               class="create-lesson-btn"
             >
               <mat-icon>add</mat-icon>
-              Ajouter une leçon
+              Lektion hinzufügen
             </button>
           </div>
 
@@ -74,7 +74,7 @@
                 <div class="lesson-meta">
                   <span class="lesson-duration">
                     <mat-icon class="duration-icon">schedule</mat-icon>
-                    {{ lesson.durationMinutes }} min
+                    {{ lesson.durationMinutes }} Min.
                   </span>
                 </div>
               </div>
@@ -84,17 +84,17 @@
                   color="primary"
                   (click)="onEditLesson(lesson)"
                   class="edit-btn"
-                  [attr.aria-label]="'Modifier la leçon ' + lesson.title"
+                  [attr.aria-label]="'Lektion bearbeiten ' + lesson.title"
                 >
                   <mat-icon>edit</mat-icon>
-                  Modifier
+                  Bearbeiten
                 </button>
               </div>
             </div>
           </div>
 
           <div *ngIf="item.lessons.length === 0" class="no-lessons">
-            <p>Aucune leçon disponible pour ce cours. Cliquez sur "Ajouter une leçon" pour commencer.</p>
+            <p>Keine Lektionen für diesen Kurs verfügbar. Klicken Sie auf "Lektion hinzufügen", um zu beginnen.</p>
           </div>
         </div>
       </mat-card-content>
@@ -102,6 +102,6 @@
   </div>
 
   <div *ngIf="(coursesWithLessons$ | async) === null" class="loading">
-    <p>Chargement des cours...</p>
+    <p>Kurse werden geladen...</p>
   </div>
 </div>

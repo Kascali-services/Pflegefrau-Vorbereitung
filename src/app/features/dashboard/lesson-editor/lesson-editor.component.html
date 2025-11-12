@@ -3,11 +3,11 @@
     <button mat-icon-button (click)="goBack()" class="back-btn">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <h1 class="title">Éditer la leçon</h1>
+    <h1 class="title">Lektion bearbeiten</h1>
   </div>
 
   <div *ngIf="isLoading" class="loading">
-    <p>Chargement...</p>
+    <p>Wird geladen...</p>
   </div>
 
   <div *ngIf="!isLoading && lesson" class="editor-content">
@@ -20,7 +20,7 @@
         <div class="lesson-meta">
           <span class="meta-item">
             <mat-icon>schedule</mat-icon>
-            {{ lesson.durationMinutes }} minutes
+            {{ lesson.durationMinutes }} Minuten
           </span>
         </div>
       </mat-card-content>
@@ -28,7 +28,7 @@
 
     <mat-card class="contents-card">
       <mat-card-header>
-        <mat-card-title>Contenus de la leçon</mat-card-title>
+        <mat-card-title>Lektionsinhalte</mat-card-title>
         <button
           mat-raised-button
           color="primary"
@@ -36,31 +36,31 @@
           class="add-content-btn"
         >
           <mat-icon>add</mat-icon>
-          Ajouter un contenu
+          Inhalt hinzufügen
         </button>
       </mat-card-header>
 
       <mat-card-content>
         <!-- Add new content form -->
         <div *ngIf="showAddContent" class="add-content-form">
-          <h3>Nouveau contenu</h3>
+          <h3>Neuer Inhalt</h3>
           <mat-form-field appearance="outline" class="content-type-field">
-            <mat-label>Type de contenu</mat-label>
+            <mat-label>Inhaltstyp</mat-label>
             <mat-select [(ngModel)]="newContentType">
-              <mat-option value="text">Texte</mat-option>
-              <mat-option value="image">Image</mat-option>
-              <mat-option value="video">Vidéo</mat-option>
+              <mat-option value="text">Text</mat-option>
+              <mat-option value="image">Bild</mat-option>
+              <mat-option value="video">Video</mat-option>
             </mat-select>
           </mat-form-field>
 
           <div *ngIf="newContentType === 'text'" class="text-content-field">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Contenu texte</mat-label>
+              <mat-label>Textinhalt</mat-label>
               <textarea
                 matInput
                 [(ngModel)]="newContentValue"
                 rows="6"
-                placeholder="Saisissez le contenu texte..."
+                placeholder="Geben Sie den Textinhalt ein..."
               ></textarea>
             </mat-form-field>
           </div>
@@ -75,7 +75,7 @@
             />
             <button mat-raised-button (click)="fileInput.click()" [disabled]="isSaving">
               <mat-icon>upload</mat-icon>
-              Télécharger {{ newContentType === 'image' ? 'une image' : 'une vidéo' }}
+              {{ newContentType === 'image' ? 'Bild hochladen' : 'Video hochladen' }}
             </button>
             <span *ngIf="newContentValue" class="file-name">{{ newContentValue }}</span>
           </div>
@@ -88,10 +88,10 @@
               [disabled]="isSaving || !newContentValue"
             >
               <mat-icon>save</mat-icon>
-              Ajouter
+              Hinzufügen
             </button>
             <button mat-button (click)="toggleAddContent()" [disabled]="isSaving">
-              Annuler
+              Abbrechen
             </button>
           </div>
         </div>
@@ -117,7 +117,7 @@
               <!-- Text content (editable) -->
               <div *ngIf="content.contentType === 'text'" class="text-content">
                 <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>Contenu</mat-label>
+                  <mat-label>Inhalt</mat-label>
                   <textarea
                     matInput
                     [(ngModel)]="content.contentValue"
@@ -140,7 +140,7 @@
                 />
                 <button mat-raised-button (click)="imageInput.click()" [disabled]="isSaving">
                   <mat-icon>upload</mat-icon>
-                  Changer l'image
+                  Bild ändern
                 </button>
               </div>
 
@@ -157,7 +157,7 @@
                 />
                 <button mat-raised-button (click)="videoInput.click()" [disabled]="isSaving">
                   <mat-icon>upload</mat-icon>
-                  Changer la vidéo
+                  Video ändern
                 </button>
               </div>
             </div>
@@ -168,7 +168,7 @@
                 color="warn"
                 (click)="deleteContent(content.id)"
                 [disabled]="isSaving"
-                [attr.aria-label]="'Supprimer le contenu ' + (i + 1)"
+                [attr.aria-label]="'Inhalt löschen ' + (i + 1)"
               >
                 <mat-icon>delete</mat-icon>
               </button>
@@ -177,7 +177,7 @@
 
           <div *ngIf="contents.length === 0" class="no-contents">
             <mat-icon>info</mat-icon>
-            <p>Aucun contenu pour cette leçon. Cliquez sur "Ajouter un contenu" pour commencer.</p>
+            <p>Kein Inhalt für diese Lektion. Klicken Sie auf "Inhalt hinzufügen", um zu beginnen.</p>
           </div>
         </div>
       </mat-card-content>

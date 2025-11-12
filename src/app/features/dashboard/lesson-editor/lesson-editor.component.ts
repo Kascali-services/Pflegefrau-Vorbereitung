@@ -154,10 +154,10 @@ export class LessonEditorComponent implements OnInit {
   deleteContent(contentId: string): void {
     this.dialogService
       .openConfirmation({
-        title: 'Supprimer le contenu',
-        message: 'Êtes-vous sûr de vouloir supprimer ce contenu ?',
-        confirmText: 'Supprimer',
-        cancelText: 'Annuler',
+        title: 'Inhalt löschen',
+        message: 'Möchten Sie diesen Inhalt wirklich löschen?',
+        confirmText: 'Löschen',
+        cancelText: 'Abbrechen',
       })
       .subscribe(confirmed => {
         if (confirmed) {
