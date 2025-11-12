@@ -24,9 +24,22 @@ export class RegisterComponent {
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
-      aktenzeichen: ['', [Validators.maxLength(8)]],
+      viaRecommendation: [false],
+      empfehlungsnummer: ['', [Validators.maxLength(8)]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
+    });
+
+    // Add conditional validation for empfehlungsnummer
+    this.registerForm.get('viaRecommendation')?.valueChanges.subscribe(isRecommended => {
+      const empfehlungsnummerControl = this.registerForm.get('empfehlungsnummer');
+      if (isRecommended) {
+        empfehlungsnummerControl?.setValidators([Validators.required, Validators.maxLength(8)]);
+      } else {
+        empfehlungsnummerControl?.setValidators([Validators.maxLength(8)]);
+        empfehlungsnummerControl?.setValue('');
+      }
+      empfehlungsnummerControl?.updateValueAndValidity();
     });
   }
 
@@ -45,9 +58,9 @@ export class RegisterComponent {
     this.isLoading = true;
     this.errorMessage = '';
 
-    const { email, firstName, lastName, aktenzeichen } = this.registerForm.value;
+    const { email, firstName, lastName, empfehlungsnummer } = this.registerForm.value;
 
-    this.authService.register(email, password, firstName, lastName, aktenzeichen).subscribe({
+    this.authService.register(email, password, firstName, lastName, empfehlungsnummer).subscribe({
       next: () => {
         this.isLoading = false;
         this.router.navigate(['/my-courses']);
@@ -88,5 +101,13 @@ export class RegisterComponent {
 
   get aktenzeichen() {
     return this.registerForm.get('aktenzeichen');
+  }
+
+  get viaRecommendation() {
+    return this.registerForm.get('viaRecommendation');
+  }
+
+  get empfehlungsnummer() {
+    return this.registerForm.get('empfehlungsnummer');
   }
 }

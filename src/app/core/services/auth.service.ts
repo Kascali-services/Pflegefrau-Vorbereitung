@@ -120,7 +120,7 @@ export class AuthService {
    * @param password User password
    * @param firstName User first name
    * @param lastName User last name
-   * @param aktenzeichen Optional reference number (max 8 characters)
+   * @param empfehlungsnummer Optional recommendation number (max 8 characters)
    * @returns Observable with created user data or error
    */
   register(
@@ -128,7 +128,7 @@ export class AuthService {
     password: string,
     firstName: string,
     lastName: string,
-    aktenzeichen?: string
+    empfehlungsnummer?: string
   ): Observable<User> {
     return new Observable(observer => {
       setTimeout(() => {
@@ -146,7 +146,7 @@ export class AuthService {
           email,
           firstName,
           lastName,
-          aktenzeichen: aktenzeichen || undefined,
+          aktenzeichen: empfehlungsnummer || undefined,
           passwordHash: password,
           createdAt: new Date(),
           updatedAt: new Date(),
