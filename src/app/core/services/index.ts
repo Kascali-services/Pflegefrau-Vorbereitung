@@ -4,3 +4,4 @@ export * from './course.service';
 export * from './user.service';
 export * from './team.service';
 export * from './contact.service';
+export * from './dashboard.service';
