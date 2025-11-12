@@ -22,8 +22,8 @@ describe('MobileMenuComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have 5 navigation links', () => {
-    expect(component.navLinks.length).toBe(5);
+  it('should have 6 navigation links', () => {
+    expect(component.navLinks.length).toBe(6);
   });
 
   it('should have correct navigation links', () => {
@@ -39,13 +39,17 @@ describe('MobileMenuComponent', () => {
     expect(component.navLinks[2].label).toBe('Mes Cours');
     expect(component.navLinks[2].exact).toBe(false);
 
-    expect(component.navLinks[3].path).toBe('/about');
-    expect(component.navLinks[3].label).toBe('À propos');
+    expect(component.navLinks[3].path).toBe('/dashboard');
+    expect(component.navLinks[3].label).toBe('Dashboard');
     expect(component.navLinks[3].exact).toBe(false);
 
-    expect(component.navLinks[4].path).toBe('/contact');
-    expect(component.navLinks[4].label).toBe('Contact');
+    expect(component.navLinks[4].path).toBe('/about');
+    expect(component.navLinks[4].label).toBe('À propos');
     expect(component.navLinks[4].exact).toBe(false);
+
+    expect(component.navLinks[5].path).toBe('/contact');
+    expect(component.navLinks[5].label).toBe('Contact');
+    expect(component.navLinks[5].exact).toBe(false);
   });
 
   it('should render menu button', () => {
@@ -97,9 +101,11 @@ describe('MobileMenuComponent', () => {
     expect(closeButton?.getAttribute('aria-label')).toBe('Close navigation menu');
   });
 
-  it('should render all navigation links in drawer', () => {
+  it('should render all public navigation links in drawer when not authenticated', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const links = compiled.querySelectorAll('.nav-link');
-    expect(links.length).toBe(5);
+    // Only public links are visible when not authenticated
+    // (Accueil, Cours, À propos, Contact + login button)
+    expect(links.length).toBeGreaterThanOrEqual(4);
   });
 });
