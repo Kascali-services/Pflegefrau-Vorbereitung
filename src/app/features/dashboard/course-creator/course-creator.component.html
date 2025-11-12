@@ -1,0 +1,91 @@
+<div class="course-creator-container">
+  <div class="header">
+    <button mat-icon-button (click)="cancel()" class="back-btn">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="title">Créer un nouveau cours</h1>
+  </div>
+
+  <mat-card class="creator-card">
+    <mat-card-content>
+      <form #courseForm="ngForm">
+        <div class="form-group">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Titre du cours *</mat-label>
+            <input
+              matInput
+              [(ngModel)]="courseData.title"
+              name="title"
+              required
+              placeholder="Ex: Vocabulaire anatomique"
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="form-group">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Description *</mat-label>
+            <textarea
+              matInput
+              [(ngModel)]="courseData.description"
+              name="description"
+              required
+              rows="4"
+              placeholder="Décrivez le contenu du cours..."
+            ></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Niveau</mat-label>
+            <mat-select [(ngModel)]="courseData.level" name="level">
+              <mat-option value="beginner">Débutant</mat-option>
+              <mat-option value="intermediate">Intermédiaire</mat-option>
+              <mat-option value="advanced">Avancé</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Durée (minutes)</mat-label>
+            <input
+              matInput
+              type="number"
+              [(ngModel)]="courseData.durationMinutes"
+              name="duration"
+              min="0"
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="form-group">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>URL de la vignette</mat-label>
+            <input
+              matInput
+              [(ngModel)]="courseData.thumbnailUrl"
+              name="thumbnailUrl"
+              placeholder="/assets/placeholders/course.png"
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="createCourse()"
+            [disabled]="isSaving || !courseForm.valid"
+            type="button"
+          >
+            <mat-icon>save</mat-icon>
+            Créer le cours
+          </button>
+          <button mat-button (click)="cancel()" [disabled]="isSaving" type="button">
+            Annuler
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

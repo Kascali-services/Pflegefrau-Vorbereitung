@@ -1,0 +1,96 @@
+<div class="lesson-creator-container">
+  <div class="header">
+    <button mat-icon-button (click)="cancel()" class="back-btn">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="title">Créer une nouvelle leçon</h1>
+  </div>
+
+  <mat-card class="creator-card">
+    <mat-card-header *ngIf="courseName">
+      <mat-card-title>Pour le cours: {{ courseName }}</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form #lessonForm="ngForm">
+        <div class="form-group">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Titre de la leçon *</mat-label>
+            <input
+              matInput
+              [(ngModel)]="lessonData.title"
+              name="title"
+              required
+              placeholder="Ex: Les bases de l'anatomie"
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="form-group">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Description</mat-label>
+            <textarea
+              matInput
+              [(ngModel)]="lessonData.description"
+              name="description"
+              rows="3"
+              placeholder="Description de la leçon..."
+            ></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Type de leçon</mat-label>
+            <mat-select [(ngModel)]="lessonData.type" name="type">
+              <mat-option value="text">Texte</mat-option>
+              <mat-option value="video">Vidéo</mat-option>
+              <mat-option value="interactive">Interactive</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Durée (minutes)</mat-label>
+            <input
+              matInput
+              type="number"
+              [(ngModel)]="lessonData.durationMinutes"
+              name="duration"
+              min="0"
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="form-group">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Position dans le cours</mat-label>
+            <input
+              matInput
+              type="number"
+              [(ngModel)]="lessonData.orderIndex"
+              name="orderIndex"
+              min="1"
+            />
+            <mat-hint>L'ordre d'affichage de cette leçon dans le cours</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="createLesson()"
+            [disabled]="isSaving || !lessonForm.valid"
+            type="button"
+          >
+            <mat-icon>save</mat-icon>
+            Créer la leçon
+          </button>
+          <button mat-button (click)="cancel()" [disabled]="isSaving" type="button">
+            Annuler
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

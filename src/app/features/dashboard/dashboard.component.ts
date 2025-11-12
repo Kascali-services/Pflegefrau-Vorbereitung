@@ -123,6 +123,14 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/dashboard/lesson', lesson.id]);
   }
 
+  createNewCourse(): void {
+    this.router.navigate(['/dashboard/course/create']);
+  }
+
+  createNewLesson(courseId: string): void {
+    this.router.navigate(['/dashboard/course', courseId, 'lesson', 'create']);
+  }
+
   isCourseExpanded(courseId: string): boolean {
     return this.expandedCourseIds.has(courseId);
   }

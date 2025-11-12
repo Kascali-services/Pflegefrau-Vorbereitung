@@ -25,6 +25,22 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard],
   },
   {
+    path: 'dashboard/course/create',
+    loadComponent: () =>
+      import('./features/dashboard/course-creator/course-creator.component').then(
+        m => m.CourseCreatorComponent
+      ),
+    canActivate: [authGuard, roleGuard],
+  },
+  {
+    path: 'dashboard/course/:courseId/lesson/create',
+    loadComponent: () =>
+      import('./features/dashboard/lesson-creator/lesson-creator.component').then(
+        m => m.LessonCreatorComponent
+      ),
+    canActivate: [authGuard, roleGuard],
+  },
+  {
     path: 'dashboard/lesson/:id',
     loadComponent: () =>
       import('./features/dashboard/lesson-editor/lesson-editor.component').then(
