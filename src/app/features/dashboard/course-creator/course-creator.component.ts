@@ -41,6 +41,8 @@ export class CourseCreatorComponent {
     thumbnailUrl: '',
   };
 
+  thumbnailFile: File | null = null;
+  thumbnailPreview: string | null = null;
   isSaving = false;
 
   createCourse(): void {
@@ -50,6 +52,25 @@ export class CourseCreatorComponent {
     }
 
     this.isSaving = true;
+
+    // If a thumbnail file was selected, upload it first
+    if (this.thumbnailFile) {
+      this.lessonEditorService.uploadFile(this.thumbnailFile).subscribe({
+        next: url => {
+          this.courseData.thumbnailUrl = url;
+          this.saveCourse();
+        },
+        error: () => {
+          this.showError('Erreur lors du téléchargement de la vignette');
+          this.isSaving = false;
+        },
+      });
+    } else {
+      this.saveCourse();
+    }
+  }
+
+  private saveCourse(): void {
     this.lessonEditorService.createCourse(this.courseData).subscribe({
       next: () => {
         this.showSuccess('Cours créé avec succès');
@@ -62,6 +83,26 @@ export class CourseCreatorComponent {
         this.isSaving = false;
       },
     });
+  }
+
+  onThumbnailSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.thumbnailFile = input.files[0];
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.thumbnailPreview = e.target?.result as string;
+      };
+      reader.readAsDataURL(this.thumbnailFile);
+    }
+  }
+
+  removeThumbnail(): void {
+    this.thumbnailFile = null;
+    this.thumbnailPreview = null;
+    this.courseData.thumbnailUrl = '';
   }
 
   cancel(): void {

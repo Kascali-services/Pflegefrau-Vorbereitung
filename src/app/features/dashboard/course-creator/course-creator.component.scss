@@ -22,6 +22,51 @@
   .creator-card {
     .form-group {
       margin-bottom: 20px;
+
+      h3.thumbnail-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.6);
+        margin: 0 0 8px 0;
+      }
+
+      .thumbnail-upload {
+        .upload-placeholder {
+          text-align: center;
+          padding: 40px 20px;
+          border: 2px dashed rgba(0, 0, 0, 0.12);
+          border-radius: 4px;
+          background-color: rgba(0, 0, 0, 0.02);
+
+          button {
+            margin-bottom: 12px;
+          }
+
+          .upload-hint {
+            margin: 0;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.54);
+          }
+        }
+
+        .thumbnail-preview {
+          text-align: center;
+
+          img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 12px;
+          }
+
+          .preview-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+          }
+        }
+      }
     }
 
     .full-width {
