@@ -23,10 +23,25 @@ export interface Lesson {
   courseId: string; // VARCHAR(50) [FK → Course.id] NOT NULL
   title: string; // VARCHAR(255) NOT NULL
   description?: string; // TEXT
-  contentMdPath: string; // VARCHAR(500) NOT NULL - path to markdown content
+  /** @deprecated Use LessonContent array instead */
+  contentMdPath?: string; // VARCHAR(500) - kept for backward compatibility
   durationMinutes: number; // INTEGER NOT NULL DEFAULT 0
   orderIndex: number; // INTEGER NOT NULL - display order
   type: 'text' | 'video' | 'interactive'; // ENUM
+  createdAt?: Date; // TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+}
+
+/**
+ * LessonContent interface - Represents content within a lesson
+ * Maps to: lesson_contents table in database
+ * A lesson can have multiple contents (text, video, image) ordered by orderIndex
+ */
+export interface LessonContent {
+  id: string; // INT [PK] - Unique content ID
+  lessonId: string; // INT [FK → lessons.id] - Associated lesson
+  contentType: 'text' | 'video' | 'image'; // ENUM - Type of content
+  contentValue: string; // TEXT - Text content or file path/URL
+  orderIndex: number; // INT - Order within the lesson
   createdAt?: Date; // TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 }
 

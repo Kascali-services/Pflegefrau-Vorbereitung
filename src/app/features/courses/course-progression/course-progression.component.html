@@ -26,9 +26,30 @@
       <p class="lesson-description" *ngIf="lesson.description">{{ lesson.description }}</p>
     </div>
 
-    <!-- Content (markdown formatted) -->
+    <!-- Content (new multi-content structure or fallback to old format) -->
     <div class="lesson-content">
-      <div [innerHTML]="formatContent(lessonContent)"></div>
+      <!-- New structure: display multiple content items -->
+      <div *ngIf="lessonContents.length > 0">
+        <div *ngFor="let content of lessonContents" class="content-item">
+          <!-- Text content -->
+          <div *ngIf="content.contentType === 'text'" [innerHTML]="formatContent(content.contentValue)"></div>
+          
+          <!-- Video content -->
+          <div *ngIf="content.contentType === 'video'" class="video-container">
+            <video controls [src]="content.contentValue">
+              Your browser does not support the video tag.
+            </video>
+          </div>
+          
+          <!-- Image content -->
+          <div *ngIf="content.contentType === 'image'" class="image-container">
+            <img [src]="content.contentValue" [alt]="'Lesson content image'" />
+          </div>
+        </div>
+      </div>
+      
+      <!-- Fallback to old format if no new content items -->
+      <div *ngIf="lessonContents.length === 0 && lessonContent" [innerHTML]="formatContent(lessonContent)"></div>
     </div>
 
     <!-- Lesson navigation (Previous/Next) -->

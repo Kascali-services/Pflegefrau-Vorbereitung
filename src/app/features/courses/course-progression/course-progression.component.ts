@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CourseService } from '../../../core/services/course.service';
-import { Lesson, Course, Quiz } from '../../../models/course.model';
+import { Lesson, Course, Quiz, LessonContent } from '../../../models/course.model';
 import { UserProgress } from '../../../models/progress.model';
 
 @Component({
@@ -21,7 +21,8 @@ export class CourseProgressionComponent implements OnInit {
   lesson: Lesson | undefined;
   course: Course | undefined;
   quiz: Quiz | undefined;
-  lessonContent = '';
+  lessonContent = ''; // Deprecated - kept for backward compatibility
+  lessonContents: LessonContent[] = []; // New multi-content structure
   lessonProgress: UserProgress | undefined;
   isAccessible = false;
   isCompleted = false;
@@ -52,7 +53,12 @@ export class CourseProgressionComponent implements OnInit {
           this.course = course;
         });
 
-        // Load lesson content
+        // Load lesson contents (new multi-content structure)
+        this.courseService.getLessonContents(lessonId).subscribe(contents => {
+          this.lessonContents = contents;
+        });
+
+        // Also load old format for backward compatibility
         this.courseService.getLessonContent(lessonId).subscribe(content => {
           this.lessonContent = content;
         });

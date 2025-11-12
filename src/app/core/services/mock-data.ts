@@ -6,6 +6,7 @@
 import {
   Course,
   Lesson,
+  LessonContent,
   Quiz,
   Question,
   QuizOption,
@@ -26,6 +27,7 @@ export const MOCK_USERS: User[] = [
     firstName: 'Marie',
     lastName: 'Dupont',
     avatarUrl: undefined,
+    role: 'student',
     createdAt: new Date('2025-01-01'),
     updatedAt: new Date('2025-01-01'),
     lastLoginAt: new Date('2025-02-10'),
@@ -108,6 +110,212 @@ export const MOCK_LESSONS: Lesson[] = [
     durationMinutes: 10,
     orderIndex: 1,
     type: 'video',
+    createdAt: new Date('2025-01-15'),
+  },
+];
+
+/**
+ * Mock Lesson Contents
+ * Each lesson can have multiple content items (text, video, image)
+ */
+export const MOCK_LESSON_CONTENTS: LessonContent[] = [
+  // Lesson 1 contents
+  {
+    id: 'content-1-1',
+    lessonId: 'lesson-1',
+    contentType: 'text',
+    contentValue: `# Les bases de l'anatomie
+
+L'anatomie est l'étude scientifique de la structure du corps humain et de ses différentes parties. C'est une discipline fondamentale pour tous les professionnels de la santé.
+
+## Qu'est-ce que l'anatomie?
+
+L'anatomie humaine est une branche de la biologie qui examine:
+- La structure des organes
+- Les systèmes corporels
+- Les tissus et cellules
+- Les relations entre différentes parties du corps
+
+## Importance pour les soins infirmiers
+
+Comprendre l'anatomie est essentiel pour:
+1. Administrer correctement les soins
+2. Communiquer avec les professionnels de santé
+3. Reconnaître les anomalies
+4. Comprendre les pathologies
+
+## Niveaux d'organisation
+
+Le corps humain s'organise en plusieurs niveaux:
+- **Cellulaire**: Les cellules sont les unités de base
+- **Tissulaire**: Les tissus sont des groupes de cellules similaires
+- **Organique**: Les organes sont composés de plusieurs tissus
+- **Systémique**: Les systèmes regroupent plusieurs organes`,
+    orderIndex: 1,
+    createdAt: new Date('2025-01-01'),
+  },
+  // Lesson 2 contents
+  {
+    id: 'content-2-1',
+    lessonId: 'lesson-2',
+    contentType: 'text',
+    contentValue: `# Terminologie anatomique
+
+La terminologie anatomique utilise des termes spécifiques pour décrire précisément les positions et structures du corps humain.
+
+## Position anatomique standard
+
+La position anatomique de référence est:
+- Debout, face à l'observateur
+- Bras le long du corps
+- Paumes tournées vers l'avant
+- Pieds légèrement écartés
+
+## Plans de coupe
+
+### Plan sagittal
+Divise le corps en parties droite et gauche.
+
+### Plan frontal (coronal)
+Divise le corps en parties antérieure et postérieure.
+
+### Plan transversal (horizontal)
+Divise le corps en parties supérieure et inférieure.
+
+## Termes de position
+
+- **Antérieur/Ventral**: Vers l'avant
+- **Postérieur/Dorsal**: Vers l'arrière
+- **Supérieur/Crânial**: Vers le haut
+- **Inférieur/Caudal**: Vers le bas
+- **Médial**: Vers le milieu
+- **Latéral**: Vers le côté
+- **Proximal**: Près du point d'attache
+- **Distal**: Loin du point d'attache
+
+## Application pratique
+
+Ces termes sont utilisés quotidiennement pour:
+- Documenter les observations
+- Communiquer avec l'équipe médicale
+- Localiser les symptômes
+- Décrire les procédures`,
+    orderIndex: 1,
+    createdAt: new Date('2025-01-01'),
+  },
+  // Lesson 3 contents
+  {
+    id: 'content-3-1',
+    lessonId: 'lesson-3',
+    contentType: 'text',
+    contentValue: `# Le système squelettique
+
+Le système squelettique comprend tous les os du corps humain et joue un rôle crucial dans notre fonctionnement.
+
+## Composition du squelette
+
+Le squelette adulte comprend **206 os** divisés en deux parties:
+
+### Squelette axial (80 os)
+- Crâne: 22 os
+- Colonne vertébrale: 26 os (vertèbres et os sacrés)
+- Cage thoracique: 25 os (côtes et sternum)
+- Os hyoïde: 1 os
+
+### Squelette appendiculaire (126 os)
+- Ceinture scapulaire: 4 os (clavicules et omoplates)
+- Membres supérieurs: 60 os
+- Ceinture pelvienne: 2 os (os coxaux)
+- Membres inférieurs: 60 os
+
+## Fonctions du système squelettique
+
+1. **Support**: Maintient la structure du corps
+2. **Protection**: Protège les organes vitaux
+3. **Mouvement**: Sert de point d'ancrage aux muscles
+4. **Production**: Fabrique les cellules sanguines (moelle osseuse)
+5. **Stockage**: Réserve de minéraux (calcium, phosphore)
+
+## Types d'os
+
+- **Os longs**: Fémur, humérus (leviers pour le mouvement)
+- **Os courts**: Carpiens, tarsiens (stabilité)
+- **Os plats**: Crâne, côtes (protection)
+- **Os irréguliers**: Vertèbres (fonctions spécialisées)
+
+## Importance clinique
+
+La connaissance du système squelettique permet de:
+- Comprendre les fractures
+- Identifier les déformations
+- Assister dans les mobilisations
+- Reconnaître les pathologies osseuses`,
+    orderIndex: 1,
+    createdAt: new Date('2025-01-01'),
+  },
+  // Lesson 4 contents - video lesson with text introduction
+  {
+    id: 'content-4-1',
+    lessonId: 'lesson-4',
+    contentType: 'text',
+    contentValue: `# Lavage des mains
+
+Le lavage des mains est une procédure essentielle pour prévenir les infections nosocomiales.
+
+## Pourquoi se laver les mains?
+
+L'hygiène des mains est la mesure la plus efficace pour:
+- Prévenir la transmission des infections
+- Protéger les patients
+- Protéger le personnel soignant
+- Réduire la résistance aux antibiotiques`,
+    orderIndex: 1,
+    createdAt: new Date('2025-01-15'),
+  },
+  {
+    id: 'content-4-2',
+    lessonId: 'lesson-4',
+    contentType: 'video',
+    contentValue: '/assets/videos/hand-washing-technique.mp4',
+    orderIndex: 2,
+    createdAt: new Date('2025-01-15'),
+  },
+  {
+    id: 'content-4-3',
+    lessonId: 'lesson-4',
+    contentType: 'text',
+    contentValue: `## Les 5 moments de l'hygiène des mains
+
+1. **Avant le contact avec le patient**
+2. **Avant un geste aseptique**
+3. **Après exposition à un liquide biologique**
+4. **Après contact avec le patient**
+5. **Après contact avec l'environnement du patient**
+
+## Technique de lavage
+
+### Lavage simple (40-60 secondes)
+1. Mouiller les mains
+2. Appliquer du savon
+3. Frotter paume contre paume
+4. Frotter le dos des mains
+5. Frotter entre les doigts
+6. Frotter les pouces
+7. Frotter le bout des doigts
+8. Rincer abondamment
+9. Sécher avec une serviette jetable
+
+### Friction hydro-alcoolique (20-30 secondes)
+Même technique de frottage mais avec une solution hydro-alcoolique.
+
+## Points importants
+
+- Retirer bijoux et montre
+- Ongles courts et propres
+- Pas de vernis à ongles
+- Couvrir les plaies
+- Ne pas toucher les robinets avec les mains propres`,
+    orderIndex: 3,
     createdAt: new Date('2025-01-15'),
   },
 ];
