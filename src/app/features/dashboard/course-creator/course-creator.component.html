@@ -59,15 +59,54 @@
         </div>
 
         <div class="form-group">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>URL de la vignette</mat-label>
+          <h3 class="thumbnail-label">Vignette du cours</h3>
+          <div class="thumbnail-upload">
             <input
-              matInput
-              [(ngModel)]="courseData.thumbnailUrl"
-              name="thumbnailUrl"
-              placeholder="/assets/placeholders/course.png"
+              type="file"
+              #thumbnailInput
+              (change)="onThumbnailSelected($event)"
+              accept="image/*"
+              style="display: none"
             />
-          </mat-form-field>
+            
+            <div *ngIf="!thumbnailPreview && !courseData.thumbnailUrl" class="upload-placeholder">
+              <button
+                mat-raised-button
+                type="button"
+                (click)="thumbnailInput.click()"
+                [disabled]="isSaving"
+              >
+                <mat-icon>upload</mat-icon>
+                Télécharger une vignette
+              </button>
+              <p class="upload-hint">Formats acceptés: JPG, PNG, GIF</p>
+            </div>
+
+            <div *ngIf="thumbnailPreview || courseData.thumbnailUrl" class="thumbnail-preview">
+              <img [src]="thumbnailPreview || courseData.thumbnailUrl" alt="Vignette du cours" />
+              <div class="preview-actions">
+                <button
+                  mat-raised-button
+                  type="button"
+                  (click)="thumbnailInput.click()"
+                  [disabled]="isSaving"
+                >
+                  <mat-icon>edit</mat-icon>
+                  Changer
+                </button>
+                <button
+                  mat-raised-button
+                  color="warn"
+                  type="button"
+                  (click)="removeThumbnail()"
+                  [disabled]="isSaving"
+                >
+                  <mat-icon>delete</mat-icon>
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="form-actions">

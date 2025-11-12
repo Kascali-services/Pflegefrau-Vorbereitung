@@ -14,6 +14,7 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 import { Lesson, LessonContent } from '../../../models/course.model';
 import { LessonEditorService } from '../../../core/services/lesson-editor.service';
 import { CourseService } from '../../../core/services/course.service';
+import { DialogService } from '../../../core/services/dialog.service';
 
 @Component({
   selector: 'app-lesson-editor',
@@ -40,6 +41,7 @@ export class LessonEditorComponent implements OnInit {
   private courseService = inject(CourseService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
+  private dialogService = inject(DialogService);
 
   lessonId = '';
   lesson: Lesson | null = null;
@@ -150,21 +152,30 @@ export class LessonEditorComponent implements OnInit {
   }
 
   deleteContent(contentId: string): void {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce contenu ?')) {
-      this.lessonEditorService.deleteLessonContent(contentId).subscribe({
-        next: () => {
-          this.contents = this.contents.filter(c => c.id !== contentId);
-          // Reindex remaining contents
-          this.contents.forEach((content, index) => {
-            content.orderIndex = index + 1;
+    this.dialogService
+      .openConfirmation({
+        title: 'Supprimer le contenu',
+        message: 'Êtes-vous sûr de vouloir supprimer ce contenu ?',
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler',
+      })
+      .subscribe(confirmed => {
+        if (confirmed) {
+          this.lessonEditorService.deleteLessonContent(contentId).subscribe({
+            next: () => {
+              this.contents = this.contents.filter(c => c.id !== contentId);
+              // Reindex remaining contents
+              this.contents.forEach((content, index) => {
+                content.orderIndex = index + 1;
+              });
+              this.showSuccess('Contenu supprimé avec succès');
+            },
+            error: () => {
+              this.showError('Erreur lors de la suppression du contenu');
+            },
           });
-          this.showSuccess('Contenu supprimé avec succès');
-        },
-        error: () => {
-          this.showError('Erreur lors de la suppression du contenu');
-        },
+        }
       });
-    }
   }
 
   onFileSelected(event: Event, content: LessonContent): void {
