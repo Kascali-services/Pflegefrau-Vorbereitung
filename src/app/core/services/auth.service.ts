@@ -24,6 +24,7 @@ export class AuthService {
       email: 'test@example.com',
       firstName: 'Test',
       lastName: 'User',
+      role: 'content_manager',
       passwordHash: 'password123', // In real app, this would be hashed
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -73,6 +74,7 @@ export class AuthService {
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
+            role: user.role,
             avatarUrl: user.avatarUrl,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt,
@@ -155,6 +157,7 @@ export class AuthService {
           email: newUser.email,
           firstName: newUser.firstName,
           lastName: newUser.lastName,
+          role: newUser.role,
           createdAt: newUser.createdAt,
           updatedAt: newUser.updatedAt,
         };

@@ -25,7 +25,13 @@
       <nav class="drawer-nav" aria-label="Mobile navigation">
         <ul class="nav-list">
           <ng-container *ngFor="let link of navLinks">
-            <li *ngIf="!link.requiresAuth || (isAuthenticated$ | async)" class="nav-item">
+            <li
+              *ngIf="
+                (!link.requiresAuth || (isAuthenticated$ | async)) &&
+                (!link.requiresRole || (isContentManagerOrAdmin$ | async))
+              "
+              class="nav-item"
+            >
               <a
                 mat-button
                 [routerLink]="link.path"

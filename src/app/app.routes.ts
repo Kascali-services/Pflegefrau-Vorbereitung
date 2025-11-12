@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   {
@@ -16,6 +17,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/my-courses/my-courses.component').then(m => m.MyCoursesComponent),
     canActivate: [authGuard],
+  },
+  {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    canActivate: [authGuard, roleGuard],
   },
   {
     path: 'courses/:id',
