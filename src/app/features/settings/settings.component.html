@@ -1,0 +1,158 @@
+<div class="settings-container">
+  <div class="settings-card">
+    <div class="settings-header">
+      <h1 class="settings-title">Profileinstellungen</h1>
+      <p class="settings-subtitle">Verwalten Sie Ihre persönlichen Daten und Ihr Profilbild</p>
+    </div>
+
+    <form [formGroup]="settingsForm" (ngSubmit)="onSubmit()" class="settings-form">
+      @if (errorMessage) {
+        <div class="error-message">
+          {{ errorMessage }}
+        </div>
+      }
+
+      @if (successMessage) {
+        <div class="success-message">
+          {{ successMessage }}
+        </div>
+      }
+
+      <!-- Profile Photo Section -->
+      <div class="profile-photo-section">
+        <h2 class="section-title">Profilbild</h2>
+        <div class="photo-container">
+          <div class="photo-preview">
+            @if (previewUrl) {
+              <img [src]="previewUrl" alt="Profilbild" class="avatar" />
+            } @else {
+              <div class="avatar-placeholder">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  class="avatar-icon"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+              </div>
+            }
+          </div>
+          <div class="photo-actions">
+            <label for="avatar-upload" class="upload-button">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                class="upload-icon"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              Bild hochladen
+            </label>
+            <input
+              id="avatar-upload"
+              type="file"
+              accept="image/*"
+              (change)="onFileSelected($event)"
+              class="file-input"
+            />
+            <p class="upload-hint">JPG, PNG oder GIF (max. 5MB)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personal Information Section -->
+      <div class="personal-info-section">
+        <h2 class="section-title">Persönliche Informationen</h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName" class="form-label">
+              Vorname <span class="required">*</span>
+            </label>
+            <input
+              id="firstName"
+              type="text"
+              formControlName="firstName"
+              class="form-input"
+              placeholder="Max"
+              [class.error]="firstName?.invalid && firstName?.touched"
+            />
+            @if (firstName?.invalid && firstName?.touched) {
+              <div class="field-error">
+                @if (firstName?.hasError('required')) {
+                  <span>Vorname ist erforderlich</span>
+                }
+                @if (firstName?.hasError('minlength')) {
+                  <span>Vorname muss mindestens 2 Zeichen lang sein</span>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="lastName" class="form-label">
+              Nachname <span class="required">*</span>
+            </label>
+            <input
+              id="lastName"
+              type="text"
+              formControlName="lastName"
+              class="form-input"
+              placeholder="Mustermann"
+              [class.error]="lastName?.invalid && lastName?.touched"
+            />
+            @if (lastName?.invalid && lastName?.touched) {
+              <div class="field-error">
+                @if (lastName?.hasError('required')) {
+                  <span>Nachname ist erforderlich</span>
+                }
+                @if (lastName?.hasError('minlength')) {
+                  <span>Nachname muss mindestens 2 Zeichen lang sein</span>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label"> E-Mail </label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="form-input"
+            placeholder="ihre.email@beispiel.de"
+            [disabled]="true"
+            title="E-Mail kann nicht geändert werden"
+          />
+          <p class="input-hint">Ihre E-Mail-Adresse kann nicht geändert werden</p>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="submit" class="submit-button" [disabled]="isLoading || settingsForm.invalid">
+          @if (isLoading) {
+            <span>Wird gespeichert...</span>
+          } @else {
+            <span>Änderungen speichern</span>
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

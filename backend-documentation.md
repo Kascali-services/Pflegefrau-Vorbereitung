@@ -245,6 +245,39 @@ Gère les profils utilisateurs, leurs informations personnelles et leurs rôles.
 }
 ```
 
+**Erreurs possibles**:
+- 400: Données de validation invalides
+- 401: Non authentifié
+- 500: Erreur serveur
+
+---
+
+#### POST /api/users/me/avatar
+**Rôle**: Télécharger ou mettre à jour la photo de profil de l'utilisateur connecté
+
+**Headers requis**:
+- Authorization: Bearer {token}
+- Content-Type: multipart/form-data
+
+**Corps de la requête**:
+- file: File (required, image uniquement, max 5MB)
+
+**Réponse succès (200)**:
+```json
+{
+  "avatarUrl": "string (URL publique de l'avatar)",
+  "filename": "string",
+  "size": number,
+  "uploadedAt": "timestamp"
+}
+```
+
+**Erreurs possibles**:
+- 400: Fichier invalide (format ou taille)
+- 401: Non authentifié
+- 413: Fichier trop volumineux (max 5MB)
+- 500: Erreur serveur
+
 ---
 
 #### GET /api/users/:id
