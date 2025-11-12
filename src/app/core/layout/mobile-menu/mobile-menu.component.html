@@ -24,27 +24,46 @@
 
       <nav class="drawer-nav" aria-label="Mobile navigation">
         <ul class="nav-list">
-          <li *ngFor="let link of navLinks" class="nav-item">
-            <a
-              mat-button
-              [routerLink]="link.path"
-              routerLinkActive="active"
-              [routerLinkActiveOptions]="{ exact: link.exact }"
-              (click)="closeMenu()"
-              class="nav-link"
-              [attr.aria-label]="'Navigate to ' + link.label"
-            >
-              {{ link.label }}
-            </a>
-          </li>
+          <ng-container *ngFor="let link of navLinks">
+            <li *ngIf="!link.requiresAuth || (isAuthenticated$ | async)" class="nav-item">
+              <a
+                mat-button
+                [routerLink]="link.path"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: link.exact }"
+                (click)="closeMenu()"
+                class="nav-link"
+                [attr.aria-label]="'Navigate to ' + link.label"
+              >
+                {{ link.label }}
+              </a>
+            </li>
+          </ng-container>
         </ul>
 
         <div class="drawer-divider"></div>
 
         <div class="user-section-mobile">
-          <button mat-button class="nav-link user-link" (click)="onLogout()">
+          <!-- Show logout button when authenticated -->
+          <button
+            *ngIf="isAuthenticated$ | async"
+            mat-button
+            class="nav-link user-link"
+            (click)="onLogout()"
+          >
             <mat-icon>logout</mat-icon>
             <span>Déconnexion</span>
+          </button>
+
+          <!-- Show login button when not authenticated -->
+          <button
+            *ngIf="(isAuthenticated$ | async) === false"
+            mat-button
+            class="nav-link user-link"
+            (click)="onLogin()"
+          >
+            <mat-icon>login</mat-icon>
+            <span>Connexion</span>
           </button>
         </div>
       </nav>

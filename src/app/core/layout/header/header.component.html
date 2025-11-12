@@ -18,7 +18,9 @@
     <app-navigation class="desktop-nav"></app-navigation>
 
     <div class="user-section">
+      <!-- Show person icon with menu when authenticated -->
       <button
+        *ngIf="isAuthenticated$ | async"
         mat-icon-button
         [matMenuTriggerFor]="userMenu"
         class="user-button"
@@ -33,6 +35,18 @@
           <span>Déconnexion</span>
         </button>
       </mat-menu>
+
+      <!-- Show login button when not authenticated -->
+      <button
+        *ngIf="(isAuthenticated$ | async) === false"
+        mat-button
+        (click)="onLogin()"
+        class="login-button"
+        aria-label="Login"
+      >
+        <mat-icon>login</mat-icon>
+        <span>Connexion</span>
+      </button>
     </div>
   </div>
 </mat-toolbar>
