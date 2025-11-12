@@ -37,17 +37,18 @@
       </div>
 
       <div class="course-actions">
-        <button class="start-course-btn" (click)="startCourse()" [disabled]="hasProgress">
+        <button
+          class="start-course-btn"
+          (click)="startCourse()"
+          *ngIf="!isAuthenticated || !hasProgress"
+        >
           Kurs starten
         </button>
         <button
-          class="save-course-btn"
-          (click)="saveCourseForLater()"
-          [disabled]="hasProgress || isEnrolled"
+          class="continue-course-btn"
+          (click)="continueCourse()"
+          *ngIf="isAuthenticated && hasProgress"
         >
-          Für später speichern
-        </button>
-        <button class="continue-course-btn" (click)="continueCourse()" *ngIf="hasProgress">
           Fortsetzen
         </button>
       </div>
