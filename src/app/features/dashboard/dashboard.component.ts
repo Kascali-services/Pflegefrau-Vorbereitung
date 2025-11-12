@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,6 +25,7 @@ interface CourseWithLessons {
 })
 export class DashboardComponent implements OnInit {
   private dashboardService = inject(DashboardService);
+  private router = inject(Router);
 
   coursesWithLessons$!: Observable<CourseWithLessons[]>;
   expandedCourseIds: Set<string> = new Set<string>();
@@ -118,8 +120,7 @@ export class DashboardComponent implements OnInit {
   }
 
   onEditLesson(lesson: Lesson): void {
-    // Placeholder for future edit functionality
-    console.log('Edit lesson:', lesson);
+    this.router.navigate(['/dashboard/lesson', lesson.id]);
   }
 
   isCourseExpanded(courseId: string): boolean {
