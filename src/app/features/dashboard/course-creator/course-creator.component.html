@@ -3,7 +3,7 @@
     <button mat-icon-button (click)="cancel()" class="back-btn">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <h1 class="title">Créer un nouveau cours</h1>
+    <h1 class="title">Neuen Kurs erstellen</h1>
   </div>
 
   <mat-card class="creator-card">
@@ -11,27 +11,27 @@
       <form #courseForm="ngForm">
         <div class="form-group">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Titre du cours *</mat-label>
+            <mat-label>Kurstitel *</mat-label>
             <input
               matInput
               [(ngModel)]="courseData.title"
               name="title"
               required
-              placeholder="Ex: Vocabulaire anatomique"
+              placeholder="z.B.: Anatomisches Vokabular"
             />
           </mat-form-field>
         </div>
 
         <div class="form-group">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Description *</mat-label>
+            <mat-label>Beschreibung *</mat-label>
             <textarea
               matInput
               [(ngModel)]="courseData.description"
               name="description"
               required
               rows="4"
-              placeholder="Décrivez le contenu du cours..."
+              placeholder="Beschreiben Sie den Kursinhalt..."
             ></textarea>
           </mat-form-field>
         </div>
@@ -40,14 +40,14 @@
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>Niveau</mat-label>
             <mat-select [(ngModel)]="courseData.level" name="level">
-              <mat-option value="beginner">Débutant</mat-option>
-              <mat-option value="intermediate">Intermédiaire</mat-option>
-              <mat-option value="advanced">Avancé</mat-option>
+              <mat-option value="beginner">Anfänger</mat-option>
+              <mat-option value="intermediate">Fortgeschritten</mat-option>
+              <mat-option value="advanced">Experte</mat-option>
             </mat-select>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="half-width">
-            <mat-label>Durée (minutes)</mat-label>
+            <mat-label>Dauer (Minuten)</mat-label>
             <input
               matInput
               type="number"
@@ -59,7 +59,7 @@
         </div>
 
         <div class="form-group">
-          <h3 class="thumbnail-label">Vignette du cours</h3>
+          <h3 class="thumbnail-label">Kursbild</h3>
           <div class="thumbnail-upload">
             <input
               type="file"
@@ -77,13 +77,13 @@
                 [disabled]="isSaving"
               >
                 <mat-icon>upload</mat-icon>
-                Télécharger une vignette
+                Bild hochladen
               </button>
-              <p class="upload-hint">Formats acceptés: JPG, PNG, GIF</p>
+              <p class="upload-hint">Akzeptierte Formate: JPG, PNG, GIF</p>
             </div>
 
             <div *ngIf="thumbnailPreview || courseData.thumbnailUrl" class="thumbnail-preview">
-              <img [src]="thumbnailPreview || courseData.thumbnailUrl" alt="Vignette du cours" />
+              <img [src]="thumbnailPreview || courseData.thumbnailUrl" alt="Kursbild" />
               <div class="preview-actions">
                 <button
                   mat-raised-button
@@ -92,7 +92,7 @@
                   [disabled]="isSaving"
                 >
                   <mat-icon>edit</mat-icon>
-                  Changer
+                  Ändern
                 </button>
                 <button
                   mat-raised-button
@@ -102,7 +102,7 @@
                   [disabled]="isSaving"
                 >
                   <mat-icon>delete</mat-icon>
-                  Supprimer
+                  Entfernen
                 </button>
               </div>
             </div>
@@ -118,10 +118,10 @@
             type="button"
           >
             <mat-icon>save</mat-icon>
-            Créer le cours
+            Kurs erstellen
           </button>
           <button mat-button (click)="cancel()" [disabled]="isSaving" type="button">
-            Annuler
+            Abbrechen
           </button>
         </div>
       </form>

@@ -3,45 +3,45 @@
     <button mat-icon-button (click)="cancel()" class="back-btn">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <h1 class="title">Créer une nouvelle leçon</h1>
+    <h1 class="title">Neue Lektion erstellen</h1>
   </div>
 
   <mat-card class="creator-card">
     <mat-card-header *ngIf="courseName">
-      <mat-card-title>Pour le cours: {{ courseName }}</mat-card-title>
+      <mat-card-title>Für den Kurs: {{ courseName }}</mat-card-title>
     </mat-card-header>
 
     <mat-card-content>
       <form #lessonForm="ngForm">
         <div class="form-group">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Titre de la leçon *</mat-label>
+            <mat-label>Lektionstitel *</mat-label>
             <input
               matInput
               [(ngModel)]="lessonData.title"
               name="title"
               required
-              placeholder="Ex: Les bases de l'anatomie"
+              placeholder="z.B.: Grundlagen der Anatomie"
             />
           </mat-form-field>
         </div>
 
         <div class="form-group">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Description</mat-label>
+            <mat-label>Beschreibung</mat-label>
             <textarea
               matInput
               [(ngModel)]="lessonData.description"
               name="description"
               rows="3"
-              placeholder="Description de la leçon..."
+              placeholder="Beschreibung der Lektion..."
             ></textarea>
           </mat-form-field>
         </div>
 
         <div class="form-row">
           <mat-form-field appearance="outline" class="half-width">
-            <mat-label>Durée (minutes)</mat-label>
+            <mat-label>Dauer (Minuten)</mat-label>
             <input
               matInput
               type="number"
@@ -54,7 +54,7 @@
 
         <div class="form-group">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Position dans le cours</mat-label>
+            <mat-label>Position im Kurs</mat-label>
             <input
               matInput
               type="number"
@@ -62,7 +62,7 @@
               name="orderIndex"
               min="1"
             />
-            <mat-hint>L'ordre d'affichage de cette leçon dans le cours</mat-hint>
+            <mat-hint>Die Reihenfolge dieser Lektion im Kurs</mat-hint>
           </mat-form-field>
         </div>
 
@@ -75,10 +75,10 @@
             type="button"
           >
             <mat-icon>save</mat-icon>
-            Créer la leçon
+            Lektion erstellen
           </button>
           <button mat-button (click)="cancel()" [disabled]="isSaving" type="button">
-            Annuler
+            Abbrechen
           </button>
         </div>
       </form>

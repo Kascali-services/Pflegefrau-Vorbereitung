@@ -34,12 +34,12 @@ export class MobileMenuComponent {
   );
 
   navLinks = [
-    { path: '/', label: 'Accueil', exact: true, requiresAuth: false, requiresRole: false },
-    { path: '/courses', label: 'Cours', exact: false, requiresAuth: false, requiresRole: false },
-    { path: '/my-courses', label: 'Mes Cours', exact: false, requiresAuth: true, requiresRole: false },
+    { path: '/', label: 'Startseite', exact: true, requiresAuth: false, requiresRole: false },
+    { path: '/courses', label: 'Kurse', exact: false, requiresAuth: false, requiresRole: false },
+    { path: '/my-courses', label: 'Meine Kurse', exact: false, requiresAuth: true, requiresRole: false },
     { path: '/dashboard', label: 'Dashboard', exact: false, requiresAuth: true, requiresRole: true },
-    { path: '/about', label: 'À propos', exact: false, requiresAuth: false, requiresRole: false },
-    { path: '/contact', label: 'Contact', exact: false, requiresAuth: false, requiresRole: false },
+    { path: '/about', label: 'Über uns', exact: false, requiresAuth: false, requiresRole: false },
+    { path: '/contact', label: 'Kontakt', exact: false, requiresAuth: false, requiresRole: false },
   ];
 
   toggleMenu(): void {

@@ -20,14 +20,15 @@ export class AuthService {
   // Mock users database for simulation
   private mockUsers: User[] = [
     {
-      id: 'user-1',
-      email: 'test@example.com',
-      firstName: 'Test',
-      lastName: 'User',
-      role: 'content_manager',
+      id: 'user-001',
+      email: 'marie.dupont@example.com',
+      firstName: 'Marie',
+      lastName: 'Dupont',
+      role: 'student',
       passwordHash: 'password123', // In real app, this would be hashed
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date('2025-01-01'),
+      updatedAt: new Date('2025-01-01'),
+      lastLoginAt: new Date('2025-02-10'),
     },
   ];
 
@@ -91,7 +92,7 @@ export class AuthService {
           observer.next(authenticatedUser);
           observer.complete();
         } else {
-          observer.error({ message: 'Email ou mot de passe incorrect' });
+          observer.error({ message: 'E-Mail oder Passwort ungültig' });
         }
       }, 500); // Simulate 500ms network delay
     });
@@ -133,7 +134,7 @@ export class AuthService {
         const existingUser = this.mockUsers.find(u => u.email === email);
 
         if (existingUser) {
-          observer.error({ message: 'Cet email est déjà utilisé' });
+          observer.error({ message: 'Diese E-Mail wird bereits verwendet' });
           return;
         }
 
