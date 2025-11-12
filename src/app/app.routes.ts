@@ -8,6 +8,23 @@ export const routes: Routes = [
     loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent),
   },
   {
+    path: 'auth/login',
+    loadComponent: () =>
+      import('./features/auth/login/login.component').then(m => m.LoginComponent),
+  },
+  {
+    path: 'auth/register',
+    loadComponent: () =>
+      import('./features/auth/register/register.component').then(m => m.RegisterComponent),
+  },
+  {
+    path: 'auth/reset-password',
+    loadComponent: () =>
+      import('./features/auth/reset-password/reset-password.component').then(
+        m => m.ResetPasswordComponent
+      ),
+  },
+  {
     path: 'courses',
     loadComponent: () =>
       import('./features/courses/courses/courses.component').then(m => m.CoursesComponent),
@@ -61,11 +78,13 @@ export const routes: Routes = [
       import('./features/courses/course-progression/course-progression.component').then(
         m => m.CourseProgressionComponent
       ),
+    canActivate: [authGuard],
   },
   {
     path: 'courses/quiz/:quizId',
     loadComponent: () =>
       import('./features/courses/quiz/quiz.component').then(m => m.QuizComponent),
+    canActivate: [authGuard],
   },
   {
     path: 'courses/completion/:courseId',

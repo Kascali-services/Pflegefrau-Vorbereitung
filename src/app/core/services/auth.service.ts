@@ -174,6 +174,31 @@ export class AuthService {
   }
 
   /**
+   * Simulate password reset
+   * @param email User email
+   * @returns Observable with success or error
+   */
+  resetPassword(email: string): Observable<void> {
+    return new Observable(observer => {
+      setTimeout(() => {
+        // Check if user exists
+        const user = this.mockUsers.find(u => u.email === email);
+
+        if (user) {
+          // In a real app, this would send a reset email
+          observer.next();
+          observer.complete();
+        } else {
+          // For security, don't reveal if email exists or not
+          // Still return success
+          observer.next();
+          observer.complete();
+        }
+      }, 600); // Simulate 600ms network delay
+    });
+  }
+
+  /**
    * Get current authentication state
    */
   isAuthenticated(): boolean {

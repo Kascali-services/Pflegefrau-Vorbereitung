@@ -4,7 +4,7 @@ import { AuthService } from '../services/auth.service';
 
 /**
  * AuthGuard - Protects routes that require authentication
- * Redirects to home page if user is not authenticated
+ * Redirects to login page if user is not authenticated
  */
 export const authGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
@@ -14,7 +14,7 @@ export const authGuard: CanActivateFn = () => {
     return true;
   }
 
-  // Redirect to home page if not authenticated
-  router.navigate(['/']);
+  // Redirect to login page if not authenticated
+  router.navigate(['/auth/login']);
   return false;
 };
