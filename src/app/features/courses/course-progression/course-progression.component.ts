@@ -227,16 +227,4 @@ export class CourseProgressionComponent implements OnInit {
 
     return this.sanitizer.sanitize(1, formatted) || '';
   }
-
-  getLessonTypeIcon(): string {
-    if (!this.lesson) return '📄';
-    switch (this.lesson.type) {
-      case 'video':
-        return '🎥';
-      case 'interactive':
-        return '💻';
-      default:
-        return '📄';
-    }
-  }
 }

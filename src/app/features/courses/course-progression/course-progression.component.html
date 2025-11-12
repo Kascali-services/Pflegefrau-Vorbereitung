@@ -13,14 +13,9 @@
   <!-- Lesson content -->
   <div class="lesson-container">
     <div class="lesson-header">
-      <h1>{{ getLessonTypeIcon() }} {{ lesson.title }}</h1>
+      <h1>📄 {{ lesson.title }}</h1>
       <div class="lesson-meta">
         <span class="duration">⏱️ {{ lesson.durationMinutes }} Min.</span>
-        <span class="type">
-          <span *ngIf="lesson.type === 'text'">📄 Lektion</span>
-          <span *ngIf="lesson.type === 'video'">🎥 Video</span>
-          <span *ngIf="lesson.type === 'interactive'">💻 Interaktiv</span>
-        </span>
         <span class="status" *ngIf="isCompleted">✅ Abgeschlossen</span>
       </div>
       <p class="lesson-description" *ngIf="lesson.description">{{ lesson.description }}</p>

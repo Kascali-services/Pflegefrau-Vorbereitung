@@ -41,7 +41,6 @@ export class LessonCreatorComponent implements OnInit {
   lessonData = {
     title: '',
     description: '',
-    type: 'text' as 'text' | 'video' | 'interactive',
     durationMinutes: 0,
     orderIndex: 1,
   };
@@ -89,7 +88,6 @@ export class LessonCreatorComponent implements OnInit {
       courseId: this.courseId,
       title: this.lessonData.title,
       description: this.lessonData.description,
-      type: this.lessonData.type,
       durationMinutes: this.lessonData.durationMinutes,
       orderIndex: this.lessonData.orderIndex,
     };

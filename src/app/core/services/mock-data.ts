@@ -72,10 +72,8 @@ export const MOCK_LESSONS: Lesson[] = [
     courseId: 'course-1',
     title: "Les bases de l'anatomie",
     description: "Introduction à l'étude de l'anatomie humaine",
-    contentMdPath: '/assets/content/lesson-1.md',
     durationMinutes: 15,
     orderIndex: 1,
-    type: 'text',
     createdAt: new Date('2025-01-01'),
   },
   {
@@ -83,10 +81,8 @@ export const MOCK_LESSONS: Lesson[] = [
     courseId: 'course-1',
     title: 'Terminologie anatomique',
     description: 'Apprenez les termes et positions anatomiques standard',
-    contentMdPath: '/assets/content/lesson-2.md',
     durationMinutes: 20,
     orderIndex: 2,
-    type: 'text',
     createdAt: new Date('2025-01-01'),
   },
   {
@@ -94,10 +90,8 @@ export const MOCK_LESSONS: Lesson[] = [
     courseId: 'course-1',
     title: 'Le système squelettique',
     description: 'Découvrez la structure et les fonctions du squelette humain',
-    contentMdPath: '/assets/content/lesson-3.md',
     durationMinutes: 25,
     orderIndex: 3,
-    type: 'text',
     createdAt: new Date('2025-01-01'),
   },
   // Course 2 lessons
@@ -106,10 +100,8 @@ export const MOCK_LESSONS: Lesson[] = [
     courseId: 'course-2',
     title: 'Lavage des mains',
     description: 'Technique essentielle pour prévenir les infections',
-    contentMdPath: '/assets/content/lesson-4.md',
     durationMinutes: 10,
     orderIndex: 1,
-    type: 'video',
     createdAt: new Date('2025-01-15'),
   },
 ];
