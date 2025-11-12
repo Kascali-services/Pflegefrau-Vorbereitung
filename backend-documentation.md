@@ -24,10 +24,12 @@ Le système est composé de 7 microservices principaux :
 Gère l'authentification et l'autorisation des utilisateurs, la création de sessions et la gestion des tokens JWT.
 
 ### Technologies recommandées
-- Node.js avec Express.js ou NestJS
-- JWT pour les tokens d'authentification
-- bcrypt pour le hashing des mots de passe
-- Base de données: PostgreSQL
+- **FastAPI** - Framework Python moderne et performant pour les API
+- **Pydantic** - Validation des données et sérialisation
+- **JWT** (python-jose) pour les tokens d'authentification
+- **passlib** avec bcrypt pour le hashing des mots de passe
+- **Base de données**: PostgreSQL avec SQLAlchemy ORM
+- **python-multipart** pour le support des formulaires
 
 ### Endpoints
 
@@ -41,7 +43,7 @@ Gère l'authentification et l'autorisation des utilisateurs, la création de ses
   "password": "string (required, min 6 caractères)",
   "firstName": "string (required, min 2 caractères)",
   "lastName": "string (required, min 2 caractères)",
-  "aktenzeichen": "string (optional, max 8 caractères)"
+  "empfehlungsnummer": "string (optional, max 8 caractères)"
 }
 ```
 
@@ -53,7 +55,7 @@ Gère l'authentification et l'autorisation des utilisateurs, la création de ses
     "email": "string",
     "firstName": "string",
     "lastName": "string",
-    "aktenzeichen": "string",
+    "empfehlungsnummer": "string",
     "role": "student",
     "createdAt": "timestamp"
   },
@@ -87,7 +89,7 @@ Gère l'authentification et l'autorisation des utilisateurs, la création de ses
     "email": "string",
     "firstName": "string",
     "lastName": "string",
-    "aktenzeichen": "string",
+    "empfehlungsnummer": "string",
     "role": "string",
     "lastLoginAt": "timestamp"
   },
@@ -186,8 +188,9 @@ Gère l'authentification et l'autorisation des utilisateurs, la création de ses
 Gère les profils utilisateurs, leurs informations personnelles et leurs rôles.
 
 ### Technologies recommandées
-- Node.js avec Express.js ou NestJS
-- Base de données: PostgreSQL
+- **FastAPI** - Framework Python moderne et performant pour les API
+- **Pydantic** - Validation des données et sérialisation
+- **Base de données**: PostgreSQL avec SQLAlchemy ORM
 
 ### Endpoints
 
@@ -204,7 +207,7 @@ Gère les profils utilisateurs, leurs informations personnelles et leurs rôles.
   "email": "string",
   "firstName": "string",
   "lastName": "string",
-  "aktenzeichen": "string",
+  "empfehlungsnummer": "string",
   "avatarUrl": "string",
   "role": "string",
   "createdAt": "timestamp",
@@ -308,9 +311,10 @@ Gère les profils utilisateurs, leurs informations personnelles et leurs rôles.
 Gère les cours, les leçons, et le contenu pédagogique.
 
 ### Technologies recommandées
-- Node.js avec Express.js ou NestJS
-- Base de données: PostgreSQL
-- Storage: AWS S3 ou équivalent pour les fichiers média
+- **FastAPI** - Framework Python moderne et performant pour les API
+- **Pydantic** - Validation des données et sérialisation
+- **Base de données**: PostgreSQL avec SQLAlchemy ORM
+- **Storage**: AWS S3 ou équivalent pour les fichiers média (avec boto3)
 
 ### Endpoints
 
@@ -673,8 +677,9 @@ No content
 Gère la progression des utilisateurs dans les cours et les leçons, ainsi que les inscriptions aux cours.
 
 ### Technologies recommandées
-- Node.js avec Express.js ou NestJS
-- Base de données: PostgreSQL
+- **FastAPI** - Framework Python moderne et performant pour les API
+- **Pydantic** - Validation des données et sérialisation
+- **Base de données**: PostgreSQL avec SQLAlchemy ORM
 
 ### Endpoints
 
@@ -858,8 +863,9 @@ No content
 Gère les quiz, les questions, les options de réponse, et les tentatives des utilisateurs.
 
 ### Technologies recommandées
-- Node.js avec Express.js ou NestJS
-- Base de données: PostgreSQL
+- **FastAPI** - Framework Python moderne et performant pour les API
+- **Pydantic** - Validation des données et sérialisation
+- **Base de données**: PostgreSQL avec SQLAlchemy ORM
 
 ### Endpoints
 
@@ -1153,9 +1159,10 @@ No content
 Gère les messages de contact des utilisateurs et des entreprises.
 
 ### Technologies recommandées
-- Node.js avec Express.js ou NestJS
-- Service d'email: SendGrid, AWS SES, ou Nodemailer
-- Base de données: PostgreSQL
+- **FastAPI** - Framework Python moderne et performant pour les API
+- **Pydantic** - Validation des données et sérialisation
+- **Service d'email**: FastAPI-Mail, AWS SES (boto3), ou SMTP
+- **Base de données**: PostgreSQL avec SQLAlchemy ORM
 
 ### Endpoints
 
@@ -1260,9 +1267,10 @@ Gère les messages de contact des utilisateurs et des entreprises.
 Gère le téléchargement, le stockage et la distribution des fichiers média (images, vidéos).
 
 ### Technologies recommandées
-- Node.js avec Express.js ou NestJS
-- Storage: AWS S3, Google Cloud Storage, ou Azure Blob Storage
-- CDN: CloudFront, Cloudflare
+- **FastAPI** - Framework Python moderne et performant pour les API
+- **Pydantic** - Validation des données et sérialisation
+- **Storage**: AWS S3 (boto3), Google Cloud Storage, ou Azure Blob Storage
+- **CDN**: CloudFront, Cloudflare
 
 ### Endpoints
 
@@ -1349,7 +1357,7 @@ CREATE TABLE users (
   first_name VARCHAR(100),
   last_name VARCHAR(100),
   avatar_url VARCHAR(500),
-  aktenzeichen VARCHAR(8),
+  aktenzeichen VARCHAR(8),  -- Recommendation number (Empfehlungsnummer)
   role VARCHAR(20) DEFAULT 'student',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -1542,28 +1550,42 @@ CREATE TABLE contact_messages (
 # Base de données
 DATABASE_URL=postgresql://user:password@host:5432/dbname
 DATABASE_POOL_SIZE=20
+DATABASE_ECHO=False  # Set to True for SQL query logging
 
 # JWT
-JWT_SECRET=your-secret-key
-JWT_EXPIRATION=24h
-JWT_REFRESH_EXPIRATION=30d
+JWT_SECRET_KEY=your-secret-key
+JWT_ALGORITHM=HS256
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES=1440  # 24 hours
+JWT_REFRESH_TOKEN_EXPIRE_DAYS=30
 
 # Email
-EMAIL_SERVICE=sendgrid
-EMAIL_API_KEY=your-api-key
-EMAIL_FROM=noreply@pflegefrau-vorbereitung.de
+EMAIL_BACKEND=smtp  # or 'aws_ses'
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USERNAME=your-username
+SMTP_PASSWORD=your-password
+SMTP_FROM_EMAIL=noreply@pflegefrau-vorbereitung.de
+# For AWS SES
+AWS_SES_REGION=eu-central-1
 
 # Storage
-STORAGE_PROVIDER=s3
+STORAGE_BACKEND=s3  # or 'local', 'gcs'
 AWS_ACCESS_KEY_ID=your-access-key
 AWS_SECRET_ACCESS_KEY=your-secret-key
-AWS_BUCKET_NAME=pflegefrau-media
-AWS_REGION=eu-central-1
+AWS_S3_BUCKET_NAME=pflegefrau-media
+AWS_S3_REGION=eu-central-1
 
 # Application
-NODE_ENV=production
-PORT=3000
-CORS_ORIGIN=https://pflegefrau-vorbereitung.de
+ENVIRONMENT=production  # or 'development', 'staging'
+DEBUG=False
+API_V1_PREFIX=/api
+CORS_ORIGINS=["https://pflegefrau-vorbereitung.de"]
+CORS_ALLOW_CREDENTIALS=True
+
+# Server
+HOST=0.0.0.0
+PORT=8000
+WORKERS=4  # Number of Uvicorn workers
 ```
 
 ---
@@ -1572,31 +1594,41 @@ CORS_ORIGIN=https://pflegefrau-vorbereitung.de
 
 ### Performance
 - Implémenter un système de cache (Redis) pour les requêtes fréquentes (cours, leçons)
-- Utiliser la pagination pour toutes les listes
+- Utiliser la pagination pour toutes les listes avec FastAPI's pagination utilities
 - Optimiser les requêtes avec des index sur les clés étrangères
 - Utiliser un CDN pour servir les fichiers statiques et média
+- Utiliser async/await pour les opérations I/O intensives
 
 ### Monitoring
-- Implémenter des logs structurés (Winston, Bunyan)
-- Utiliser un service de monitoring (DataDog, New Relic)
+- Implémenter des logs structurés (loguru ou logging standard)
+- Utiliser un service de monitoring (DataDog, New Relic, Sentry)
 - Configurer des alertes pour les erreurs critiques
-- Tracker les métriques de performance des API
+- Tracker les métriques de performance des API avec FastAPI middleware
 
 ### Tests
-- Tests unitaires pour la logique métier (Jest)
-- Tests d'intégration pour les endpoints API
+- Tests unitaires pour la logique métier (pytest)
+- Tests d'intégration pour les endpoints API (pytest + httpx)
 - Tests end-to-end pour les flux critiques
-- Couverture de code minimale: 80%
+- Couverture de code minimale: 80% (pytest-cov)
 
 ### Documentation
-- Utiliser Swagger/OpenAPI pour documenter les API
-- Maintenir des exemples de requêtes/réponses à jour
+- Utiliser la documentation automatique FastAPI (Swagger/OpenAPI intégré)
+- Maintenir des exemples de requêtes/réponses à jour dans les docstrings
 - Documenter les codes d'erreur et leurs significations
+- Utiliser Pydantic models pour la validation automatique et documentation
 
 ---
 
 ## Conclusion
 
-Cette documentation fournit une base complète pour l'implémentation du backend de la plateforme Pflegefachfrau-Vorbereitung. Une fois les API implémentées selon ces spécifications, le frontend pourra être facilement adapté pour consommer ces services en remplaçant les services mock actuels par des appels HTTP réels.
+Cette documentation fournit une base complète pour l'implémentation du backend de la plateforme Pflegefachfrau-Vorbereitung avec FastAPI. Une fois les API implémentées selon ces spécifications, le frontend pourra être facilement adapté pour consommer ces services en remplaçant les services mock actuels par des appels HTTP réels.
+
+**Avantages de FastAPI pour ce projet:**
+- Performance élevée grâce au support asynchrone natif
+- Validation automatique des données avec Pydantic
+- Documentation interactive automatique (Swagger UI)
+- Typage Python moderne pour une meilleure maintenabilité
+- Écosystème riche de bibliothèques Python
+- Facilité de déploiement avec Uvicorn/Gunicorn
 
 Pour toute question ou clarification, veuillez contacter l'équipe de développement.
