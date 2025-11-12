@@ -1,6 +1,6 @@
 import { Component, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
@@ -24,6 +24,7 @@ import { map } from 'rxjs/operators';
 export class MobileMenuComponent {
   @ViewChild('drawer') drawer!: MatSidenav;
   private authService = inject(AuthService);
+  private router = inject(Router);
   isAuthenticated$ = this.authService.isAuthenticated$;
   currentUser$ = this.authService.currentUser$;
 
@@ -50,15 +51,8 @@ export class MobileMenuComponent {
   }
 
   onLogin(): void {
-    // Simulate login for demo purposes
-    this.authService.login('test@example.com', 'password123').subscribe({
-      next: user => {
-        console.log('Login successful:', user);
-      },
-      error: error => {
-        console.error('Login failed:', error);
-      },
-    });
+    // Navigate to login page
+    this.router.navigate(['/auth/login']);
     this.closeMenu();
   }
 
