@@ -1,0 +1,253 @@
+.lesson-editor-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+
+    .back-btn {
+      margin-right: 16px;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 500;
+    }
+  }
+
+  .loading {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+    color: #666;
+  }
+
+  .editor-content {
+    .lesson-info-card {
+      margin-bottom: 24px;
+
+      mat-card-header {
+        margin-bottom: 16px;
+      }
+
+      .lesson-meta {
+        display: flex;
+        gap: 24px;
+        margin-top: 12px;
+
+        .meta-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #666;
+
+          mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+        }
+      }
+    }
+
+    .contents-card {
+      mat-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+
+        .add-content-btn {
+          mat-icon {
+            margin-right: 8px;
+          }
+        }
+      }
+
+      .add-content-form {
+        background-color: #f5f5f5;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 24px;
+
+        h3 {
+          margin-top: 0;
+          margin-bottom: 16px;
+          font-size: 20px;
+        }
+
+        .content-type-field {
+          width: 100%;
+          max-width: 300px;
+        }
+
+        .text-content-field,
+        .file-upload-field {
+          margin-top: 16px;
+        }
+
+        .full-width {
+          width: 100%;
+        }
+
+        .file-upload-field {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+
+          .file-name {
+            font-size: 14px;
+            color: #666;
+          }
+        }
+
+        .form-actions {
+          margin-top: 20px;
+          display: flex;
+          gap: 12px;
+
+          button mat-icon {
+            margin-right: 8px;
+          }
+        }
+      }
+
+      .contents-list {
+        min-height: 100px;
+
+        .content-item {
+          display: flex;
+          gap: 16px;
+          padding: 16px;
+          margin-bottom: 16px;
+          background-color: #fff;
+          border: 1px solid #e0e0e0;
+          border-radius: 8px;
+          transition: box-shadow 0.3s ease;
+
+          &:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          }
+
+          &.cdk-drag-preview {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            opacity: 0.8;
+          }
+
+          &.cdk-drag-animating {
+            transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+          }
+
+          .drag-handle {
+            cursor: move;
+            color: #999;
+            display: flex;
+            align-items: center;
+
+            mat-icon {
+              font-size: 24px;
+              width: 24px;
+              height: 24px;
+            }
+          }
+
+          .content-details {
+            flex: 1;
+
+            .content-header {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              margin-bottom: 12px;
+
+              .content-type-icon {
+                color: #1976d2;
+              }
+
+              .content-index {
+                font-weight: 600;
+                color: #333;
+              }
+
+              .content-type-label {
+                text-transform: capitalize;
+                color: #666;
+                font-size: 14px;
+              }
+            }
+
+            .text-content {
+              .full-width {
+                width: 100%;
+              }
+            }
+
+            .media-content {
+              .content-preview {
+                max-width: 100%;
+                max-height: 300px;
+                border-radius: 4px;
+                margin-bottom: 12px;
+                display: block;
+              }
+
+              .media-path {
+                font-size: 12px;
+                color: #666;
+                margin-bottom: 12px;
+                word-break: break-all;
+              }
+
+              button mat-icon {
+                margin-right: 8px;
+              }
+            }
+          }
+
+          .content-actions {
+            display: flex;
+            align-items: flex-start;
+          }
+        }
+
+        .cdk-drop-list-dragging .content-item:not(.cdk-drag-placeholder) {
+          transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+        }
+
+        .no-contents {
+          text-align: center;
+          padding: 40px;
+          color: #999;
+
+          mat-icon {
+            font-size: 48px;
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+          }
+
+          p {
+            font-size: 16px;
+            margin: 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+::ng-deep {
+  .success-snackbar {
+    background-color: #4caf50 !important;
+    color: white !important;
+  }
+
+  .error-snackbar {
+    background-color: #f44336 !important;
+    color: white !important;
+  }
+}

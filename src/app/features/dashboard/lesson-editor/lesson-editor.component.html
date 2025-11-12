@@ -1,0 +1,190 @@
+<div class="lesson-editor-container">
+  <div class="header">
+    <button mat-icon-button (click)="goBack()" class="back-btn">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="title">Éditer la leçon</h1>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <p>Chargement...</p>
+  </div>
+
+  <div *ngIf="!isLoading && lesson" class="editor-content">
+    <mat-card class="lesson-info-card">
+      <mat-card-header>
+        <mat-card-title>{{ lesson.title }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p *ngIf="lesson.description">{{ lesson.description }}</p>
+        <div class="lesson-meta">
+          <span class="meta-item">
+            <mat-icon>schedule</mat-icon>
+            {{ lesson.durationMinutes }} minutes
+          </span>
+          <span class="meta-item">
+            <mat-icon>{{ getContentTypeIcon(lesson.type) }}</mat-icon>
+            Type: {{ lesson.type }}
+          </span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="contents-card">
+      <mat-card-header>
+        <mat-card-title>Contenus de la leçon</mat-card-title>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="toggleAddContent()"
+          class="add-content-btn"
+        >
+          <mat-icon>add</mat-icon>
+          Ajouter un contenu
+        </button>
+      </mat-card-header>
+
+      <mat-card-content>
+        <!-- Add new content form -->
+        <div *ngIf="showAddContent" class="add-content-form">
+          <h3>Nouveau contenu</h3>
+          <mat-form-field appearance="outline" class="content-type-field">
+            <mat-label>Type de contenu</mat-label>
+            <mat-select [(ngModel)]="newContentType">
+              <mat-option value="text">Texte</mat-option>
+              <mat-option value="image">Image</mat-option>
+              <mat-option value="video">Vidéo</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <div *ngIf="newContentType === 'text'" class="text-content-field">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Contenu texte</mat-label>
+              <textarea
+                matInput
+                [(ngModel)]="newContentValue"
+                rows="6"
+                placeholder="Saisissez le contenu texte..."
+              ></textarea>
+            </mat-form-field>
+          </div>
+
+          <div *ngIf="newContentType === 'image' || newContentType === 'video'" class="file-upload-field">
+            <input
+              type="file"
+              #fileInput
+              (change)="onNewFileSelected($event)"
+              [accept]="newContentType === 'image' ? 'image/*' : 'video/*'"
+              style="display: none"
+            />
+            <button mat-raised-button (click)="fileInput.click()" [disabled]="isSaving">
+              <mat-icon>upload</mat-icon>
+              Télécharger {{ newContentType === 'image' ? 'une image' : 'une vidéo' }}
+            </button>
+            <span *ngIf="newContentValue" class="file-name">{{ newContentValue }}</span>
+          </div>
+
+          <div class="form-actions">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="addNewContent()"
+              [disabled]="isSaving || !newContentValue"
+            >
+              <mat-icon>save</mat-icon>
+              Ajouter
+            </button>
+            <button mat-button (click)="toggleAddContent()" [disabled]="isSaving">
+              Annuler
+            </button>
+          </div>
+        </div>
+
+        <!-- Contents list with drag and drop -->
+        <div cdkDropList (cdkDropListDropped)="onDrop($event)" class="contents-list">
+          <div
+            *ngFor="let content of contents; let i = index"
+            cdkDrag
+            class="content-item"
+          >
+            <div class="drag-handle" cdkDragHandle>
+              <mat-icon>drag_indicator</mat-icon>
+            </div>
+
+            <div class="content-details">
+              <div class="content-header">
+                <mat-icon class="content-type-icon">{{ getContentTypeIcon(content.contentType) }}</mat-icon>
+                <span class="content-index">{{ i + 1 }}.</span>
+                <span class="content-type-label">{{ content.contentType }}</span>
+              </div>
+
+              <!-- Text content (editable) -->
+              <div *ngIf="content.contentType === 'text'" class="text-content">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Contenu</mat-label>
+                  <textarea
+                    matInput
+                    [(ngModel)]="content.contentValue"
+                    rows="4"
+                    (blur)="saveContent(content)"
+                  ></textarea>
+                </mat-form-field>
+              </div>
+
+              <!-- Image content -->
+              <div *ngIf="content.contentType === 'image'" class="media-content">
+                <img [src]="content.contentValue" alt="Content image" class="content-preview" />
+                <div class="media-path">{{ content.contentValue }}</div>
+                <input
+                  type="file"
+                  #imageInput
+                  (change)="onFileSelected($event, content)"
+                  accept="image/*"
+                  style="display: none"
+                />
+                <button mat-raised-button (click)="imageInput.click()" [disabled]="isSaving">
+                  <mat-icon>upload</mat-icon>
+                  Changer l'image
+                </button>
+              </div>
+
+              <!-- Video content -->
+              <div *ngIf="content.contentType === 'video'" class="media-content">
+                <video [src]="content.contentValue" controls class="content-preview"></video>
+                <div class="media-path">{{ content.contentValue }}</div>
+                <input
+                  type="file"
+                  #videoInput
+                  (change)="onFileSelected($event, content)"
+                  accept="video/*"
+                  style="display: none"
+                />
+                <button mat-raised-button (click)="videoInput.click()" [disabled]="isSaving">
+                  <mat-icon>upload</mat-icon>
+                  Changer la vidéo
+                </button>
+              </div>
+            </div>
+
+            <div class="content-actions">
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="deleteContent(content.id)"
+                [disabled]="isSaving"
+                [attr.aria-label]="'Supprimer le contenu ' + (i + 1)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="contents.length === 0" class="no-contents">
+            <mat-icon>info</mat-icon>
+            <p>Aucun contenu pour cette leçon. Cliquez sur "Ajouter un contenu" pour commencer.</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

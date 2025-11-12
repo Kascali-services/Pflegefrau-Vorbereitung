@@ -5,3 +5,4 @@ export * from './user.service';
 export * from './team.service';
 export * from './contact.service';
 export * from './dashboard.service';
+export * from './lesson-editor.service';
