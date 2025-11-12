@@ -4,7 +4,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { NavigationComponent } from '../navigation/navigation.component';
 import { MobileMenuComponent } from '../mobile-menu/mobile-menu.component';
 import { AuthService } from '../../services/auth.service';
@@ -28,6 +28,7 @@ import { AuthService } from '../../services/auth.service';
 export class HeaderComponent {
   isScrolled = false;
   private authService = inject(AuthService);
+  private router = inject(Router);
   isAuthenticated$ = this.authService.isAuthenticated$;
 
   @HostListener('window:scroll', [])
@@ -36,16 +37,8 @@ export class HeaderComponent {
   }
 
   onLogin(): void {
-    // Simulate login for demo purposes
-    // In real app, this would open a login dialog/page
-    this.authService.login('test@example.com', 'password123').subscribe({
-      next: user => {
-        console.log('Login successful:', user);
-      },
-      error: error => {
-        console.error('Login failed:', error);
-      },
-    });
+    // Navigate to login page
+    this.router.navigate(['/auth/login']);
   }
 
   onLogout(): void {
