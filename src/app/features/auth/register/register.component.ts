@@ -24,6 +24,7 @@ export class RegisterComponent {
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
+      aktenzeichen: ['', [Validators.maxLength(8)]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
     });
@@ -44,9 +45,9 @@ export class RegisterComponent {
     this.isLoading = true;
     this.errorMessage = '';
 
-    const { email, firstName, lastName } = this.registerForm.value;
+    const { email, firstName, lastName, aktenzeichen } = this.registerForm.value;
 
-    this.authService.register(email, password, firstName, lastName).subscribe({
+    this.authService.register(email, password, firstName, lastName, aktenzeichen).subscribe({
       next: () => {
         this.isLoading = false;
         this.router.navigate(['/my-courses']);
@@ -83,5 +84,9 @@ export class RegisterComponent {
 
   get confirmPassword() {
     return this.registerForm.get('confirmPassword');
+  }
+
+  get aktenzeichen() {
+    return this.registerForm.get('aktenzeichen');
   }
 }

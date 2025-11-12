@@ -89,6 +89,27 @@
       </div>
 
       <div class="form-group">
+        <label for="aktenzeichen" class="form-label">
+          Aktenzeichen
+        </label>
+        <input
+          id="aktenzeichen"
+          type="text"
+          formControlName="aktenzeichen"
+          class="form-input"
+          placeholder="Optional (max. 8 Zeichen)"
+          [class.error]="aktenzeichen?.invalid && aktenzeichen?.touched"
+        />
+        @if (aktenzeichen?.invalid && aktenzeichen?.touched) {
+          <div class="field-error">
+            @if (aktenzeichen?.hasError('maxlength')) {
+              <span>Aktenzeichen darf maximal 8 Zeichen lang sein</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
         <label for="password" class="form-label">
           Passwort <span class="required">*</span>
         </label>
