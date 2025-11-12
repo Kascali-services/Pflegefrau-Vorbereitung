@@ -1,6 +1,19 @@
 <div class="dashboard-container">
-  <h1 class="dashboard-title">Tableau de bord - Gestion des cours</h1>
-  <p class="dashboard-subtitle">Gérez tous les cours et leurs leçons</p>
+  <div class="dashboard-header">
+    <div>
+      <h1 class="dashboard-title">Tableau de bord - Gestion des cours</h1>
+      <p class="dashboard-subtitle">Gérez tous les cours et leurs leçons</p>
+    </div>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="onCreateCourse()"
+      class="create-course-btn"
+    >
+      <mat-icon>add</mat-icon>
+      Créer un cours
+    </button>
+  </div>
 
   <div class="courses-list" *ngIf="coursesWithLessons$ | async as coursesWithLessons">
     <mat-card *ngFor="let item of coursesWithLessons" class="course-card">

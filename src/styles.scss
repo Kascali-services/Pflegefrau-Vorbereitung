@@ -32,3 +32,33 @@ body {
   font-family: var(--font-family-primary);
   background-color: var(--color-background-light);
 }
+
+// ============================================
+// Notification Snackbar Styles
+// ============================================
+
+.success-snackbar {
+  background-color: #4caf50 !important;
+  color: white !important;
+
+  .mat-mdc-snack-bar-label {
+    color: white !important;
+  }
+
+  .mat-mdc-button {
+    color: white !important;
+  }
+}
+
+.error-snackbar {
+  background-color: #f44336 !important;
+  color: white !important;
+
+  .mat-mdc-snack-bar-label {
+    color: white !important;
+  }
+
+  .mat-mdc-button {
+    color: white !important;
+  }
+}

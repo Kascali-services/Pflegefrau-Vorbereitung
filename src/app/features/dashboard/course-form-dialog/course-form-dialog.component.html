@@ -1,0 +1,120 @@
+<h2 mat-dialog-title>
+  {{ isCreateMode ? 'Créer un nouveau cours' : 'Modifier le cours' }}
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="courseForm" class="course-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Titre du cours</mat-label>
+      <input matInput formControlName="title" placeholder="Ex: Introduction aux soins infirmiers" />
+      <mat-error *ngIf="courseForm.get('title')?.hasError('required')">
+        Le titre est requis
+      </mat-error>
+      <mat-error *ngIf="courseForm.get('title')?.hasError('maxlength')">
+        Le titre ne peut pas dépasser 255 caractères
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Description</mat-label>
+      <textarea
+        matInput
+        formControlName="description"
+        rows="4"
+        placeholder="Décrivez le contenu du cours..."
+      ></textarea>
+      <mat-error *ngIf="courseForm.get('description')?.hasError('required')">
+        La description est requise
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Niveau</mat-label>
+      <mat-select formControlName="level">
+        <mat-option value="beginner">Débutant</mat-option>
+        <mat-option value="intermediate">Intermédiaire</mat-option>
+        <mat-option value="advanced">Avancé</mat-option>
+      </mat-select>
+      <mat-error *ngIf="courseForm.get('level')?.hasError('required')">
+        Le niveau est requis
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Durée (minutes)</mat-label>
+      <input matInput type="number" formControlName="durationMinutes" placeholder="Ex: 60" />
+      <mat-error *ngIf="courseForm.get('durationMinutes')?.hasError('required')">
+        La durée est requise
+      </mat-error>
+      <mat-error *ngIf="courseForm.get('durationMinutes')?.hasError('min')">
+        La durée doit être positive
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Thumbnail Upload Section -->
+    <div class="thumbnail-section">
+      <h3 class="section-title">Vignette du cours</h3>
+
+      <div class="thumbnail-upload">
+        <input
+          type="file"
+          #fileInput
+          accept="image/*"
+          (change)="onFileSelected($event)"
+          style="display: none"
+        />
+
+        <div *ngIf="!thumbnailPreview" class="upload-placeholder">
+          <button
+            mat-raised-button
+            color="primary"
+            type="button"
+            (click)="fileInput.click()"
+            class="upload-btn"
+          >
+            <mat-icon>upload</mat-icon>
+            Télécharger une image
+          </button>
+          <p class="upload-hint">Formats acceptés: JPG, PNG, GIF</p>
+        </div>
+
+        <div *ngIf="thumbnailPreview" class="thumbnail-preview">
+          <img [src]="thumbnailPreview" alt="Aperçu de la vignette" />
+          <div class="preview-actions">
+            <button
+              mat-icon-button
+              color="warn"
+              type="button"
+              (click)="removeThumbnail()"
+              title="Supprimer la vignette"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="primary"
+              type="button"
+              (click)="fileInput.click()"
+              title="Changer la vignette"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="onCancel()">Annuler</button>
+  <button
+    mat-raised-button
+    color="primary"
+    type="button"
+    (click)="onSubmit()"
+    [disabled]="!courseForm.valid"
+  >
+    {{ isCreateMode ? 'Créer' : 'Enregistrer' }}
+  </button>
+</mat-dialog-actions>

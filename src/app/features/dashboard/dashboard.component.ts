@@ -4,10 +4,15 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatDialog } from '@angular/material/dialog';
 import { Course, Lesson } from '../../models/course.model';
 import { DashboardService } from '../../core/services/dashboard.service';
+import { CourseService } from '../../core/services/course.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { CourseFormDialogComponent } from './course-form-dialog/course-form-dialog.component';
+import { LessonEditorDialogComponent } from './lesson-editor-dialog/lesson-editor-dialog.component';
 
 interface CourseWithLessons {
   course: Course;
@@ -24,6 +29,9 @@ interface CourseWithLessons {
 })
 export class DashboardComponent implements OnInit {
   private dashboardService = inject(DashboardService);
+  private courseService = inject(CourseService);
+  private notificationService = inject(NotificationService);
+  private dialog = inject(MatDialog);
 
   coursesWithLessons$!: Observable<CourseWithLessons[]>;
   expandedCourseIds: Set<string> = new Set<string>();
@@ -118,8 +126,49 @@ export class DashboardComponent implements OnInit {
   }
 
   onEditLesson(lesson: Lesson): void {
-    // Placeholder for future edit functionality
-    console.log('Edit lesson:', lesson);
+    // Get lesson contents
+    this.courseService.getLessonContents(lesson.id).subscribe({
+      next: contents => {
+        const dialogRef = this.dialog.open(LessonEditorDialogComponent, {
+          width: '700px',
+          data: {
+            lesson,
+            contents,
+          },
+        });
+
+        dialogRef.afterClosed().subscribe({
+          next: result => {
+            if (result) {
+              // In a real app, this would call the backend API
+              this.notificationService.showSuccess('Leçon mise à jour avec succès');
+              this.loadCoursesWithExpanded();
+            }
+          },
+        });
+      },
+    });
+  }
+
+  onCreateCourse(): void {
+    const dialogRef = this.dialog.open(CourseFormDialogComponent, {
+      width: '600px',
+      data: {
+        mode: 'create',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe({
+      next: result => {
+        if (result) {
+          // In a real app, this would upload the thumbnail and create the course via API
+          this.notificationService.showSuccess('Cours créé avec succès');
+          // The thumbnailFile would be uploaded to a server
+          // The thumbnailPreview is a data URL for preview only
+          this.loadCourses();
+        }
+      },
+    });
   }
 
   isCourseExpanded(courseId: string): boolean {

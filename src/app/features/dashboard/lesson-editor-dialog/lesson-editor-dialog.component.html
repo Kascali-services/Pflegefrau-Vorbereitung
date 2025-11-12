@@ -1,0 +1,97 @@
+<h2 mat-dialog-title>Modifier la leçon: {{ data.lesson.title }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="lessonForm" class="lesson-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Titre de la leçon</mat-label>
+      <input matInput formControlName="title" placeholder="Ex: Introduction aux soins" />
+      <mat-error *ngIf="lessonForm.get('title')?.hasError('required')">
+        Le titre est requis
+      </mat-error>
+      <mat-error *ngIf="lessonForm.get('title')?.hasError('maxlength')">
+        Le titre ne peut pas dépasser 255 caractères
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Description</mat-label>
+      <textarea
+        matInput
+        formControlName="description"
+        rows="3"
+        placeholder="Décrivez le contenu de la leçon..."
+      ></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Type</mat-label>
+      <mat-select formControlName="type">
+        <mat-option value="text">Texte</mat-option>
+        <mat-option value="video">Vidéo</mat-option>
+        <mat-option value="interactive">Interactif</mat-option>
+      </mat-select>
+      <mat-error *ngIf="lessonForm.get('type')?.hasError('required')">
+        Le type est requis
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Durée (minutes)</mat-label>
+      <input matInput type="number" formControlName="durationMinutes" placeholder="Ex: 30" />
+      <mat-error *ngIf="lessonForm.get('durationMinutes')?.hasError('required')">
+        La durée est requise
+      </mat-error>
+      <mat-error *ngIf="lessonForm.get('durationMinutes')?.hasError('min')">
+        La durée doit être positive
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Lesson Contents Section -->
+    <div class="contents-section">
+      <h3 class="section-title">Contenus de la leçon</h3>
+
+      <mat-list *ngIf="lessonContents.length > 0" class="contents-list">
+        <mat-list-item *ngFor="let content of lessonContents; let i = index" class="content-item">
+          <mat-icon matListItemIcon [class]="'content-icon-' + content.contentType">{{
+            getContentIcon(content.contentType)
+          }}</mat-icon>
+          <div matListItemTitle class="content-info">
+            <span class="content-type">{{ content.contentType }}</span>
+            <span class="content-order">Position: {{ content.orderIndex }}</span>
+          </div>
+          <div matListItemLine class="content-value">
+            {{ content.contentValue.substring(0, 100)
+            }}{{ content.contentValue.length > 100 ? '...' : '' }}
+          </div>
+          <button
+            mat-icon-button
+            color="warn"
+            matListItemMeta
+            type="button"
+            (click)="onDeleteContent(content, i)"
+            title="Supprimer ce contenu"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-list-item>
+      </mat-list>
+
+      <div *ngIf="lessonContents.length === 0" class="no-contents">
+        <p>Aucun contenu disponible pour cette leçon.</p>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="onCancel()">Annuler</button>
+  <button
+    mat-raised-button
+    color="primary"
+    type="button"
+    (click)="onSubmit()"
+    [disabled]="!lessonForm.valid"
+  >
+    Enregistrer
+  </button>
+</mat-dialog-actions>
