@@ -30,6 +30,10 @@
       </button>
 
       <mat-menu #userMenu="matMenu">
+        <button mat-menu-item routerLink="/settings">
+          <mat-icon>settings</mat-icon>
+          <span>Einstellungen</span>
+        </button>
         <button mat-menu-item (click)="onLogout()">
           <mat-icon>logout</mat-icon>
           <span>Abmelden</span>

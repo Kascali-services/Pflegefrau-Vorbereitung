@@ -32,12 +32,51 @@ export class UserService {
   }
 
   /**
-   * Update user information (for future use)
+   * Update user profile information
+   * This will communicate with PUT /api/users/me endpoint in the backend
+   *
+   * @param user - Updated user data
+   * @returns Observable with updated user data
    */
-  updateUser(user: User): Observable<User> {
-    // This would typically update the user in the backend
-    // For now, we just return the user as is
-    return of(user);
+  updateProfile(user: User): Observable<User> {
+    // For now, update the user in localStorage and AuthService
+    // In production, this would call PUT /api/users/me endpoint
+    const updatedUser: User = {
+      ...user,
+      updatedAt: new Date(),
+    };
+
+    // Update in localStorage
+    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+
+    // Update in AuthService
+    this.authService.updateCurrentUser(updatedUser);
+
+    return of(updatedUser);
+  }
+
+  /**
+   * Upload user avatar/profile photo
+   * This will communicate with POST /api/media/upload endpoint in the backend
+   *
+   * @param file - Image file to upload
+   * @returns Observable with the uploaded avatar URL
+   */
+  uploadAvatar(file: File): Observable<string> {
+    // In production, this would upload to POST /api/media/upload
+    // For now, simulate the upload by creating a local URL
+    return new Observable(observer => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const avatarUrl = e.target?.result as string;
+        observer.next(avatarUrl);
+        observer.complete();
+      };
+      reader.onerror = () => {
+        observer.error(new Error('Fehler beim Hochladen des Bildes'));
+      };
+      reader.readAsDataURL(file);
+    });
   }
 
   /**

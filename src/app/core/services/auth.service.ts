@@ -216,4 +216,13 @@ export class AuthService {
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
   }
+
+  /**
+   * Update current user data
+   * Used by UserService to update user profile
+   * @param user Updated user data
+   */
+  updateCurrentUser(user: User): void {
+    this.currentUserSubject.next(user);
+  }
 }
