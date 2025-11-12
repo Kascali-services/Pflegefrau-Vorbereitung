@@ -72,10 +72,6 @@
                 </div>
                 <p *ngIf="lesson.description" class="lesson-description">{{ lesson.description }}</p>
                 <div class="lesson-meta">
-                  <span class="lesson-type">
-                    <mat-icon class="type-icon">{{ lesson.type === 'video' ? 'play_circle' : 'article' }}</mat-icon>
-                    {{ lesson.type }}
-                  </span>
                   <span class="lesson-duration">
                     <mat-icon class="duration-icon">schedule</mat-icon>
                     {{ lesson.durationMinutes }} min

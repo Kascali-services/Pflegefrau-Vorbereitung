@@ -24,9 +24,7 @@
         <div class="lesson-item" *ngFor="let lesson of lessons; let i = index">
           <span class="lesson-number">{{ i + 1 }}.</span>
           <span class="lesson-icon">
-            <span *ngIf="lesson.type === 'text'">📄</span>
-            <span *ngIf="lesson.type === 'video'">🎥</span>
-            <span *ngIf="lesson.type === 'interactive'">💻</span>
+            <span>📄</span>
           </span>
           <div class="lesson-details">
             <span class="lesson-title">{{ lesson.title }}</span>

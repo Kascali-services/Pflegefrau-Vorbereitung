@@ -23,11 +23,8 @@ export interface Lesson {
   courseId: string; // VARCHAR(50) [FK → Course.id] NOT NULL
   title: string; // VARCHAR(255) NOT NULL
   description?: string; // TEXT
-  /** @deprecated Use LessonContent array instead */
-  contentMdPath?: string; // VARCHAR(500) - kept for backward compatibility
   durationMinutes: number; // INTEGER NOT NULL DEFAULT 0
   orderIndex: number; // INTEGER NOT NULL - display order
-  type: 'text' | 'video' | 'interactive'; // ENUM
   createdAt?: Date; // TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 }
 
