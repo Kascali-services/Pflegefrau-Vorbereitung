@@ -89,25 +89,41 @@
       </div>
 
       <div class="form-group">
-        <label for="aktenzeichen" class="form-label">
-          Aktenzeichen
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            formControlName="viaRecommendation"
+            class="form-checkbox"
+          />
+          Ich komme über eine Empfehlung
         </label>
-        <input
-          id="aktenzeichen"
-          type="text"
-          formControlName="aktenzeichen"
-          class="form-input"
-          placeholder="Optional (max. 8 Zeichen)"
-          [class.error]="aktenzeichen?.invalid && aktenzeichen?.touched"
-        />
-        @if (aktenzeichen?.invalid && aktenzeichen?.touched) {
-          <div class="field-error">
-            @if (aktenzeichen?.hasError('maxlength')) {
-              <span>Aktenzeichen darf maximal 8 Zeichen lang sein</span>
-            }
-          </div>
-        }
       </div>
+
+      @if (viaRecommendation?.value) {
+        <div class="form-group">
+          <label for="empfehlungsnummer" class="form-label">
+            Empfehlungsnummer <span class="required">*</span>
+          </label>
+          <input
+            id="empfehlungsnummer"
+            type="text"
+            formControlName="empfehlungsnummer"
+            class="form-input"
+            placeholder="Max. 8 Zeichen"
+            [class.error]="empfehlungsnummer?.invalid && empfehlungsnummer?.touched"
+          />
+          @if (empfehlungsnummer?.invalid && empfehlungsnummer?.touched) {
+            <div class="field-error">
+              @if (empfehlungsnummer?.hasError('required')) {
+                <span>Empfehlungsnummer ist erforderlich</span>
+              }
+              @if (empfehlungsnummer?.hasError('maxlength')) {
+                <span>Empfehlungsnummer darf maximal 8 Zeichen lang sein</span>
+              }
+            </div>
+          }
+        </div>
+      }
 
       <div class="form-group">
         <label for="password" class="form-label">
