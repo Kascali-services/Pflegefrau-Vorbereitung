@@ -13,13 +13,12 @@ describe('QuizComponent', () => {
   beforeEach(async () => {
     mockCourseService = jasmine.createSpyObj('CourseService', [
       'getQuizById',
-      'getUserProgress',
-      'saveQuizScore',
-      'markLessonCompleted',
+      'getQuestionsByQuizId',
+      'getOptionsByQuestionId',
+      'submitQuizAttempt',
+      'getLessonProgress',
       'getNextLesson',
       'getLessonById',
-      'getChapterById',
-      'isQuizPassed',
     ]);
 
     mockActivatedRoute = jasmine.createSpyObj('ActivatedRoute', [], {
@@ -28,17 +27,10 @@ describe('QuizComponent', () => {
     });
 
     // Default return values
-    mockCourseService.getUserProgress.and.returnValue(
-      of({
-        completedLessons: [],
-        quizScores: [],
-        totalProgress: 0,
-        moduleProgress: [],
-      })
-    );
     mockCourseService.getQuizById.and.returnValue(of(undefined));
-    mockCourseService.saveQuizScore.and.returnValue(of(void 0));
-    mockCourseService.isQuizPassed.and.returnValue(of(false));
+    mockCourseService.getQuestionsByQuizId.and.returnValue(of([]));
+    mockCourseService.getOptionsByQuestionId.and.returnValue(of([]));
+    mockCourseService.getLessonProgress.and.returnValue(of(undefined));
 
     await TestBed.configureTestingModule({
       imports: [QuizComponent],

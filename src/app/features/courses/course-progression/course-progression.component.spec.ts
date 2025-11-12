@@ -13,13 +13,18 @@ describe('CourseProgressionComponent', () => {
   beforeEach(async () => {
     mockCourseService = jasmine.createSpyObj('CourseService', [
       'getLessonById',
-      'getChapterById',
-      'getModuleById',
-      'getUserProgress',
+      'getCourseById',
+      'getLessonContents',
+      'getLessonContent',
+      'getQuizByLessonId',
+      'getLessonProgress',
+      'getLessonsByCourseId',
       'isLessonAccessible',
       'getNextLesson',
+      'getPreviousLesson',
       'markLessonCompleted',
       'updateLastAccessedLesson',
+      'updateCourseLastAccessed',
     ]);
 
     mockActivatedRoute = jasmine.createSpyObj('ActivatedRoute', [], {
@@ -28,30 +33,37 @@ describe('CourseProgressionComponent', () => {
     });
 
     // Default return values
-    mockCourseService.getUserProgress.and.returnValue(
-      of({
-        completedLessons: [],
-        quizScores: [],
-        totalProgress: 0,
-        moduleProgress: [],
-      })
-    );
     mockCourseService.getLessonById.and.returnValue(
       of({
         id: 'lesson-1',
-        chapterId: 'chapter-1',
+        courseId: 'course-1',
         title: 'Test Lesson',
-        content: 'Test content',
+        description: 'Test description',
         type: 'text',
-        duration: 10,
-        order: 1,
+        durationMinutes: 10,
+        orderIndex: 1,
       })
     );
+    mockCourseService.getCourseById.and.returnValue(
+      of({
+        id: 'course-1',
+        title: 'Test Course',
+        description: 'Test course description',
+        level: 'beginner',
+        durationMinutes: 60,
+        lessonsCount: 3,
+      })
+    );
+    mockCourseService.getLessonContents.and.returnValue(of([]));
+    mockCourseService.getLessonContent.and.returnValue(of('Test content'));
+    mockCourseService.getQuizByLessonId.and.returnValue(of(undefined));
+    mockCourseService.getLessonProgress.and.returnValue(of(undefined));
+    mockCourseService.getLessonsByCourseId.and.returnValue(of([]));
     mockCourseService.isLessonAccessible.and.returnValue(of(true));
     mockCourseService.getNextLesson.and.returnValue(of(undefined));
+    mockCourseService.getPreviousLesson.and.returnValue(of(undefined));
     mockCourseService.updateLastAccessedLesson.and.returnValue(of(void 0));
-    mockCourseService.getChapterById.and.returnValue(of(undefined));
-    mockCourseService.getModuleById.and.returnValue(of(undefined));
+    mockCourseService.updateCourseLastAccessed.and.returnValue(of(void 0));
 
     await TestBed.configureTestingModule({
       imports: [CourseProgressionComponent],

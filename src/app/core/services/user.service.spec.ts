@@ -17,8 +17,10 @@ describe('UserService', () => {
     service.getCurrentUser().subscribe(user => {
       expect(user).toBeTruthy();
       expect(user?.id).toBe('user-001');
-      expect(user?.name).toBe('Marie Dupont');
+      expect(user?.firstName).toBe('Marie');
+      expect(user?.lastName).toBe('Dupont');
       expect(user?.email).toBe('marie.dupont@example.com');
+      expect(user?.role).toBe('student');
       done();
     });
   });
