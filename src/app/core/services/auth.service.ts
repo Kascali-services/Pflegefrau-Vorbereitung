@@ -1,36 +1,35 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { map, catchError, tap } from 'rxjs/operators';
 import { User } from '../../models/user.model';
+import {
+  AuthResponse,
+  AuthUser,
+  LoginRequest,
+  RegisterRequest,
+  ResetPasswordRequest,
+  LogoutResponse,
+  ResetPasswordResponse,
+} from '../interfaces/auth-api.interface';
+import { environment } from '../../../environments/environment';
 
 /**
- * AuthService - Simulates authentication with backend
- * Manages login, logout, and registration
- * Will be replaced with actual backend integration later (AuthLib)
+ * AuthService - Handles authentication with backend auth service via gateway
+ * Manages login, logout, registration, and JWT token storage
  */
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/api/auth`;
+
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   private currentUserSubject = new BehaviorSubject<User | null>(null);
 
   isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
   currentUser$ = this.currentUserSubject.asObservable();
-
-  // Mock users database for simulation
-  private mockUsers: User[] = [
-    {
-      id: 'user-001',
-      email: 'marie.dupont@example.com',
-      firstName: 'Marie',
-      lastName: 'Dupont',
-      role: 'student',
-      passwordHash: 'password123', // In real app, this would be hashed
-      createdAt: new Date('2025-01-01'),
-      updatedAt: new Date('2025-01-01'),
-      lastLoginAt: new Date('2025-02-10'),
-    },
-  ];
 
   constructor() {
     // Check if user is already logged in (from localStorage)
@@ -42,80 +41,125 @@ export class AuthService {
    */
   private checkAuthState(): void {
     const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
+    const token = localStorage.getItem('authToken');
+
+    if (storedUser && token) {
       try {
         const user = JSON.parse(storedUser);
         this.currentUserSubject.next(user);
         this.isAuthenticatedSubject.next(true);
       } catch {
-        localStorage.removeItem('currentUser');
+        this.clearAuthData();
       }
     }
   }
 
   /**
-   * Simulate login - authenticate user with email and password
+   * Clear authentication data from localStorage
+   */
+  private clearAuthData(): void {
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('authToken');
+  }
+
+  /**
+   * Convert AuthUser to User model
+   */
+  private convertAuthUserToUser(authUser: AuthUser): User {
+    return {
+      id: authUser.id,
+      email: authUser.email,
+      firstName: authUser.firstName,
+      lastName: authUser.lastName,
+      role: authUser.role as 'student' | 'content_manager' | 'admin',
+      aktenzeichen: authUser.empfehlungsnummer,
+      createdAt: authUser.createdAt ? new Date(authUser.createdAt) : undefined,
+      lastLoginAt: authUser.lastLoginAt
+        ? new Date(authUser.lastLoginAt)
+        : undefined,
+    };
+  }
+
+  /**
+   * Handle HTTP errors
+   */
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    let errorMessage = 'Ein unbekannter Fehler ist aufgetreten';
+
+    if (error.error instanceof ErrorEvent) {
+      // Client-side error
+      errorMessage = `Fehler: ${error.error.message}`;
+    } else {
+      // Server-side error
+      if (error.status === 401) {
+        errorMessage = 'E-Mail oder Passwort ungültig';
+      } else if (error.status === 400) {
+        errorMessage =
+          error.error?.detail || 'Ungültige Anfrage. Bitte überprüfen Sie Ihre Eingaben.';
+      } else if (error.status === 500) {
+        errorMessage = 'Serverfehler. Bitte versuchen Sie es später erneut.';
+      } else if (error.error?.detail) {
+        errorMessage = error.error.detail;
+      }
+    }
+
+    return throwError(() => ({ message: errorMessage }));
+  }
+
+  /**
+   * Login - authenticate user with email and password
    * @param email User email
    * @param password User password
    * @returns Observable with user data or error
    */
   login(email: string, password: string): Observable<User> {
-    // Simulate API delay
-    return new Observable(observer => {
-      setTimeout(() => {
-        // Find user in mock database
-        const user = this.mockUsers.find(
-          u => u.email === email && u.passwordHash === password
-        );
+    const loginRequest: LoginRequest = { email, password };
 
-        if (user) {
-          // Create user object without password
-          const authenticatedUser: User = {
-            id: user.id,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            role: user.role,
-            avatarUrl: user.avatarUrl,
-            createdAt: user.createdAt,
-            updatedAt: user.updatedAt,
-            lastLoginAt: new Date(),
-          };
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, loginRequest).pipe(
+      tap(response => {
+        // Store token
+        localStorage.setItem('authToken', response.token);
+      }),
+      map(response => {
+        // Convert to User model
+        const user = this.convertAuthUserToUser(response.user);
 
-          // Update state
-          this.currentUserSubject.next(authenticatedUser);
-          this.isAuthenticatedSubject.next(true);
+        // Update state
+        this.currentUserSubject.next(user);
+        this.isAuthenticatedSubject.next(true);
 
-          // Store in localStorage
-          localStorage.setItem('currentUser', JSON.stringify(authenticatedUser));
+        // Store user in localStorage
+        localStorage.setItem('currentUser', JSON.stringify(user));
 
-          observer.next(authenticatedUser);
-          observer.complete();
-        } else {
-          observer.error({ message: 'E-Mail oder Passwort ungültig' });
-        }
-      }, 500); // Simulate 500ms network delay
-    });
+        return user;
+      }),
+      catchError(this.handleError)
+    );
   }
 
   /**
-   * Simulate logout - clear authentication state
+   * Logout - clear authentication state and invalidate token
    */
   logout(): Observable<void> {
-    return new Observable(observer => {
-      setTimeout(() => {
+    return this.http.post<LogoutResponse>(`${this.apiUrl}/logout`, {}).pipe(
+      map(() => {
+        // Clear state
         this.currentUserSubject.next(null);
         this.isAuthenticatedSubject.next(false);
-        localStorage.removeItem('currentUser');
-
-        observer.next();
-        observer.complete();
-      }, 300); // Simulate 300ms network delay
-    });
+        this.clearAuthData();
+      }),
+      catchError(error => {
+        // Even if API fails, clear local state
+        this.currentUserSubject.next(null);
+        this.isAuthenticatedSubject.next(false);
+        this.clearAuthData();
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
-   * Simulate user registration
+   * Register - create a new user account
    * @param email User email
    * @param password User password
    * @param firstName User first name
@@ -130,77 +174,60 @@ export class AuthService {
     lastName: string,
     empfehlungsnummer?: string
   ): Observable<User> {
-    return new Observable(observer => {
-      setTimeout(() => {
-        // Check if user already exists
-        const existingUser = this.mockUsers.find(u => u.email === email);
+    const registerRequest: RegisterRequest = {
+      email,
+      password,
+      firstName,
+      lastName,
+      empfehlungsnummer,
+    };
 
-        if (existingUser) {
-          observer.error({ message: 'Diese E-Mail wird bereits verwendet' });
-          return;
-        }
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/register`, registerRequest)
+      .pipe(
+        tap(response => {
+          // Store token
+          localStorage.setItem('authToken', response.token);
+        }),
+        map(response => {
+          // Convert to User model
+          const user = this.convertAuthUserToUser(response.user);
 
-        // Create new user
-        const newUser: User = {
-          id: `user-${Date.now()}`,
-          email,
-          firstName,
-          lastName,
-          aktenzeichen: empfehlungsnummer || undefined,
-          passwordHash: password,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
+          // Auto-login after registration
+          this.currentUserSubject.next(user);
+          this.isAuthenticatedSubject.next(true);
+          localStorage.setItem('currentUser', JSON.stringify(user));
 
-        // Add to mock database
-        this.mockUsers.push(newUser);
-
-        // Create user object without password for response
-        const registeredUser: User = {
-          id: newUser.id,
-          email: newUser.email,
-          firstName: newUser.firstName,
-          lastName: newUser.lastName,
-          aktenzeichen: newUser.aktenzeichen,
-          role: newUser.role,
-          createdAt: newUser.createdAt,
-          updatedAt: newUser.updatedAt,
-        };
-
-        // Auto-login after registration
-        this.currentUserSubject.next(registeredUser);
-        this.isAuthenticatedSubject.next(true);
-        localStorage.setItem('currentUser', JSON.stringify(registeredUser));
-
-        observer.next(registeredUser);
-        observer.complete();
-      }, 800); // Simulate 800ms network delay
-    });
+          return user;
+        }),
+        catchError(error => {
+          if (error.status === 400 && error.error?.detail) {
+            // Handle specific validation errors
+            if (error.error.detail.includes('already')) {
+              return throwError(() => ({
+                message: 'Diese E-Mail wird bereits verwendet',
+              }));
+            }
+          }
+          return this.handleError(error);
+        })
+      );
   }
 
   /**
-   * Simulate password reset
+   * Reset password - initiate password reset process
    * @param email User email
    * @returns Observable with success or error
    */
   resetPassword(email: string): Observable<void> {
-    return new Observable(observer => {
-      setTimeout(() => {
-        // Check if user exists
-        const user = this.mockUsers.find(u => u.email === email);
+    const resetRequest: ResetPasswordRequest = { email };
 
-        if (user) {
-          // In a real app, this would send a reset email
-          observer.next();
-          observer.complete();
-        } else {
-          // For security, don't reveal if email exists or not
-          // Still return success
-          observer.next();
-          observer.complete();
-        }
-      }, 600); // Simulate 600ms network delay
-    });
+    return this.http
+      .post<ResetPasswordResponse>(`${this.apiUrl}/reset-password`, resetRequest)
+      .pipe(
+        map(() => void 0),
+        catchError(this.handleError)
+      );
   }
 
   /**
@@ -224,5 +251,6 @@ export class AuthService {
    */
   updateCurrentUser(user: User): void {
     this.currentUserSubject.next(user);
+    localStorage.setItem('currentUser', JSON.stringify(user));
   }
 }
