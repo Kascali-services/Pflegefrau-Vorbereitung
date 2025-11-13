@@ -1,17 +1,15 @@
 # Multi-stage Dockerfile for Angular application
 
 # Stage 1: Build the Angular application
-# Using Node 20.19+ as required by Angular 19.2.x
-# Using full image instead of slim for better compatibility
-FROM node:20.19 AS build
+FROM node:20 AS build
 
 # Set working directory
 WORKDIR /app
 
 # Copy package files
-COPY package.json ./
+COPY package.json package-lock.json ./
 
-# Install dependencies using npm install (package-lock causes issues with npm 10 in Docker)
+# Install dependencies
 RUN npm install
 
 # Copy application source

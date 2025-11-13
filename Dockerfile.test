@@ -1,9 +1,0 @@
-FROM node:20 AS build
-WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
-RUN ls -la node_modules/.bin/ | head -20
-RUN which ng || echo "ng not found in PATH"
-RUN node_modules/.bin/ng version || echo "Direct path failed"
-COPY . .
-RUN npm run build
