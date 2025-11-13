@@ -1,17 +1,29 @@
 import { TestBed } from '@angular/core/testing';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
 import { AuthService } from './auth.service';
 import { User } from '../../models/user.model';
+import { AuthResponse } from '../interfaces/auth-api.interface';
 
 describe('AuthService', () => {
   let service: AuthService;
+  let httpMock: HttpTestingController;
+  const apiUrl = 'http://localhost:8000/api/auth';
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
     service = TestBed.inject(AuthService);
+    httpMock = TestBed.inject(HttpTestingController);
     localStorage.clear();
   });
 
   afterEach(() => {
+    httpMock.verify();
     localStorage.clear();
   });
 
@@ -25,12 +37,24 @@ describe('AuthService', () => {
   });
 
   it('should login successfully with valid credentials', done => {
+    const mockResponse: AuthResponse = {
+      user: {
+        id: 'user-001',
+        email: 'test@example.com',
+        firstName: 'Test',
+        lastName: 'User',
+        role: 'student',
+      },
+      token: 'mock-jwt-token',
+    };
+
     service.login('test@example.com', 'password123').subscribe({
       next: (user: User) => {
         expect(user).toBeTruthy();
         expect(user.email).toBe('test@example.com');
         expect(service.isAuthenticated()).toBe(true);
         expect(service.getCurrentUser()).toBeTruthy();
+        expect(localStorage.getItem('authToken')).toBe('mock-jwt-token');
         done();
       },
       error: () => {
@@ -38,6 +62,14 @@ describe('AuthService', () => {
         done();
       },
     });
+
+    const req = httpMock.expectOne(`${apiUrl}/login`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({
+      email: 'test@example.com',
+      password: 'password123',
+    });
+    req.flush(mockResponse);
   });
 
   it('should fail login with invalid credentials', done => {
@@ -52,23 +84,49 @@ describe('AuthService', () => {
         done();
       },
     });
+
+    const req = httpMock.expectOne(`${apiUrl}/login`);
+    req.flush({ detail: 'Invalid credentials' }, { status: 401, statusText: 'Unauthorized' });
   });
 
   it('should logout successfully', done => {
-    // First login
-    service.login('test@example.com', 'password123').subscribe(() => {
-      expect(service.isAuthenticated()).toBe(true);
+    // Setup authenticated state
+    localStorage.setItem('authToken', 'mock-token');
+    const mockUser: User = {
+      id: 'user-001',
+      email: 'test@example.com',
+      firstName: 'Test',
+      lastName: 'User',
+    };
+    localStorage.setItem('currentUser', JSON.stringify(mockUser));
+    service['currentUserSubject'].next(mockUser);
+    service['isAuthenticatedSubject'].next(true);
 
-      // Then logout
-      service.logout().subscribe(() => {
-        expect(service.isAuthenticated()).toBe(false);
-        expect(service.getCurrentUser()).toBeNull();
-        done();
-      });
+    service.logout().subscribe(() => {
+      expect(service.isAuthenticated()).toBe(false);
+      expect(service.getCurrentUser()).toBeNull();
+      expect(localStorage.getItem('authToken')).toBeNull();
+      expect(localStorage.getItem('currentUser')).toBeNull();
+      done();
     });
+
+    const req = httpMock.expectOne(`${apiUrl}/logout`);
+    expect(req.request.method).toBe('POST');
+    req.flush({ message: 'Déconnexion réussie' });
   });
 
   it('should register new user successfully', done => {
+    const mockResponse: AuthResponse = {
+      user: {
+        id: 'user-002',
+        email: 'new@example.com',
+        firstName: 'New',
+        lastName: 'User',
+        role: 'student',
+      },
+      token: 'mock-jwt-token',
+    };
+
     service.register('new@example.com', 'newpassword', 'New', 'User').subscribe({
       next: (user: User) => {
         expect(user).toBeTruthy();
@@ -76,6 +134,7 @@ describe('AuthService', () => {
         expect(user.firstName).toBe('New');
         expect(user.lastName).toBe('User');
         expect(service.isAuthenticated()).toBe(true);
+        expect(localStorage.getItem('authToken')).toBe('mock-jwt-token');
         done();
       },
       error: () => {
@@ -83,28 +142,50 @@ describe('AuthService', () => {
         done();
       },
     });
+
+    const req = httpMock.expectOne(`${apiUrl}/register`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({
+      email: 'new@example.com',
+      password: 'newpassword',
+      firstName: 'New',
+      lastName: 'User',
+      empfehlungsnummer: undefined,
+    });
+    req.flush(mockResponse);
   });
 
   it('should fail registration with existing email', done => {
-    // Register first user
-    service.register('test@example.com', 'password', 'Test', 'User').subscribe(() => {
-      service.logout().subscribe(() => {
-        // Try to register with same email
-        service.register('test@example.com', 'password', 'Test', 'User').subscribe({
-          next: () => {
-            fail('Registration should fail with existing email');
-            done();
-          },
-          error: error => {
-            expect(error.message).toContain('déjà utilisé');
-            done();
-          },
-        });
-      });
+    service.register('test@example.com', 'password', 'Test', 'User').subscribe({
+      next: () => {
+        fail('Registration should fail with existing email');
+        done();
+      },
+      error: error => {
+        expect(error.message).toContain('déjà utilisé');
+        done();
+      },
     });
+
+    const req = httpMock.expectOne(`${apiUrl}/register`);
+    req.flush(
+      { detail: 'Email already exists' },
+      { status: 400, statusText: 'Bad Request' }
+    );
   });
 
   it('should persist authentication in localStorage', done => {
+    const mockResponse: AuthResponse = {
+      user: {
+        id: 'user-001',
+        email: 'test@example.com',
+        firstName: 'Test',
+        lastName: 'User',
+        role: 'student',
+      },
+      token: 'mock-jwt-token',
+    };
+
     service.login('test@example.com', 'password123').subscribe(() => {
       const storedUser = localStorage.getItem('currentUser');
       expect(storedUser).toBeTruthy();
@@ -113,6 +194,9 @@ describe('AuthService', () => {
       expect(user.email).toBe('test@example.com');
       done();
     });
+
+    const req = httpMock.expectOne(`${apiUrl}/login`);
+    req.flush(mockResponse);
   });
 
   it('should restore authentication from localStorage', () => {
@@ -124,6 +208,7 @@ describe('AuthService', () => {
     };
 
     localStorage.setItem('currentUser', JSON.stringify(mockUser));
+    localStorage.setItem('authToken', 'stored-token');
 
     // Create new service instance to trigger checkAuthState
     const newService = TestBed.inject(AuthService);
@@ -133,12 +218,25 @@ describe('AuthService', () => {
   });
 
   it('should clear localStorage on logout', done => {
-    service.login('test@example.com', 'password123').subscribe(() => {
-      service.logout().subscribe(() => {
-        const storedUser = localStorage.getItem('currentUser');
-        expect(storedUser).toBeNull();
-        done();
-      });
+    // Setup authenticated state
+    localStorage.setItem('authToken', 'mock-token');
+    const mockUser: User = {
+      id: 'user-001',
+      email: 'test@example.com',
+      firstName: 'Test',
+      lastName: 'User',
+    };
+    localStorage.setItem('currentUser', JSON.stringify(mockUser));
+
+    service.logout().subscribe(() => {
+      const storedUser = localStorage.getItem('currentUser');
+      const storedToken = localStorage.getItem('authToken');
+      expect(storedUser).toBeNull();
+      expect(storedToken).toBeNull();
+      done();
     });
+
+    const req = httpMock.expectOne(`${apiUrl}/logout`);
+    req.flush({ message: 'Déconnexion réussie' });
   });
 });
