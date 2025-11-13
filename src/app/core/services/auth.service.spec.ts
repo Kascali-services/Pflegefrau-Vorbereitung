@@ -162,7 +162,7 @@ describe('AuthService', () => {
         done();
       },
       error: error => {
-        expect(error.message).toContain('déjà utilisé');
+        expect(error.message).toContain('bereits verwendet');
         done();
       },
     });
@@ -207,14 +207,27 @@ describe('AuthService', () => {
       lastName: 'User',
     };
 
+    // Clear existing service and reset TestBed to create a fresh instance
+    TestBed.resetTestingModule();
+    
+    // Set up localStorage before creating service
     localStorage.setItem('currentUser', JSON.stringify(mockUser));
     localStorage.setItem('authToken', 'stored-token');
 
+    // Configure TestBed again with providers
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+
     // Create new service instance to trigger checkAuthState
     const newService = TestBed.inject(AuthService);
+    const newHttpMock = TestBed.inject(HttpTestingController);
 
     expect(newService.isAuthenticated()).toBe(true);
     expect(newService.getCurrentUser()?.email).toBe('stored@example.com');
+    
+    // Verify no HTTP requests were made (service restored from localStorage)
+    newHttpMock.verify();
   });
 
   it('should clear localStorage on logout', done => {

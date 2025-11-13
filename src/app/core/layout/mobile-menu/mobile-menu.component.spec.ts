@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MobileMenuComponent } from './mobile-menu.component';
 import { provideRouter } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 describe('MobileMenuComponent', () => {
   let component: MobileMenuComponent;
@@ -10,7 +12,7 @@ describe('MobileMenuComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [MobileMenuComponent, BrowserAnimationsModule],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MobileMenuComponent);
