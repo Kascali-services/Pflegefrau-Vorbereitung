@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # Angular Frontend Application
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pflegefrau-vorbereitung-frontend
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    networks:
+      - pflegefrau-network
+
+  # Development service with hot reload
+  frontend-dev:
+    image: node:20-alpine
+    container_name: pflegefrau-vorbereitung-dev
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "4200:4200"
+    command: sh -c "npm install && npm start"
+    environment:
+      - NODE_ENV=development
+    networks:
+      - pflegefrau-network
+    profiles:
+      - dev
+
+networks:
+  pflegefrau-network:
+    driver: bridge
