@@ -1,11 +1,15 @@
 import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { UserService } from './user.service';
 import { User } from '../../models/user.model';
 import { AuthService } from './auth.service';
+import { UserResponse, AvatarUploadResponse } from '../interfaces/user-api.interface';
+import { environment } from '../../../environments/environment';
 
 describe('UserService', () => {
   let service: UserService;
   let authService: AuthService;
+  let httpMock: HttpTestingController;
 
   const mockUser: User = {
     id: 'user-001',
@@ -13,25 +17,30 @@ describe('UserService', () => {
     firstName: 'Marie',
     lastName: 'Dupont',
     role: 'student',
-    passwordHash: 'password123',
     createdAt: new Date('2025-01-01'),
     updatedAt: new Date('2025-01-01'),
     lastLoginAt: new Date('2025-02-10'),
   };
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+    });
     service = TestBed.inject(UserService);
     authService = TestBed.inject(AuthService);
+    httpMock = TestBed.inject(HttpTestingController);
 
     // Setup: login a user before each test
     localStorage.setItem('currentUser', JSON.stringify(mockUser));
+    localStorage.setItem('authToken', 'fake-jwt-token');
     authService['checkAuthState']();
   });
 
   afterEach(() => {
     // Cleanup: clear localStorage after each test
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('authToken');
+    httpMock.verify();
   });
 
   it('should be created', () => {
@@ -50,7 +59,7 @@ describe('UserService', () => {
     });
   });
 
-  it('should get user by id', done => {
+  it('should get user by id for current user', done => {
     service.getUserById('user-001').subscribe(user => {
       expect(user).toBeTruthy();
       expect(user?.id).toBe('user-001');
@@ -58,20 +67,35 @@ describe('UserService', () => {
     });
   });
 
-  it('should return null for unknown user id', done => {
-    service.getUserById('unknown').subscribe(user => {
-      expect(user).toBeNull();
-      done();
+  it('should return error for different user id (no admin access)', done => {
+    service.getUserById('other-user').subscribe({
+      next: () => {
+        fail('Should have thrown an error');
+      },
+      error: error => {
+        expect(error.message).toBe('Zugriff verweigert');
+        done();
+      },
     });
   });
 
-  it('should update user profile', done => {
+  it('should update user profile via API', done => {
     const updatedUser: User = {
       id: 'user-001',
       email: 'marie.dupont@example.com',
       firstName: 'Marie Updated',
       lastName: 'Dupont Updated',
       role: 'student',
+    };
+
+    const mockResponse: UserResponse = {
+      id: 'user-001',
+      email: 'marie.dupont@example.com',
+      firstName: 'Marie Updated',
+      lastName: 'Dupont Updated',
+      role: 'student',
+      createdAt: '2025-01-01T00:00:00Z',
+      updatedAt: '2025-02-10T12:00:00Z',
     };
 
     service.updateProfile(updatedUser).subscribe(user => {
@@ -81,15 +105,93 @@ describe('UserService', () => {
       expect(user.updatedAt).toBeTruthy();
       done();
     });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/api/users/me`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual({
+      firstName: 'Marie Updated',
+      lastName: 'Dupont Updated',
+      avatarUrl: undefined,
+    });
+    req.flush(mockResponse);
   });
 
-  it('should upload avatar', done => {
-    const file = new File([''], 'test.jpg', { type: 'image/jpeg' });
+  it('should handle update profile error', done => {
+    const updatedUser: User = {
+      id: 'user-001',
+      email: 'marie.dupont@example.com',
+      firstName: 'M', // Too short
+      lastName: 'Dupont',
+      role: 'student',
+    };
+
+    service.updateProfile(updatedUser).subscribe({
+      next: () => {
+        fail('Should have thrown an error');
+      },
+      error: error => {
+        expect(error.message).toBe('First name must be at least 2 characters');
+        done();
+      },
+    });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/api/users/me`);
+    req.flush({ detail: 'First name must be at least 2 characters' }, { status: 400, statusText: 'Bad Request' });
+  });
+
+  it('should upload avatar via API', done => {
+    const file = new File(['test content'], 'test.jpg', { type: 'image/jpeg' });
+
+    const mockResponse: AvatarUploadResponse = {
+      avatarUrl: '/uploads/avatars/user-001_12345.jpg',
+      filename: 'user-001_12345.jpg',
+      size: 12345,
+      uploadedAt: '2025-02-10T12:00:00Z',
+    };
 
     service.uploadAvatar(file).subscribe(avatarUrl => {
       expect(avatarUrl).toBeTruthy();
-      expect(typeof avatarUrl).toBe('string');
+      expect(avatarUrl).toBe('/uploads/avatars/user-001_12345.jpg');
       done();
     });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/api/users/me/avatar`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body instanceof FormData).toBe(true);
+    req.flush(mockResponse);
+  });
+
+  it('should handle avatar upload error for file too large', done => {
+    const file = new File(['test content'], 'test.jpg', { type: 'image/jpeg' });
+
+    service.uploadAvatar(file).subscribe({
+      next: () => {
+        fail('Should have thrown an error');
+      },
+      error: error => {
+        expect(error.message).toBe('Datei ist zu groß. Maximale Größe: 5MB');
+        done();
+      },
+    });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/api/users/me/avatar`);
+    req.flush({ detail: 'File too large' }, { status: 413, statusText: 'Request Entity Too Large' });
+  });
+
+  it('should handle avatar upload error for invalid file type', done => {
+    const file = new File(['test content'], 'test.txt', { type: 'text/plain' });
+
+    service.uploadAvatar(file).subscribe({
+      next: () => {
+        fail('Should have thrown an error');
+      },
+      error: error => {
+        expect(error.message).toBe('Invalid file type');
+        done();
+      },
+    });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/api/users/me/avatar`);
+    req.flush({ detail: 'Invalid file type' }, { status: 400, statusText: 'Bad Request' });
   });
 });
