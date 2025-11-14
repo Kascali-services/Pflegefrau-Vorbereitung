@@ -28,7 +28,8 @@
             <li
               *ngIf="
                 (!link.requiresAuth || (isAuthenticated$ | async)) &&
-                (!link.requiresRole || (isContentManagerOrAdmin$ | async))
+                (!link.requiresRole || (isContentManagerOrAdmin$ | async)) &&
+                (!link.requiresAdmin || (isAdmin$ | async))
               "
               class="nav-item"
             >

@@ -8,6 +8,7 @@ import {
   AuthUser,
   LoginRequest,
   RegisterRequest,
+  RegisterTeamMemberRequest,
   ResetPasswordRequest,
   LogoutResponse,
   ResetPasswordResponse,
@@ -199,6 +200,58 @@ export class AuthService {
           localStorage.setItem('currentUser', JSON.stringify(user));
 
           return user;
+        }),
+        catchError(error => {
+          if (error.status === 400 && error.error?.detail) {
+            // Handle specific validation errors
+            if (error.error.detail.includes('already')) {
+              return throwError(() => ({
+                message: 'Diese E-Mail wird bereits verwendet',
+              }));
+            }
+          }
+          return this.handleError(error);
+        })
+      );
+  }
+
+  /**
+   * Register team member - create a new team member account (admin/content_manager)
+   * This method should only be called by admin users
+   * @param email Team member email
+   * @param password Team member password
+   * @param firstName Team member first name
+   * @param lastName Team member last name
+   * @param role Team member role (admin or content_manager)
+   * @param specialties Optional specialties array
+   * @param bio Optional biography
+   * @returns Observable with created user data or error
+   */
+  registerTeamMember(
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+    role: 'admin' | 'content_manager',
+    specialties?: string[],
+    bio?: string
+  ): Observable<User> {
+    const registerRequest: RegisterTeamMemberRequest = {
+      email,
+      password,
+      firstName,
+      lastName,
+      role,
+      specialties,
+      bio,
+    };
+
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/register-team-member`, registerRequest)
+      .pipe(
+        map(response => {
+          // Convert to User model (don't auto-login for team member registration)
+          return this.convertAuthUserToUser(response.user);
         }),
         catchError(error => {
           if (error.status === 400 && error.error?.detail) {
