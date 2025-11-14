@@ -1,6 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+  FormsModule,
+} from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -53,7 +59,7 @@ export class UserManagementComponent {
       empfehlungsnummer: ['', [Validators.maxLength(8)]],
       // Team member fields
       role: ['content_manager'],
-      bio: [''],
+      bio: ['', [Validators.required, Validators.minLength(10)]],
     });
 
     // Watch for user type changes to adjust form validation
@@ -78,7 +84,7 @@ export class UserManagementComponent {
 
     empfehlungsnummerControl?.updateValueAndValidity();
     roleControl?.updateValueAndValidity();
-    
+
     // Clear specialty list when changing user type
     this.specialtiesList = [];
   }
@@ -103,7 +109,10 @@ export class UserManagementComponent {
       this.markFormGroupTouched(this.userForm);
       return;
     }
-
+    if (this.specialtiesList.length === 0) {
+      this.errorMessage = 'Mindestens eine Spezialisierung ist erforderlich.';
+      return;
+    }
     const { password, confirmPassword } = this.userForm.value;
     if (password !== confirmPassword) {
       this.errorMessage = 'Die Passwörter stimmen nicht überein';
@@ -139,8 +148,8 @@ export class UserManagementComponent {
           firstName,
           lastName,
           role,
-          this.specialtiesList.length > 0 ? this.specialtiesList : undefined,
-          bio || undefined
+          this.specialtiesList,
+          bio
         )
         .subscribe({
           next: user => {
