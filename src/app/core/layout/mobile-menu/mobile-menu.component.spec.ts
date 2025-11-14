@@ -30,27 +30,28 @@ describe('MobileMenuComponent', () => {
 
   it('should have correct navigation links', () => {
     expect(component.navLinks[0].path).toBe('/');
-    expect(component.navLinks[0].label).toBe('Accueil');
+    expect(component.navLinks[0].label).toBe('Startseite');
     expect(component.navLinks[0].exact).toBe(true);
 
     expect(component.navLinks[1].path).toBe('/courses');
-    expect(component.navLinks[1].label).toBe('Cours');
+    expect(component.navLinks[1].label).toBe('Kurse');
     expect(component.navLinks[1].exact).toBe(false);
 
     expect(component.navLinks[2].path).toBe('/my-courses');
-    expect(component.navLinks[2].label).toBe('Mes Cours');
+    expect(component.navLinks[2].label).toBe('Meine Kurse');
     expect(component.navLinks[2].exact).toBe(false);
 
-    expect(component.navLinks[3].path).toBe('/dashboard');
-    expect(component.navLinks[3].label).toBe('Dashboard');
-    expect(component.navLinks[3].exact).toBe(false);
+    // Verwaltung is the parent menu with children
+    expect(component.navLinks[3].label).toBe('Verwaltung');
+    expect(component.navLinks[3].children).toBeDefined();
+    expect(component.navLinks[3].children?.length).toBe(3);
 
     expect(component.navLinks[4].path).toBe('/about');
-    expect(component.navLinks[4].label).toBe('À propos');
+    expect(component.navLinks[4].label).toBe('Über uns');
     expect(component.navLinks[4].exact).toBe(false);
 
     expect(component.navLinks[5].path).toBe('/contact');
-    expect(component.navLinks[5].label).toBe('Contact');
+    expect(component.navLinks[5].label).toBe('Kontakt');
     expect(component.navLinks[5].exact).toBe(false);
   });
 
@@ -103,11 +104,11 @@ describe('MobileMenuComponent', () => {
     expect(closeButton?.getAttribute('aria-label')).toBe('Close navigation menu');
   });
 
-  it('should render all public navigation links in drawer when not authenticated', () => {
+  it('should render all public navigation items in drawer when not authenticated', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const links = compiled.querySelectorAll('.nav-link');
+    const items = compiled.querySelectorAll('.nav-item');
     // Only public links are visible when not authenticated
-    // (Accueil, Cours, À propos, Contact + login button)
-    expect(links.length).toBeGreaterThanOrEqual(4);
+    // (Startseite, Kurse, Über uns, Kontakt + login button)
+    expect(items.length).toBeGreaterThanOrEqual(4);
   });
 });
