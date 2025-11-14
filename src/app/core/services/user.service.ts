@@ -43,9 +43,20 @@ export class UserService {
     if (currentUser?.id === userId) {
       return this.authService.currentUser$;
     }
-    
+
     // In the future, this would call GET /api/users/:id (admin only)
     return throwError(() => ({ message: 'Zugriff verweigert' }));
+  }
+
+  /**
+   * Get all users (admin only)
+   * Calls GET /api/users/all endpoint
+   */
+  getAllUsers(): Observable<User[]> {
+    return this.http.get<{ users: UserResponse[] }>(`${this.apiUrl}/`).pipe(
+      map(response => response.users.map(userResponse => this.convertUserResponseToUser(userResponse))),
+      catchError(this.handleError)
+    );
   }
 
   /**

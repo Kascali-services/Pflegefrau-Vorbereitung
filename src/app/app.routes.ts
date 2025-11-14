@@ -43,13 +43,13 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: 'dashboard',
+    path: 'verwaltung/inhaltverwaltung',
     loadComponent: () =>
       import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
     canActivate: [authGuard, roleGuard],
   },
   {
-    path: 'dashboard/user-management',
+    path: 'verwaltung/benutzerverwaltung',
     loadComponent: () =>
       import('./features/user-management/user-management.component').then(
         m => m.UserManagementComponent
@@ -57,7 +57,15 @@ export const routes: Routes = [
     canActivate: [authGuard, adminGuard],
   },
   {
-    path: 'dashboard/course/create',
+    path: 'verwaltung/dashboard',
+    loadComponent: () =>
+      import('./features/admin-dashboard/admin-dashboard.component').then(
+        m => m.AdminDashboardComponent
+      ),
+    canActivate: [authGuard, adminGuard],
+  },
+  {
+    path: 'verwaltung/inhaltverwaltung/course/create',
     loadComponent: () =>
       import('./features/dashboard/course-creator/course-creator.component').then(
         m => m.CourseCreatorComponent
@@ -65,7 +73,7 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard],
   },
   {
-    path: 'dashboard/course/:courseId/lesson/create',
+    path: 'verwaltung/inhaltverwaltung/course/:courseId/lesson/create',
     loadComponent: () =>
       import('./features/dashboard/lesson-creator/lesson-creator.component').then(
         m => m.LessonCreatorComponent
@@ -73,12 +81,38 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard],
   },
   {
-    path: 'dashboard/lesson/:id',
+    path: 'verwaltung/inhaltverwaltung/lesson/:id',
     loadComponent: () =>
       import('./features/dashboard/lesson-editor/lesson-editor.component').then(
         m => m.LessonEditorComponent
       ),
     canActivate: [authGuard, roleGuard],
+  },
+  // Legacy redirects for backward compatibility
+  {
+    path: 'dashboard',
+    redirectTo: 'verwaltung/inhaltverwaltung',
+    pathMatch: 'full',
+  },
+  {
+    path: 'dashboard/user-management',
+    redirectTo: 'verwaltung/benutzerverwaltung',
+    pathMatch: 'full',
+  },
+  {
+    path: 'dashboard/course/create',
+    redirectTo: 'verwaltung/inhaltverwaltung/course/create',
+    pathMatch: 'full',
+  },
+  {
+    path: 'dashboard/course/:courseId/lesson/create',
+    redirectTo: 'verwaltung/inhaltverwaltung/course/:courseId/lesson/create',
+    pathMatch: 'full',
+  },
+  {
+    path: 'dashboard/lesson/:id',
+    redirectTo: 'verwaltung/inhaltverwaltung/lesson/:id',
+    pathMatch: 'full',
   },
   {
     path: 'courses/:id',

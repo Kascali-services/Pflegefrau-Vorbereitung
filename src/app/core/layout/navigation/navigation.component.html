@@ -1,8 +1,10 @@
 <nav class="navigation" aria-label="Main navigation">
   <ul class="nav-list">
     <ng-container *ngFor="let link of navLinks">
+      <!-- Links without children -->
       <li
         *ngIf="
+          !link.children &&
           (!link.requiresAuth || (isAuthenticated$ | async)) &&
           (!link.requiresRole || (isContentManagerOrAdmin$ | async)) &&
           (!link.requiresAdmin || (isAdmin$ | async))
@@ -13,12 +15,49 @@
           mat-button
           [routerLink]="link.path"
           routerLinkActive="active"
-          [routerLinkActiveOptions]="{ exact: link.exact }"
+          [routerLinkActiveOptions]="{ exact: link.exact || false }"
           class="nav-link"
           [attr.aria-label]="'Navigate to ' + link.label"
         >
           {{ link.label }}
         </a>
+      </li>
+
+      <!-- Links with children (dropdown menu) -->
+      <li
+        *ngIf="
+          link.children &&
+          (!link.requiresAuth || (isAuthenticated$ | async)) &&
+          (!link.requiresRole || (isContentManagerOrAdmin$ | async)) &&
+          (!link.requiresAdmin || (isAdmin$ | async))
+        "
+        class="nav-item"
+      >
+        <button
+          mat-button
+          [matMenuTriggerFor]="menu"
+          class="nav-link"
+          [attr.aria-label]="'Navigate to ' + link.label"
+        >
+          {{ link.label }}
+        </button>
+        <mat-menu #menu="matMenu">
+          <ng-container *ngFor="let child of link.children">
+            <a
+              *ngIf="
+                (!child.requiresAuth || (isAuthenticated$ | async)) &&
+                (!child.requiresRole || (isContentManagerOrAdmin$ | async)) &&
+                (!child.requiresAdmin || (isAdmin$ | async))
+              "
+              mat-menu-item
+              [routerLink]="child.path"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: child.exact || false }"
+            >
+              {{ child.label }}
+            </a>
+          </ng-container>
+        </mat-menu>
       </li>
     </ng-container>
   </ul>

@@ -76,7 +76,7 @@ export class CourseCreatorComponent {
         this.showSuccess('Cours créé avec succès');
         this.isSaving = false;
         // Navigate back to dashboard
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/verwaltung/inhaltverwaltung']);
       },
       error: () => {
         this.showError('Erreur lors de la création du cours');
@@ -106,7 +106,7 @@ export class CourseCreatorComponent {
   }
 
   cancel(): void {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/verwaltung/inhaltverwaltung']);
   }
 
   private showSuccess(message: string): void {
