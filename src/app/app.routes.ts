@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -46,6 +47,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
     canActivate: [authGuard, roleGuard],
+  },
+  {
+    path: 'dashboard/user-management',
+    loadComponent: () =>
+      import('./features/user-management/user-management.component').then(
+        m => m.UserManagementComponent
+      ),
+    canActivate: [authGuard, adminGuard],
   },
   {
     path: 'dashboard/course/create',

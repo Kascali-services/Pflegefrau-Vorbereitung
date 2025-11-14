@@ -1,0 +1,189 @@
+<div class="user-management-container">
+  <div class="header">
+    <h1>Benutzerverwaltung</h1>
+    <p class="subtitle">Erstellen Sie neue Benutzer oder Team-Mitglieder</p>
+  </div>
+
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>Neuen Benutzer erstellen</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="user-form">
+        <!-- User Type Selection -->
+        <div class="form-section">
+          <h3>Benutzertyp</h3>
+          <mat-radio-group formControlName="userType" class="user-type-group">
+            <mat-radio-button value="user">Regulärer Benutzer</mat-radio-button>
+            <mat-radio-button value="team_member">Team-Mitglied</mat-radio-button>
+          </mat-radio-group>
+        </div>
+
+        <!-- Basic Information -->
+        <div class="form-section">
+          <h3>Grundinformationen</h3>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Vorname</mat-label>
+              <input matInput formControlName="firstName" type="text" />
+              <mat-error *ngIf="firstName?.hasError('required')">
+                Vorname ist erforderlich
+              </mat-error>
+              <mat-error *ngIf="firstName?.hasError('minlength')">
+                Vorname muss mindestens 2 Zeichen lang sein
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Nachname</mat-label>
+              <input matInput formControlName="lastName" type="text" />
+              <mat-error *ngIf="lastName?.hasError('required')">
+                Nachname ist erforderlich
+              </mat-error>
+              <mat-error *ngIf="lastName?.hasError('minlength')">
+                Nachname muss mindestens 2 Zeichen lang sein
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>E-Mail</mat-label>
+            <input matInput formControlName="email" type="email" />
+            <mat-error *ngIf="email?.hasError('required')">E-Mail ist erforderlich</mat-error>
+            <mat-error *ngIf="email?.hasError('email')">
+              Bitte geben Sie eine gültige E-Mail-Adresse ein
+            </mat-error>
+          </mat-form-field>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Passwort</mat-label>
+              <input matInput formControlName="password" type="password" />
+              <mat-error *ngIf="password?.hasError('required')">
+                Passwort ist erforderlich
+              </mat-error>
+              <mat-error *ngIf="password?.hasError('minlength')">
+                Passwort muss mindestens 6 Zeichen lang sein
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Passwort bestätigen</mat-label>
+              <input matInput formControlName="confirmPassword" type="password" />
+              <mat-error *ngIf="confirmPassword?.hasError('required')">
+                Passwort bestätigen ist erforderlich
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Regular User Specific Fields -->
+        <div class="form-section" *ngIf="userType?.value === 'user'">
+          <h3>Zusätzliche Informationen</h3>
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Empfehlungsnummer (optional)</mat-label>
+            <input matInput formControlName="empfehlungsnummer" type="text" maxlength="8" />
+            <mat-hint>Maximal 8 Zeichen</mat-hint>
+            <mat-error *ngIf="empfehlungsnummer?.hasError('maxlength')">
+              Maximal 8 Zeichen erlaubt
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Team Member Specific Fields -->
+        <div class="form-section" *ngIf="userType?.value === 'team_member'">
+          <h3>Team-Mitglied Informationen</h3>
+
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Rolle</mat-label>
+            <mat-select formControlName="role">
+              <mat-option value="content_manager">Content Manager</mat-option>
+              <mat-option value="admin">Administrator</mat-option>
+            </mat-select>
+            <mat-error *ngIf="role?.hasError('required')">Rolle ist erforderlich</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Biografie (optional)</mat-label>
+            <textarea matInput formControlName="bio" rows="3"></textarea>
+          </mat-form-field>
+
+          <div class="specialties-section">
+            <div class="specialties-label-container">
+              <span class="specialties-label">Fachgebiete (optional)</span>
+            </div>
+            <div class="specialty-input-group">
+              <mat-form-field appearance="outline" class="specialty-input">
+                <mat-label>Fachgebiet hinzufügen</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="specialtiesInput"
+                  [ngModelOptions]="{ standalone: true }"
+                  (keyup.enter)="addSpecialty()"
+                  type="text"
+                />
+              </mat-form-field>
+              <button
+                mat-raised-button
+                type="button"
+                color="primary"
+                (click)="addSpecialty()"
+                [disabled]="!specialtiesInput.trim()"
+              >
+                <mat-icon>add</mat-icon>
+                Hinzufügen
+              </button>
+            </div>
+
+            <mat-chip-set class="specialties-list" *ngIf="specialtiesList.length > 0">
+              <mat-chip *ngFor="let specialty of specialtiesList" [removable]="true">
+                {{ specialty }}
+                <button matChipRemove (click)="removeSpecialty(specialty)">
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+
+          <div class="info-note">
+            <mat-icon>info</mat-icon>
+            <p>
+              Das Avatar-Bild kann vom Team-Mitglied später in den Einstellungen hochgeladen werden.
+            </p>
+          </div>
+        </div>
+
+        <!-- Error/Success Messages -->
+        <div class="message-container">
+          <div *ngIf="errorMessage" class="error-message">
+            <mat-icon>error</mat-icon>
+            <span>{{ errorMessage }}</span>
+          </div>
+
+          <div *ngIf="successMessage" class="success-message">
+            <mat-icon>check_circle</mat-icon>
+            <span>{{ successMessage }}</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="button-group">
+          <button mat-raised-button type="button" (click)="resetForm()" [disabled]="isLoading">
+            Zurücksetzen
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="isLoading || userForm.invalid"
+          >
+            <mat-icon *ngIf="!isLoading">person_add</mat-icon>
+            <span *ngIf="!isLoading">Benutzer erstellen</span>
+            <span *ngIf="isLoading">Wird erstellt...</span>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

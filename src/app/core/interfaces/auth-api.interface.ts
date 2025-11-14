@@ -91,3 +91,16 @@ export interface ResetPasswordConfirmRequest {
   token: string;
   newPassword: string;
 }
+
+/**
+ * Request body for /api/auth/register-team-member
+ */
+export interface RegisterTeamMemberRequest {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  role: 'admin' | 'content_manager';
+  specialties?: string[];
+  bio?: string;
+}
