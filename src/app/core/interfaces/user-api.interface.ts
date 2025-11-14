@@ -55,6 +55,8 @@ export interface UpdateProfileRequest {
   firstName?: string;
   lastName?: string;
   avatarUrl?: string;
+  bio?: string;
+  specialties?: string[];
 }
 
 /**
@@ -65,4 +67,28 @@ export interface AvatarUploadResponse {
   filename: string;
   size: number;
   uploadedAt: string;
+}
+
+/**
+ * Team member response from user-service endpoints
+ * Returned from GET /api/users/team-members and GET /api/users/team-members/:id
+ */
+export interface TeamMemberResponse {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  bio: string;
+  specialties: string[];
+  avatarUrl?: string;
+  role: string;
+}
+
+/**
+ * Team members list response
+ * Returned from GET /api/users/team-members
+ */
+export interface TeamMembersListResponse {
+  teamMembers: TeamMemberResponse[];
+  total: number;
 }

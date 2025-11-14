@@ -29,6 +29,8 @@ export class SettingsComponent implements OnInit {
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
       email: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
+      bio: [''],
+      specialties: [''],
     });
   }
 
@@ -45,6 +47,8 @@ export class SettingsComponent implements OnInit {
             firstName: user.firstName || '',
             lastName: user.lastName || '',
             email: user.email || '',
+            bio: user.bio || '',
+            specialties: user.specialties?.join(', ') || '',
           });
           this.previewUrl = user.avatarUrl || null;
         } else {
@@ -97,14 +101,14 @@ export class SettingsComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    const { firstName, lastName } = this.settingsForm.value;
+    const { firstName, lastName, bio, specialties } = this.settingsForm.value;
 
     // First upload avatar if a new file was selected
     if (this.selectedFile) {
       this.userService.uploadAvatar(this.selectedFile).subscribe({
         next: avatarUrl => {
           // Then update profile with new data including avatar URL
-          this.updateProfile(firstName, lastName, avatarUrl);
+          this.updateProfile(firstName, lastName, avatarUrl, bio, specialties);
         },
         error: error => {
           this.isLoading = false;
@@ -113,14 +117,16 @@ export class SettingsComponent implements OnInit {
       });
     } else {
       // Update profile without changing avatar
-      this.updateProfile(firstName, lastName, this.currentUser?.avatarUrl);
+      this.updateProfile(firstName, lastName, this.currentUser?.avatarUrl, bio, specialties);
     }
   }
 
   private updateProfile(
     firstName: string,
     lastName: string,
-    avatarUrl: string | undefined
+    avatarUrl: string | undefined,
+    bio: string,
+    specialties: string
   ): void {
     if (!this.currentUser) {
       this.isLoading = false;
@@ -128,11 +134,19 @@ export class SettingsComponent implements OnInit {
       return;
     }
 
+    // Convert specialties string to array
+    const specialtiesArray =
+      specialties && specialties.trim()
+        ? specialties.split(',').map(s => s.trim()).filter(s => s.length > 0)
+        : undefined;
+
     const updatedUser: User = {
       ...this.currentUser,
       firstName,
       lastName,
       avatarUrl,
+      bio: bio || undefined,
+      specialties: specialtiesArray,
     };
 
     this.userService.updateProfile(updatedUser).subscribe({
@@ -171,5 +185,17 @@ export class SettingsComponent implements OnInit {
 
   get email() {
     return this.settingsForm.get('email');
+  }
+
+  get bio() {
+    return this.settingsForm.get('bio');
+  }
+
+  get specialties() {
+    return this.settingsForm.get('specialties');
+  }
+
+  isTeamMember(): boolean {
+    return this.currentUser?.role === 'team_member';
   }
 }

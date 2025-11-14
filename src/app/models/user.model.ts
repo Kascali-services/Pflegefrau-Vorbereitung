@@ -9,7 +9,9 @@ export interface User {
   firstName?: string; // VARCHAR(100)
   lastName?: string; // VARCHAR(100)
   avatarUrl?: string; // VARCHAR(500)
-  role?: 'student' | 'content_manager' | 'admin'; // ENUM - User role in the system
+  role?: 'student' | 'content_manager' | 'admin' | 'team_member'; // ENUM - User role in the system
+  bio?: string; // TEXT - Biography for team members
+  specialties?: string[]; // JSON - Specialties for team members
   aktenzeichen?: string; // VARCHAR(8) - Recommendation number (Empfehlungsnummer) for users coming via recommendation
   createdAt?: Date; // TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   updatedAt?: Date; // TIMESTAMP DEFAULT CURRENT_TIMESTAMP
