@@ -61,7 +61,7 @@ export class LessonEditorComponent implements OnInit {
     } else {
       this.isLoading = false;
       this.showError('ID de leçon invalide');
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/verwaltung/inhaltverwaltung']);
     }
   }
 
@@ -74,7 +74,7 @@ export class LessonEditorComponent implements OnInit {
           this.loadContents();
         } else {
           this.showError('Leçon non trouvée');
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['/verwaltung/inhaltverwaltung']);
         }
       },
       error: () => {
@@ -256,7 +256,7 @@ export class LessonEditorComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/verwaltung/inhaltverwaltung']);
   }
 
   private showSuccess(message: string): void {

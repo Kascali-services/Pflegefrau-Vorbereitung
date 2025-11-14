@@ -54,7 +54,7 @@ export class LessonCreatorComponent implements OnInit {
       this.loadNextOrderIndex();
     } else {
       this.showError('ID de cours invalide');
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/verwaltung/inhaltverwaltung']);
     }
   }
 
@@ -97,7 +97,7 @@ export class LessonCreatorComponent implements OnInit {
         this.showSuccess('Leçon créée avec succès');
         this.isSaving = false;
         // Navigate to the lesson editor to add content
-        this.router.navigate(['/dashboard/lesson', lesson.id]);
+        this.router.navigate(['/verwaltung/inhaltverwaltung/lesson', lesson.id]);
       },
       error: () => {
         this.showError('Erreur lors de la création de la leçon');
@@ -107,7 +107,7 @@ export class LessonCreatorComponent implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/verwaltung/inhaltverwaltung']);
   }
 
   private showSuccess(message: string): void {

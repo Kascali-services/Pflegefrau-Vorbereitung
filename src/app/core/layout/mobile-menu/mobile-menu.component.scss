@@ -145,3 +145,42 @@
 ::ng-deep .mat-drawer {
   transition: transform var(--transition-base) !important;
 }
+
+// Mobile expansion panel styling
+.nav-item-expandable {
+  width: 100%;
+}
+
+.mobile-expansion-panel {
+  box-shadow: none !important;
+  background-color: transparent !important;
+
+  ::ng-deep .mat-expansion-panel-header {
+    padding: var(--spacing-md);
+    font-family: var(--font-family-primary);
+    font-size: var(--font-size-body);
+    font-weight: var(--font-weight-regular);
+
+    &:hover {
+      background-color: var(--color-background-light);
+    }
+  }
+
+  ::ng-deep .mat-expansion-panel-body {
+    padding: 0;
+  }
+}
+
+.sub-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sub-nav-item {
+  width: 100%;
+}
+
+.sub-nav-link {
+  padding-left: calc(var(--spacing-md) * 2);
+}

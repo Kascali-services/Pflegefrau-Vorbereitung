@@ -4,8 +4,19 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { AuthService } from '../../services/auth.service';
 import { map } from 'rxjs/operators';
+
+interface NavLink {
+  path?: string;
+  label: string;
+  exact?: boolean;
+  requiresAuth: boolean;
+  requiresRole: boolean;
+  requiresAdmin: boolean;
+  children?: NavLink[];
+}
 
 @Component({
   selector: 'app-mobile-menu',
@@ -17,6 +28,7 @@ import { map } from 'rxjs/operators';
     MatButtonModule,
     MatIconModule,
     MatSidenavModule,
+    MatExpansionModule,
   ],
   templateUrl: './mobile-menu.component.html',
   styleUrl: './mobile-menu.component.scss',
@@ -36,12 +48,22 @@ export class MobileMenuComponent {
   // Check if user is admin only
   isAdmin$ = this.currentUser$.pipe(map(user => user?.role === 'admin'));
 
-  navLinks = [
+  navLinks: NavLink[] = [
     { path: '/', label: 'Startseite', exact: true, requiresAuth: false, requiresRole: false, requiresAdmin: false },
     { path: '/courses', label: 'Kurse', exact: false, requiresAuth: false, requiresRole: false, requiresAdmin: false },
     { path: '/my-courses', label: 'Meine Kurse', exact: false, requiresAuth: true, requiresRole: false, requiresAdmin: false },
-    { path: '/dashboard', label: 'Dashboard', exact: false, requiresAuth: true, requiresRole: true, requiresAdmin: false },
-    { path: '/dashboard/user-management', label: 'Benutzerverwaltung', exact: false, requiresAuth: true, requiresRole: false, requiresAdmin: true },
+    {
+      label: 'Verwaltung',
+      exact: false,
+      requiresAuth: true,
+      requiresRole: true,
+      requiresAdmin: false,
+      children: [
+        { path: '/verwaltung/inhaltverwaltung', label: 'Inhaltverwaltung', exact: false, requiresAuth: true, requiresRole: true, requiresAdmin: false },
+        { path: '/verwaltung/benutzerverwaltung', label: 'Benutzerverwaltung', exact: false, requiresAuth: true, requiresRole: false, requiresAdmin: true },
+        { path: '/verwaltung/dashboard', label: 'Dashboard', exact: false, requiresAuth: true, requiresRole: false, requiresAdmin: true },
+      ]
+    },
     { path: '/about', label: 'Über uns', exact: false, requiresAuth: false, requiresRole: false, requiresAdmin: false },
     { path: '/contact', label: 'Kontakt', exact: false, requiresAuth: false, requiresRole: false, requiresAdmin: false },
   ];

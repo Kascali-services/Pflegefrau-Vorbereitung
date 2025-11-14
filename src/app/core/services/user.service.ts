@@ -49,6 +49,17 @@ export class UserService {
   }
 
   /**
+   * Get all users (admin only)
+   * Calls GET /api/users/all endpoint
+   */
+  getAllUsers(): Observable<User[]> {
+    return this.http.get<{ users: UserResponse[] }>(`${this.apiUrl}/all`).pipe(
+      map(response => response.users.map(userResponse => this.convertUserResponseToUser(userResponse))),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
    * Convert UserResponse to User model
    */
   private convertUserResponseToUser(userResponse: UserResponse): User {
