@@ -112,6 +112,8 @@ describe('UserService', () => {
       firstName: 'Marie Updated',
       lastName: 'Dupont Updated',
       avatarUrl: undefined,
+      bio: undefined,
+      specialties: undefined,
     });
     req.flush(mockResponse);
   });
@@ -193,5 +195,61 @@ describe('UserService', () => {
 
     const req = httpMock.expectOne(`${environment.apiUrl}/api/users/me/avatar`);
     req.flush({ detail: 'Invalid file type' }, { status: 400, statusText: 'Bad Request' });
+  });
+
+  it('should get all team members', done => {
+    const mockTeamMembersResponse = {
+      teamMembers: [
+        {
+          id: 'team-001',
+          email: 'team1@example.com',
+          firstName: 'Dr. Anna',
+          lastName: 'Schmidt',
+          role: 'Leiterin der Pflegeausbildung',
+          bio: 'Erfahrene Pflegepädagogin',
+          specialties: ['Pflegepädagogik', 'Anatomie'],
+          avatarUrl: '/assets/team/anna-schmidt.jpg',
+        },
+      ],
+      total: 1,
+    };
+
+    service.getAllTeamMembers().subscribe(members => {
+      expect(members).toBeTruthy();
+      expect(members.length).toBe(1);
+      expect(members[0].id).toBe('team-001');
+      expect(members[0].bio).toBe('Erfahrene Pflegepädagogin');
+      expect(members[0].specialties).toEqual(['Pflegepädagogik', 'Anatomie']);
+      done();
+    });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/api/users/team-members`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockTeamMembersResponse);
+  });
+
+  it('should get team member by id', done => {
+    const mockTeamMemberResponse = {
+      id: 'team-001',
+      email: 'team1@example.com',
+      firstName: 'Dr. Anna',
+      lastName: 'Schmidt',
+      role: 'Leiterin der Pflegeausbildung',
+      bio: 'Erfahrene Pflegepädagogin',
+      specialties: ['Pflegepädagogik', 'Anatomie'],
+      avatarUrl: '/assets/team/anna-schmidt.jpg',
+    };
+
+    service.getTeamMemberById('team-001').subscribe(member => {
+      expect(member).toBeTruthy();
+      expect(member.id).toBe('team-001');
+      expect(member.bio).toBe('Erfahrene Pflegepädagogin');
+      expect(member.specialties).toEqual(['Pflegepädagogik', 'Anatomie']);
+      done();
+    });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/api/users/team-members/team-001`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockTeamMemberResponse);
   });
 });

@@ -142,6 +142,37 @@
         </div>
       </div>
 
+      <!-- Team Member Information Section (only visible for team members) -->
+      @if (isTeamMember()) {
+        <div class="team-member-info-section">
+          <h2 class="section-title">Team-Mitglieds-Informationen</h2>
+
+          <div class="form-group">
+            <label for="bio" class="form-label"> Biografie </label>
+            <textarea
+              id="bio"
+              formControlName="bio"
+              class="form-textarea"
+              placeholder="Erzählen Sie über Ihre Erfahrung und Expertise..."
+              rows="4"
+            ></textarea>
+            <p class="input-hint">Diese Information wird auf der Website angezeigt</p>
+          </div>
+
+          <div class="form-group">
+            <label for="specialties" class="form-label"> Fachgebiete </label>
+            <input
+              id="specialties"
+              type="text"
+              formControlName="specialties"
+              class="form-input"
+              placeholder="z.B. Pflegepädagogik, Anatomie, Pflegepraxis"
+            />
+            <p class="input-hint">Trennen Sie mehrere Fachgebiete durch Kommas</p>
+          </div>
+        </div>
+      }
+
       <!-- Form Actions -->
       <div class="form-actions">
         <button type="submit" class="submit-button" [disabled]="isLoading || settingsForm.invalid">

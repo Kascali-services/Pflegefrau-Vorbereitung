@@ -3,11 +3,14 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { User } from '../../models/user.model';
+import { TeamMember } from '../../models/team.model';
 import { AuthService } from './auth.service';
 import {
   UserResponse,
   UpdateProfileRequest,
   AvatarUploadResponse,
+  TeamMemberResponse,
+  TeamMembersListResponse,
 } from '../interfaces/user-api.interface';
 import { environment } from '../../../environments/environment';
 
@@ -55,11 +58,29 @@ export class UserService {
       firstName: userResponse.firstName,
       lastName: userResponse.lastName,
       avatarUrl: userResponse.avatarUrl,
-      role: userResponse.role as 'student' | 'content_manager' | 'admin',
+      role: userResponse.role as 'student' | 'content_manager' | 'admin' | 'team_member',
       aktenzeichen: userResponse.empfehlungsnummer,
       createdAt: userResponse.createdAt ? new Date(userResponse.createdAt) : undefined,
       updatedAt: userResponse.updatedAt ? new Date(userResponse.updatedAt) : undefined,
       lastLoginAt: userResponse.lastLoginAt ? new Date(userResponse.lastLoginAt) : undefined,
+    };
+  }
+
+  /**
+   * Convert TeamMemberResponse to TeamMember model
+   */
+  private convertTeamMemberResponseToTeamMember(
+    teamMemberResponse: TeamMemberResponse
+  ): TeamMember {
+    return {
+      id: teamMemberResponse.id,
+      email: teamMemberResponse.email,
+      firstName: teamMemberResponse.firstName,
+      lastName: teamMemberResponse.lastName,
+      role: teamMemberResponse.role,
+      bio: teamMemberResponse.bio,
+      specialties: teamMemberResponse.specialties,
+      avatarUrl: teamMemberResponse.avatarUrl,
     };
   }
 
@@ -105,6 +126,8 @@ export class UserService {
       firstName: user.firstName,
       lastName: user.lastName,
       avatarUrl: user.avatarUrl,
+      bio: user.bio,
+      specialties: user.specialties,
     };
 
     return this.http.put<UserResponse>(`${this.apiUrl}/me`, updateRequest).pipe(
@@ -155,5 +178,29 @@ export class UserService {
    */
   logout(): void {
     this.authService.logout().subscribe();
+  }
+
+  /**
+   * Get all team members (public access)
+   * Calls GET /api/users/team-members endpoint
+   */
+  getAllTeamMembers(): Observable<TeamMember[]> {
+    return this.http.get<TeamMembersListResponse>(`${this.apiUrl}/team-members`).pipe(
+      map(response => response.teamMembers.map(tm => this.convertTeamMemberResponseToTeamMember(tm))),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Get a team member by ID (public access)
+   * Calls GET /api/users/team-members/:id endpoint
+   *
+   * @param id - Team member ID
+   */
+  getTeamMemberById(id: string): Observable<TeamMember> {
+    return this.http.get<TeamMemberResponse>(`${this.apiUrl}/team-members/${id}`).pipe(
+      map(response => this.convertTeamMemberResponseToTeamMember(response)),
+      catchError(this.handleError)
+    );
   }
 }
