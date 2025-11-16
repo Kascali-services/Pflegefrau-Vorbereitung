@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, BehaviorSubject, combineLatest, throwError } from 'rxjs';
 import { map, catchError, tap, switchMap } from 'rxjs/operators';
 import {
@@ -30,12 +30,10 @@ import {
   QuestionResponse,
   SubmitQuizAttemptRequest,
   QuizAttemptResponse,
-  QuizAttemptsListResponse,
   CourseProgressResponse,
   LessonProgressResponse,
   CompleteLessonResponse,
   EnrolledCoursesResponse,
-  EnrollmentResponse,
 } from '../interfaces/learning-api.interface';
 
 /**
@@ -347,39 +345,35 @@ export class CourseService {
    * Check if a lesson is accessible based on previous lesson completion
    */
   isLessonAccessible(lessonId: string): Observable<boolean> {
-    return combineLatest([
-      this.getLessonById(lessonId),
-      this.lessons$,
-      this.userProgress$,
-      this.userService.getCurrentUser(),
-    ]).pipe(
-      map(([lesson, lessons, progressRecords, user]) => {
-        if (!lesson || !user) return false;
+    return this.getLessonById(lessonId).pipe(
+      switchMap(lesson => {
+        if (!lesson) {
+          return of(false);
+        }
+        return combineLatest([
+          of(lesson),
+          this.getLessonsByCourseId(lesson.courseId),
+          this.getLessonProgress(lessonId),
+        ]).pipe(
+          switchMap(([_currentLesson, courseLessons, currentProgress]) => {
+            const currentIndex = courseLessons.findIndex((l: Lesson) => l.id === lessonId);
+            if (currentIndex === -1) return of(false);
 
-        const courseLessons = lessons
-          .filter(l => l.courseId === lesson.courseId)
-          .sort((a, b) => a.orderIndex - b.orderIndex);
+            // First lesson is always accessible
+            if (currentIndex === 0) return of(true);
 
-        const currentIndex = courseLessons.findIndex(l => l.id === lessonId);
-        if (currentIndex === -1) return false;
+            // Check if current lesson is already completed (allow review)
+            if (currentProgress?.isCompleted) return of(true);
 
-        // First lesson is always accessible
-        if (currentIndex === 0) return true;
-
-        // Check if current lesson is already completed (allow review)
-        const currentProgress = progressRecords.find(
-          p => p.lessonId === lessonId && p.userId === user.id
+            // Check if previous lesson is completed
+            const previousLesson = courseLessons[currentIndex - 1];
+            return this.getLessonProgress(previousLesson.id).pipe(
+              map(previousProgress => previousProgress?.isCompleted || false)
+            );
+          })
         );
-        if (currentProgress?.isCompleted) return true;
-
-        // Check if previous lesson is completed
-        const previousLesson = courseLessons[currentIndex - 1];
-        const previousProgress = progressRecords.find(
-          p => p.lessonId === previousLesson.id && p.userId === user.id
-        );
-
-        return previousProgress?.isCompleted || false;
-      })
+      }),
+      catchError(() => of(false))
     );
   }
 
@@ -391,24 +385,43 @@ export class CourseService {
    * Get quiz by lesson ID
    */
   getQuizByLessonId(lessonId: string): Observable<Quiz | undefined> {
-    return this.quizzes$.pipe(map(quizzes => quizzes.find(q => q.lessonId === lessonId)));
+    return this.http.get<QuizResponse>(`${this.apiUrl}/quizzes/lesson/${lessonId}`).pipe(
+      map(response => this.convertQuizResponseToQuiz(response)),
+      catchError(error => {
+        if (error.status === 404) {
+          return of(undefined);
+        }
+        return this.handleError(error);
+      })
+    );
   }
 
   /**
    * Get quiz by ID
    */
   getQuizById(quizId: string): Observable<Quiz | undefined> {
-    return this.quizzes$.pipe(map(quizzes => quizzes.find(q => q.id === quizId)));
+    return this.http.get<QuizResponse>(`${this.apiUrl}/quizzes/${quizId}`).pipe(
+      map(response => this.convertQuizResponseToQuiz(response)),
+      catchError(error => {
+        if (error.status === 404) {
+          return of(undefined);
+        }
+        return this.handleError(error);
+      })
+    );
   }
 
   /**
-   * Get all questions for a quiz (sorted by orderIndex)
+   * Get all questions for a quiz with their options (sorted by orderIndex)
    */
   getQuestionsByQuizId(quizId: string): Observable<Question[]> {
-    return this.questions$.pipe(
-      map(questions =>
-        questions.filter(q => q.quizId === quizId).sort((a, b) => a.orderIndex - b.orderIndex)
-      )
+    return this.http.get<QuestionsListResponse>(`${this.apiUrl}/quizzes/${quizId}/questions`).pipe(
+      map(response =>
+        response.questions
+          .map(q => this.convertQuestionResponseToQuestion(q))
+          .sort((a, b) => a.orderIndex - b.orderIndex)
+      ),
+      catchError(this.handleError)
     );
   }
 
@@ -416,10 +429,16 @@ export class CourseService {
    * Get options for a question (sorted by orderIndex)
    */
   getOptionsByQuestionId(questionId: string): Observable<QuizOption[]> {
-    return this.quizOptions$.pipe(
-      map(options =>
-        options.filter(o => o.questionId === questionId).sort((a, b) => a.orderIndex - b.orderIndex)
-      )
+    // Get the quiz questions which include options
+    return this.http.get<QuestionsListResponse>(`${this.apiUrl}/quizzes/0/questions`).pipe(
+      map(response => {
+        const question = response.questions.find(q => q.id === questionId);
+        if (!question) return [];
+        return question.options
+          .map(o => this.convertQuizOptionResponseToQuizOption(o))
+          .sort((a, b) => a.orderIndex - b.orderIndex);
+      }),
+      catchError(() => of([]))
     );
   }
 
@@ -431,73 +450,25 @@ export class CourseService {
     lessonId: string,
     answers: { questionId: string; selectedOptionIds: string[] }[]
   ): Observable<UserQuizAttempt> {
-    return combineLatest([
-      this.userService.getCurrentUser(),
-      this.getQuizById(quizId),
-      this.getQuestionsByQuizId(quizId),
-      this.quizOptions$,
-      this.quizAttempts$,
-      this.userProgress$,
-    ]).pipe(
-      map(([user, quiz, questions, allOptions, attempts]) => {
-        if (!user || !quiz) {
-          throw new Error('User or quiz not found');
-        }
+    const request: SubmitQuizAttemptRequest = {
+      lessonId,
+      answers,
+    };
 
-        // Calculate score
-        let correctAnswers = 0;
-        const quizAnswers = answers.map(answer => {
-          const questionOptions = allOptions.filter(o => o.questionId === answer.questionId);
-          const correctOptions = questionOptions.filter(o => o.isCorrect).map(o => o.id);
-
-          // Check if answer is correct
-          const isCorrect =
-            answer.selectedOptionIds.length === correctOptions.length &&
-            answer.selectedOptionIds.every(id => correctOptions.includes(id));
-
-          if (isCorrect) {
-            correctAnswers++;
-          }
-
-          return {
-            questionId: answer.questionId,
-            selectedOptions: answer.selectedOptionIds,
-            isCorrect,
-          };
-        });
-
-        const score = Math.round((correctAnswers / questions.length) * 100);
-        const passed = score >= quiz.passingScore;
-
-        // Determine attempt number
-        const previousAttempts = attempts.filter(
-          a => a.quizId === quizId && a.userId === user.id
-        );
-        const attemptNumber = previousAttempts.length + 1;
-
-        // Create new attempt
-        const attempt: UserQuizAttempt = {
-          id: `attempt-${Date.now()}`,
-          userId: user.id,
-          quizId,
-          lessonId,
-          score,
-          passed,
-          attemptNumber,
-          timeTakenMinutes: undefined,
-          answers: quizAnswers,
-          completedAt: new Date(),
-        };
-
-        // Update attempts
-        const newAttempts = [...this.quizAttemptsSubject.value, attempt];
-        this.quizAttemptsSubject.next(newAttempts);
-
-        // Update user progress
-        this.updateProgressAfterQuiz(lessonId, user.id, score, passed);
-
-        return attempt;
-      })
+    return this.http.post<QuizAttemptResponse>(`${this.apiUrl}/quizzes/${quizId}/attempts`, request).pipe(
+      map(response => ({
+        id: response.id,
+        userId: response.userId,
+        quizId: response.quizId,
+        lessonId: response.lessonId,
+        score: response.score,
+        passed: response.passed,
+        attemptNumber: response.attemptNumber,
+        timeTakenMinutes: undefined,
+        answers: response.answers,
+        completedAt: new Date(response.completedAt),
+      })),
+      catchError(this.handleError)
     );
   }
 
@@ -509,10 +480,25 @@ export class CourseService {
    * Get user progress for a specific lesson
    */
   getLessonProgress(lessonId: string): Observable<UserProgress | undefined> {
-    return combineLatest([this.userService.getCurrentUser(), this.userProgress$]).pipe(
-      map(([user, progressRecords]) => {
-        if (!user) return undefined;
-        return progressRecords.find(p => p.lessonId === lessonId && p.userId === user.id);
+    return this.http.get<LessonProgressResponse>(`${this.apiUrl}/progress/lessons/${lessonId}`).pipe(
+      map(response => ({
+        id: response.id,
+        userId: response.userId,
+        lessonId: response.lessonId,
+        isCompleted: response.isCompleted,
+        bestScore: response.bestScore,
+        attemptCount: response.attemptCount,
+        timeSpentMinutes: response.timeSpentMinutes,
+        lastAttemptAt: response.lastAttemptAt ? new Date(response.lastAttemptAt) : undefined,
+        completedAt: response.completedAt ? new Date(response.completedAt) : undefined,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })),
+      catchError(error => {
+        if (error.status === 404) {
+          return of(undefined);
+        }
+        return this.handleError(error);
       })
     );
   }
@@ -521,44 +507,22 @@ export class CourseService {
    * Get all progress for a course
    */
   getCourseProgress(courseId: string): Observable<CourseProgress> {
-    return combineLatest([
-      this.userService.getCurrentUser(),
-      this.getLessonsByCourseId(courseId),
-      this.userProgress$,
-    ]).pipe(
-      map(([user, lessons, progressRecords]) => {
-        if (!user) {
-          return {
-            courseId,
-            progress: 0,
-            completedLessons: 0,
-            totalLessons: lessons.length,
-          };
-        }
-
-        const userProgressForCourse = progressRecords.filter(
-          p => p.userId === user.id && lessons.some(l => l.id === p.lessonId)
-        );
-
-        const completedLessons = userProgressForCourse.filter(p => p.isCompleted).length;
-        const progress = lessons.length > 0 ? (completedLessons / lessons.length) * 100 : 0;
-
-        // Find last accessed lesson
-        const lastAccessed = userProgressForCourse
-          .filter(p => p.lastAttemptAt || p.completedAt)
-          .sort((a, b) => {
-            const aDate = a.lastAttemptAt || a.completedAt || new Date(0);
-            const bDate = b.lastAttemptAt || b.completedAt || new Date(0);
-            return bDate.getTime() - aDate.getTime();
-          })[0];
-
-        return {
+    return this.http.get<CourseProgressResponse>(`${this.apiUrl}/progress/courses/${courseId}`).pipe(
+      map(response => ({
+        courseId: response.courseId,
+        progress: response.progress,
+        completedLessons: response.completedLessons,
+        totalLessons: response.totalLessons,
+        lastAccessedLessonId: response.lastAccessedLessonId,
+      })),
+      catchError(_error => {
+        // Return empty progress on error
+        return of({
           courseId,
-          progress,
-          completedLessons,
-          totalLessons: lessons.length,
-          lastAccessedLessonId: lastAccessed?.lessonId,
-        };
+          progress: 0,
+          completedLessons: 0,
+          totalLessons: 0,
+        });
       })
     );
   }
@@ -567,110 +531,19 @@ export class CourseService {
    * Mark lesson as completed (for lessons without quizzes)
    */
   markLessonCompleted(lessonId: string): Observable<void> {
-    return this.userService.getCurrentUser().pipe(
-      map(user => {
-        if (!user) return;
-
-        const progressRecords = this.userProgressSubject.value;
-        let progress = progressRecords.find(p => p.lessonId === lessonId && p.userId === user.id);
-
-        if (progress) {
-          progress.isCompleted = true;
-          progress.completedAt = new Date();
-          progress.updatedAt = new Date();
-        } else {
-          progress = {
-            id: `progress-${Date.now()}`,
-            userId: user.id,
-            lessonId,
-            isCompleted: true,
-            bestScore: 0,
-            attemptCount: 0,
-            timeSpentMinutes: 0,
-            completedAt: new Date(),
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          };
-          progressRecords.push(progress);
-        }
-
-        this.userProgressSubject.next([...progressRecords]);
-      })
+    return this.http.post<CompleteLessonResponse>(`${this.apiUrl}/progress/lessons/${lessonId}/complete`, {}).pipe(
+      map(() => undefined),
+      catchError(this.handleError)
     );
-  }
-
-  /**
-   * Update progress after quiz completion
-   */
-  private updateProgressAfterQuiz(
-    lessonId: string,
-    userId: string,
-    score: number,
-    passed: boolean
-  ): void {
-    const progressRecords = this.userProgressSubject.value;
-    let progress = progressRecords.find(p => p.lessonId === lessonId && p.userId === userId);
-
-    if (progress) {
-      progress.attemptCount++;
-      progress.bestScore = Math.max(progress.bestScore, score);
-      progress.lastAttemptAt = new Date();
-      progress.updatedAt = new Date();
-
-      if (passed && !progress.isCompleted) {
-        progress.isCompleted = true;
-        progress.completedAt = new Date();
-      }
-    } else {
-      progress = {
-        id: `progress-${Date.now()}`,
-        userId,
-        lessonId,
-        isCompleted: passed,
-        bestScore: score,
-        attemptCount: 1,
-        timeSpentMinutes: 0,
-        lastAttemptAt: new Date(),
-        completedAt: passed ? new Date() : undefined,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      progressRecords.push(progress);
-    }
-
-    this.userProgressSubject.next([...progressRecords]);
   }
 
   /**
    * Update last accessed lesson
    */
   updateLastAccessedLesson(lessonId: string): Observable<void> {
-    return this.userService.getCurrentUser().pipe(
-      map(user => {
-        if (!user) return;
-
-        const progressRecords = this.userProgressSubject.value;
-        let progress = progressRecords.find(p => p.lessonId === lessonId && p.userId === user.id);
-
-        if (progress) {
-          progress.updatedAt = new Date();
-        } else {
-          progress = {
-            id: `progress-${Date.now()}`,
-            userId: user.id,
-            lessonId,
-            isCompleted: false,
-            bestScore: 0,
-            attemptCount: 0,
-            timeSpentMinutes: 0,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          };
-          progressRecords.push(progress);
-        }
-
-        this.userProgressSubject.next([...progressRecords]);
-      })
+    return this.http.put(`${this.apiUrl}/progress/lessons/${lessonId}/access`, {}).pipe(
+      map(() => undefined),
+      catchError(() => of(undefined))
     );
   }
 
@@ -690,48 +563,23 @@ export class CourseService {
       totalLessons: number;
     }[]
   > {
-    return combineLatest([
-      this.userService.getCurrentUser(),
-      this.courses$,
-      this.enrollments$,
-      this.lessons$,
-      this.userProgress$,
-    ]).pipe(
-      map(([user, courses, enrollments, lessons, progressRecords]) => {
-        if (!user) return [];
-
-        const userEnrollments = enrollments.filter(e => e.userId === user.id);
-
-        return userEnrollments
-          .map(enrollment => {
-            const course = courses.find(c => c.id === enrollment.courseId);
-            if (!course) return null;
-
-            const courseLessons = lessons.filter(l => l.courseId === course.id);
-            const userProgressForCourse = progressRecords.filter(
-              p => p.userId === user.id && courseLessons.some(l => l.id === p.lessonId)
-            );
-
-            const completedLessons = userProgressForCourse.filter(p => p.isCompleted).length;
-            const progressPercentage =
-              courseLessons.length > 0 ? (completedLessons / courseLessons.length) * 100 : 0;
-
-            return {
-              course,
-              enrollment,
-              progressPercentage,
-              completedLessons,
-              totalLessons: courseLessons.length,
-            };
-          })
-          .filter(item => item !== null) as {
-          course: Course;
-          enrollment: UserCourseEnrollment;
-          progressPercentage: number;
-          completedLessons: number;
-          totalLessons: number;
-        }[];
-      })
+    return this.http.get<EnrolledCoursesResponse>(`${this.apiUrl}/enrollments/my-courses`).pipe(
+      map(response =>
+        response.enrollments.map(e => ({
+          course: this.convertCourseResponseToCourse(e.course),
+          enrollment: {
+            id: e.enrollment.id,
+            userId: '', // Will be set by backend
+            courseId: e.course.id,
+            enrolledAt: new Date(e.enrollment.enrolledAt),
+            lastAccessedAt: e.enrollment.lastAccessedAt ? new Date(e.enrollment.lastAccessedAt) : undefined,
+          },
+          progressPercentage: e.progress.progressPercentage,
+          completedLessons: e.progress.completedLessons,
+          totalLessons: e.progress.totalLessons,
+        }))
+      ),
+      catchError(() => of([]))
     );
   }
 
@@ -739,27 +587,9 @@ export class CourseService {
    * Enroll user in a course
    */
   enrollUserInCourse(courseId: string): Observable<void> {
-    return this.userService.getCurrentUser().pipe(
-      map(user => {
-        if (!user) return;
-
-        const enrollments = this.enrollmentsSubject.value;
-        const existingEnrollment = enrollments.find(
-          e => e.userId === user.id && e.courseId === courseId
-        );
-
-        if (!existingEnrollment) {
-          const newEnrollment: UserCourseEnrollment = {
-            id: `enrollment-${Date.now()}`,
-            userId: user.id,
-            courseId,
-            enrolledAt: new Date(),
-            lastAccessedAt: new Date(),
-          };
-          enrollments.push(newEnrollment);
-          this.enrollmentsSubject.next([...enrollments]);
-        }
-      })
+    return this.http.post(`${this.apiUrl}/enrollments/courses/${courseId}`, {}).pipe(
+      map(() => undefined),
+      catchError(this.handleError)
     );
   }
 
@@ -767,95 +597,67 @@ export class CourseService {
    * Check if user is enrolled in a course
    */
   isUserEnrolledInCourse(courseId: string): Observable<boolean> {
-    return combineLatest([this.userService.getCurrentUser(), this.enrollments$]).pipe(
-      map(([user, enrollments]) => {
-        if (!user) return false;
-        return enrollments.some(e => e.userId === user.id && e.courseId === courseId);
-      })
+    return this.getUserEnrolledCourses().pipe(
+      map(enrollments => enrollments.some(e => e.course.id === courseId)),
+      catchError(() => of(false))
     );
   }
 
   /**
    * Update last accessed date for a course
    */
-  updateCourseLastAccessed(courseId: string): Observable<void> {
-    return this.userService.getCurrentUser().pipe(
-      map(user => {
-        if (!user) return;
-
-        const enrollments = this.enrollmentsSubject.value;
-        const enrollment = enrollments.find(e => e.userId === user.id && e.courseId === courseId);
-
-        if (enrollment) {
-          enrollment.lastAccessedAt = new Date();
-          this.enrollmentsSubject.next([...enrollments]);
-        }
-      })
-    );
+  updateCourseLastAccessed(_courseId: string): Observable<void> {
+    // This can be done by accessing a lesson in the course
+    // or by a dedicated endpoint if available
+    return of(undefined);
   }
 
   /**
    * Get first incomplete lesson for a course (or first lesson if all complete)
    */
   getFirstIncompleteLessonForCourse(courseId: string): Observable<Lesson | undefined> {
-    return combineLatest([
-      this.getLessonsByCourseId(courseId),
-      this.userProgress$,
-      this.userService.getCurrentUser(),
-    ]).pipe(
-      map(([lessons, progressRecords, user]) => {
-        if (!user || lessons.length === 0) return undefined;
-
-        // Find first incomplete lesson
-        for (const lesson of lessons) {
-          const progress = progressRecords.find(
-            p => p.lessonId === lesson.id && p.userId === user.id
-          );
-          if (!progress || !progress.isCompleted) {
-            return lesson;
-          }
+    return this.getLessonsByCourseId(courseId).pipe(
+      switchMap(lessons => {
+        if (lessons.length === 0) {
+          return of(undefined);
         }
 
-        // If all completed, return first lesson
-        return lessons[0];
-      })
+        // Get progress for all lessons
+        const progressChecks = lessons.map(lesson =>
+          this.getLessonProgress(lesson.id).pipe(
+            map(progress => ({ lesson, progress }))
+          )
+        );
+
+        return combineLatest(progressChecks).pipe(
+          map(lessonsWithProgress => {
+            // Find first incomplete lesson
+            const incomplete = lessonsWithProgress.find(
+              lwp => !lwp.progress || !lwp.progress.isCompleted
+            );
+            if (incomplete) {
+              return incomplete.lesson;
+            }
+            // If all completed, return first lesson
+            return lessons[0];
+          })
+        );
+      }),
+      catchError(() => of(undefined))
     );
   }
 
   // ============================================================================
-  // INITIALIZATION
+  // UTILITY METHODS
   // ============================================================================
-
-  /**
-   * Initialize mock data for development
-   */
-  private initializeMockData(): void {
-    this.coursesSubject.next(MOCK_COURSES);
-    this.lessonsSubject.next(MOCK_LESSONS);
-    this.lessonContentsSubject.next(MOCK_LESSON_CONTENTS);
-    this.quizzesSubject.next(MOCK_QUIZZES);
-    this.questionsSubject.next(MOCK_QUESTIONS);
-    this.quizOptionsSubject.next(MOCK_QUIZ_OPTIONS);
-    this.enrollmentsSubject.next(MOCK_ENROLLMENTS);
-    this.userProgressSubject.next(MOCK_USER_PROGRESS);
-    this.quizAttemptsSubject.next(MOCK_QUIZ_ATTEMPTS);
-  }
 
   /**
    * Reset user progress (for testing purposes)
    */
   resetProgress(): Observable<void> {
-    return this.userService.getCurrentUser().pipe(
-      map(user => {
-        if (!user) return;
-
-        // Remove all progress and attempts for current user
-        const progressRecords = this.userProgressSubject.value.filter(p => p.userId !== user.id);
-        const attempts = this.quizAttemptsSubject.value.filter(a => a.userId !== user.id);
-
-        this.userProgressSubject.next(progressRecords);
-        this.quizAttemptsSubject.next(attempts);
-      })
+    return this.http.get(`${this.apiUrl}/progress/reset`).pipe(
+      map(() => undefined),
+      catchError(() => of(undefined))
     );
   }
 
