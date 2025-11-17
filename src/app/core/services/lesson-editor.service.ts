@@ -37,8 +37,8 @@ export class LessonEditorService {
     formData.append('title', courseData.title);
     formData.append('description', courseData.description);
     formData.append('level', courseData.level);
-    formData.append('durationMinutes', courseData.durationMinutes.toString());
-    
+    formData.append('duration_minutes', courseData.durationMinutes.toString());
+
     // Add thumbnail file if provided (optional)
     if (thumbnailFile) {
       formData.append('thumbnail', thumbnailFile);
@@ -69,7 +69,7 @@ export class LessonEditorService {
   updateCourse(courseId: string, updates: Partial<Course>, thumbnailFile?: File): Observable<Course> {
     // Use FormData for multipart upload when thumbnail file is provided
     const formData = new FormData();
-    
+
     if (updates.title !== undefined) {
       formData.append('title', updates.title);
     }
@@ -82,7 +82,7 @@ export class LessonEditorService {
     if (updates.durationMinutes !== undefined) {
       formData.append('durationMinutes', updates.durationMinutes.toString());
     }
-    
+
     // Add thumbnail file if provided (optional)
     if (thumbnailFile) {
       formData.append('thumbnail', thumbnailFile);
@@ -291,7 +291,7 @@ export class LessonEditorService {
   uploadFile(file: File): Observable<string> {
     const formData = new FormData();
     formData.append('file', file);
-    
+
     // Determine file type
     const type = file.type.startsWith('image/') ? 'image' : 'video';
     formData.append('type', type);

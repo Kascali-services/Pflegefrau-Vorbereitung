@@ -58,11 +58,6 @@ export class CourseProgressionComponent implements OnInit {
           this.lessonContents = contents;
         });
 
-        // Also load old format for backward compatibility
-        this.courseService.getLessonContent(lessonId).subscribe(content => {
-          this.lessonContent = content;
-        });
-
         // Check if lesson has a quiz
         this.courseService.getQuizByLessonId(lessonId).subscribe(quiz => {
           this.quiz = quiz;
@@ -84,14 +79,14 @@ export class CourseProgressionComponent implements OnInit {
 
         // Check accessibility
         this.checkAccessibility(lessonId);
-        
+
         // Load next and previous lessons
         this.loadNextLesson(lessonId);
         this.loadPreviousLesson(lessonId);
-        
+
         // Update last accessed lesson
         this.courseService.updateLastAccessedLesson(lessonId).subscribe();
-        
+
         // Update course last accessed
         this.courseService.updateCourseLastAccessed(lesson.courseId).subscribe();
       }
@@ -210,7 +205,7 @@ export class CourseProgressionComponent implements OnInit {
 
     formatted = '<p>' + formatted + '</p>';
     formatted = formatted.replace(/<\/li><br>/g, '</li>');
-    
+
     // Fix list formatting
     let inList = false;
     formatted = formatted.replace(/<li>/g, () => {
