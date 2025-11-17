@@ -1,0 +1,25 @@
+.confirm-dialog {
+  min-width: 300px;
+
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  mat-dialog-content {
+    padding: 1rem 0;
+
+    p {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #555;
+    }
+  }
+
+  mat-dialog-actions {
+    padding: 1rem 0 0 0;
+    gap: 0.5rem;
+  }
+}

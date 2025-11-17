@@ -26,6 +26,26 @@
             <mat-icon>{{ item.expanded ? 'expand_less' : 'expand_more' }}</mat-icon>
             <span class="course-title-text">{{ item.course.title }}</span>
           </button>
+          <div class="course-actions">
+            <button
+              mat-icon-button
+              color="primary"
+              (click)="onEditCourse(item.course)"
+              [attr.aria-label]="'Kurs bearbeiten ' + item.course.title"
+              matTooltip="Kurs bearbeiten"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="warn"
+              (click)="onDeleteCourse(item.course)"
+              [attr.aria-label]="'Kurs löschen ' + item.course.title"
+              matTooltip="Kurs löschen"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
         </mat-card-title>
       </mat-card-header>
 

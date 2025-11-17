@@ -5,10 +5,15 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Course, Lesson } from '../../models/course.model';
 import { DashboardService } from '../../core/services/dashboard.service';
+import { LessonEditorService } from '../../core/services/lesson-editor.service';
 import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
 interface CourseWithLessons {
   course: Course;
@@ -19,13 +24,16 @@ interface CourseWithLessons {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatExpansionModule],
+  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatExpansionModule, MatDialogModule, MatSnackBarModule, MatTooltipModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent implements OnInit {
   private dashboardService = inject(DashboardService);
+  private lessonEditorService = inject(LessonEditorService);
   private router = inject(Router);
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
 
   coursesWithLessons$!: Observable<CourseWithLessons[]>;
   expandedCourseIds: Set<string> = new Set<string>();
@@ -133,5 +141,49 @@ export class DashboardComponent implements OnInit {
 
   isCourseExpanded(courseId: string): boolean {
     return this.expandedCourseIds.has(courseId);
+  }
+
+  onEditCourse(course: Course): void {
+    this.router.navigate(['/verwaltung/inhaltverwaltung/course', course.id, 'edit']);
+  }
+
+  onDeleteCourse(course: Course): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Kurs löschen',
+        message: `Möchten Sie den Kurs "${course.title}" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.`,
+        confirmText: 'Löschen',
+        cancelText: 'Abbrechen',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.lessonEditorService.deleteCourse(course.id).subscribe({
+          next: () => {
+            this.showSuccess('Kurs erfolgreich gelöscht');
+            this.loadCourses(); // Reload the courses list
+          },
+          error: () => {
+            this.showError('Fehler beim Löschen des Kurses');
+          },
+        });
+      }
+    });
+  }
+
+  private showSuccess(message: string): void {
+    this.snackBar.open(message, 'Schließen', {
+      duration: 3000,
+      panelClass: ['success-snackbar'],
+    });
+  }
+
+  private showError(message: string): void {
+    this.snackBar.open(message, 'Schließen', {
+      duration: 5000,
+      panelClass: ['error-snackbar'],
+    });
   }
 }

@@ -73,6 +73,14 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard],
   },
   {
+    path: 'verwaltung/inhaltverwaltung/course/:courseId/edit',
+    loadComponent: () =>
+      import('./features/dashboard/course-creator/course-creator.component').then(
+        m => m.CourseCreatorComponent
+      ),
+    canActivate: [authGuard, roleGuard],
+  },
+  {
     path: 'verwaltung/inhaltverwaltung/course/:courseId/lesson/create',
     loadComponent: () =>
       import('./features/dashboard/lesson-creator/lesson-creator.component').then(

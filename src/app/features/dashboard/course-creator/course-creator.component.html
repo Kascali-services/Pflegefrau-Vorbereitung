@@ -3,7 +3,7 @@
     <button mat-icon-button (click)="cancel()" class="back-btn">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <h1 class="title">Neuen Kurs erstellen</h1>
+    <h1 class="title">{{ isEditMode ? 'Kurs bearbeiten' : 'Neuen Kurs erstellen' }}</h1>
   </div>
 
   <mat-card class="creator-card">
@@ -118,7 +118,7 @@
             type="button"
           >
             <mat-icon>save</mat-icon>
-            Kurs erstellen
+            {{ isEditMode ? 'Kurs aktualisieren' : 'Kurs erstellen' }}
           </button>
           <button mat-button (click)="cancel()" [disabled]="isSaving" type="button">
             Abbrechen
