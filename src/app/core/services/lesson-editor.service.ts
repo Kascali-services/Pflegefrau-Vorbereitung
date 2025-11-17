@@ -6,8 +6,6 @@ import { Course, Lesson, LessonContent } from '../../models/course.model';
 import { CourseService } from './course.service';
 import { environment } from '../../../environments/environment';
 import {
-  CreateCourseRequest,
-  UpdateCourseRequest,
   CreateLessonRequest,
   UpdateLessonRequest,
   CreateLessonContentRequest,
@@ -33,16 +31,20 @@ export class LessonEditorService {
   /**
    * Create a new course
    */
-  createCourse(courseData: Omit<Course, 'id' | 'createdAt' | 'updatedAt'>): Observable<Course> {
-    const request: CreateCourseRequest = {
-      title: courseData.title,
-      description: courseData.description,
-      thumbnailUrl: courseData.thumbnailUrl,
-      level: courseData.level,
-      durationMinutes: courseData.durationMinutes,
-    };
+  createCourse(courseData: Omit<Course, 'id' | 'createdAt' | 'updatedAt'>, thumbnailFile?: File): Observable<Course> {
+    // Use FormData for multipart upload when thumbnail file is provided
+    const formData = new FormData();
+    formData.append('title', courseData.title);
+    formData.append('description', courseData.description);
+    formData.append('level', courseData.level);
+    formData.append('durationMinutes', courseData.durationMinutes.toString());
+    
+    // Add thumbnail file if provided (optional)
+    if (thumbnailFile) {
+      formData.append('thumbnail', thumbnailFile);
+    }
 
-    return this.http.post<CourseResponse>(`${this.apiUrl}/courses`, request).pipe(
+    return this.http.post<CourseResponse>(`${this.apiUrl}/courses`, formData).pipe(
       map(response => ({
         id: response.id,
         title: response.title,
@@ -64,16 +66,29 @@ export class LessonEditorService {
   /**
    * Update an existing course
    */
-  updateCourse(courseId: string, updates: Partial<Course>): Observable<Course> {
-    const request: UpdateCourseRequest = {
-      title: updates.title,
-      description: updates.description,
-      thumbnailUrl: updates.thumbnailUrl,
-      level: updates.level,
-      durationMinutes: updates.durationMinutes,
-    };
+  updateCourse(courseId: string, updates: Partial<Course>, thumbnailFile?: File): Observable<Course> {
+    // Use FormData for multipart upload when thumbnail file is provided
+    const formData = new FormData();
+    
+    if (updates.title !== undefined) {
+      formData.append('title', updates.title);
+    }
+    if (updates.description !== undefined) {
+      formData.append('description', updates.description);
+    }
+    if (updates.level !== undefined) {
+      formData.append('level', updates.level);
+    }
+    if (updates.durationMinutes !== undefined) {
+      formData.append('durationMinutes', updates.durationMinutes.toString());
+    }
+    
+    // Add thumbnail file if provided (optional)
+    if (thumbnailFile) {
+      formData.append('thumbnail', thumbnailFile);
+    }
 
-    return this.http.put<CourseResponse>(`${this.apiUrl}/courses/${courseId}`, request).pipe(
+    return this.http.put<CourseResponse>(`${this.apiUrl}/courses/${courseId}`, formData).pipe(
       map(response => ({
         id: response.id,
         title: response.title,
