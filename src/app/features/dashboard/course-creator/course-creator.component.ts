@@ -53,25 +53,8 @@ export class CourseCreatorComponent {
 
     this.isSaving = true;
 
-    // If a thumbnail file was selected, upload it first
-    if (this.thumbnailFile) {
-      this.lessonEditorService.uploadFile(this.thumbnailFile).subscribe({
-        next: url => {
-          this.courseData.thumbnailUrl = url;
-          this.saveCourse();
-        },
-        error: () => {
-          this.showError('Erreur lors du téléchargement de la vignette');
-          this.isSaving = false;
-        },
-      });
-    } else {
-      this.saveCourse();
-    }
-  }
-
-  private saveCourse(): void {
-    this.lessonEditorService.createCourse(this.courseData).subscribe({
+    // Pass the thumbnail file directly to createCourse (optional)
+    this.lessonEditorService.createCourse(this.courseData, this.thumbnailFile || undefined).subscribe({
       next: () => {
         this.showSuccess('Cours créé avec succès');
         this.isSaving = false;
