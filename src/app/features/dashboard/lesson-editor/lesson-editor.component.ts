@@ -99,7 +99,7 @@ export class LessonEditorComponent implements OnInit {
 
   onDrop(event: CdkDragDrop<LessonContent[]>): void {
     moveItemInArray(this.contents, event.previousIndex, event.currentIndex);
-    
+
     // Update orderIndex for all items
     this.contents.forEach((content, index) => {
       content.orderIndex = index + 1;
@@ -238,22 +238,48 @@ export class LessonEditorComponent implements OnInit {
 
   onNewFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
+
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
+
+      // Déterminer le type de contenu en fonction du champ sélectionné
+      const detectedType = this.newContentType as 'image' | 'video';
+
+      if (detectedType === 'image' && !file.type.startsWith('image')) {
+        this.showError('Bitte wählen Sie ein gültiges Bild aus.');
+        return;
+      }
+
+      if (detectedType === 'video' && !file.type.startsWith('video')) {
+        this.showError('Bitte wählen Sie ein gültiges Video aus.');
+        return;
+      }
+
+      const contentData: Omit<LessonContent, 'id' | 'createdAt'> = {
+        lessonId: this.lessonId,
+        contentType: detectedType,
+        contentValue: '',
+        orderIndex: this.contents.length + 1,
+      };
+
       this.isSaving = true;
-      this.lessonEditorService.uploadFile(file).subscribe({
-        next: url => {
-          this.newContentValue = url;
-          this.isSaving = false;
-          this.showSuccess('Fichier téléchargé avec succès');
-        },
-        error: () => {
-          this.showError('Erreur lors du téléchargement du fichier');
-          this.isSaving = false;
-        },
-      });
+
+      this.lessonEditorService
+        .createLessonContent(contentData, file)
+        .subscribe({
+          next: created => {
+            this.newContentValue = created.contentValue; // URL retournée
+            this.showSuccess('Datei erfolgreich hochgeladen');
+            this.isSaving = false;
+          },
+          error: () => {
+            this.showError('Fehler beim Hochladen der Datei');
+            this.isSaving = false;
+          },
+        });
     }
   }
+
 
   goBack(): void {
     this.router.navigate(['/verwaltung/inhaltverwaltung']);

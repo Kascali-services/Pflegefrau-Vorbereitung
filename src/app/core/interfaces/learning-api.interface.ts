@@ -27,9 +27,9 @@ export interface CourseResponse {
   id: string;
   title: string;
   description: string;
-  thumbnailUrl?: string;
+  thumbnail_url?: string;
   level: 'beginner' | 'intermediate' | 'advanced';
-  durationMinutes: number;
+  duration_minutes: number;
   lessonsCount: number;
   createdAt: string;
   updatedAt: string;
@@ -65,7 +65,7 @@ export interface LessonResponse {
   courseId: string;
   title: string;
   description?: string;
-  durationMinutes: number;
+  duration_minutes: number;
   orderIndex: number;
   createdAt: string;
 }
@@ -77,8 +77,8 @@ export interface LessonsListResponse {
 export interface CreateLessonRequest {
   title: string;
   description?: string;
-  durationMinutes: number;
-  orderIndex: number;
+  duration_minutes: number;
+  order_index: number;
 }
 
 export interface UpdateLessonRequest {

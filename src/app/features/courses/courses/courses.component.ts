@@ -30,7 +30,7 @@ export class CoursesComponent implements OnInit {
   }
 
   getEstimatedDuration(course: Course): string {
-    const totalMinutes = course.durationMinutes;
+    const totalMinutes = Number(course.durationMinutes);
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
     if (hours > 0 && minutes > 0) {

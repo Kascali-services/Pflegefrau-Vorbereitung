@@ -69,10 +69,10 @@ export class CourseService {
       id: response.id,
       title: response.title,
       description: response.description,
-      thumbnailUrl: response.thumbnailUrl,
+      thumbnailUrl: response.thumbnail_url,
       level: response.level,
-      durationMinutes: response.durationMinutes,
-      lessonsCount: response.lessonsCount,
+      durationMinutes: Number(response.duration_minutes),
+      lessonsCount: Number(response.lessonsCount),
       createdAt: new Date(response.createdAt),
       updatedAt: new Date(response.updatedAt),
     };
@@ -87,7 +87,7 @@ export class CourseService {
       courseId: response.courseId,
       title: response.title,
       description: response.description,
-      durationMinutes: response.durationMinutes,
+      durationMinutes: response.duration_minutes,
       orderIndex: response.orderIndex,
       createdAt: new Date(response.createdAt),
     };

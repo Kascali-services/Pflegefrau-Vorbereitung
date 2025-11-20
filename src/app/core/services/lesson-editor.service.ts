@@ -49,9 +49,9 @@ export class LessonEditorService {
         id: response.id,
         title: response.title,
         description: response.description,
-        thumbnailUrl: response.thumbnailUrl,
+        thumbnailUrl: response.thumbnail_url,
         level: response.level,
-        durationMinutes: response.durationMinutes,
+        durationMinutes: response.duration_minutes,
         lessonsCount: response.lessonsCount,
         createdAt: new Date(response.createdAt),
         updatedAt: new Date(response.updatedAt),
@@ -93,9 +93,9 @@ export class LessonEditorService {
         id: response.id,
         title: response.title,
         description: response.description,
-        thumbnailUrl: response.thumbnailUrl,
+        thumbnailUrl: response.thumbnail_url,
         level: response.level,
-        durationMinutes: response.durationMinutes,
+        durationMinutes: response.duration_minutes,
         lessonsCount: response.lessonsCount,
         createdAt: new Date(response.createdAt),
         updatedAt: new Date(response.updatedAt),
@@ -126,8 +126,8 @@ export class LessonEditorService {
     const request: CreateLessonRequest = {
       title: lessonData.title,
       description: lessonData.description,
-      durationMinutes: lessonData.durationMinutes,
-      orderIndex: lessonData.orderIndex,
+      duration_minutes: lessonData.durationMinutes,
+      order_index: lessonData.orderIndex,
     };
 
     return this.http
@@ -138,7 +138,7 @@ export class LessonEditorService {
           courseId: response.courseId,
           title: response.title,
           description: response.description,
-          durationMinutes: response.durationMinutes,
+          durationMinutes: response.duration_minutes,
           orderIndex: response.orderIndex,
           createdAt: new Date(response.createdAt),
         })),
@@ -166,7 +166,7 @@ export class LessonEditorService {
         courseId: response.courseId,
         title: response.title,
         description: response.description,
-        durationMinutes: response.durationMinutes,
+        durationMinutes: response.duration_minutes,
         orderIndex: response.orderIndex,
         createdAt: new Date(response.createdAt),
       })),
@@ -197,9 +197,13 @@ export class LessonEditorService {
   }
 
   /**
-   * Create a new lesson content
+   * Create a new TEXT lesson content
    */
-  createLessonContent(contentData: Omit<LessonContent, 'id' | 'createdAt'>): Observable<LessonContent> {
+  createTextContent(contentData: Omit<LessonContent, 'id' | 'createdAt'>): Observable<LessonContent> {
+    if (contentData.contentType !== 'text') {
+      throw new Error('This method is for text content only. Use createMediaContent for media.');
+    }
+
     const request: CreateLessonContentRequest = {
       contentType: contentData.contentType,
       contentValue: contentData.contentValue,
@@ -207,7 +211,7 @@ export class LessonEditorService {
     };
 
     return this.http
-      .post<LessonContentResponse>(`${this.apiUrl}/lessons/${contentData.lessonId}/contents`, request)
+      .post<LessonContentResponse>(`${this.apiUrl}/lessons/${contentData.lessonId}/contents/text`, request)
       .pipe(
         map(response => ({
           id: response.id,
@@ -218,12 +222,65 @@ export class LessonEditorService {
           createdAt: new Date(response.createdAt),
         })),
         catchError(error => {
-          console.error('Error creating lesson content:', error);
+          console.error('Error creating text content:', error);
           throw error;
         })
       );
   }
 
+  /**
+   * Create a new MEDIA lesson content (image or video)
+   */
+  createMediaContent(
+    lessonId: string,
+    contentType: 'image' | 'video',
+    orderIndex: number,
+    file: File
+  ): Observable<LessonContent> {
+    const formData = new FormData();
+    formData.append('contentType', contentType);
+    formData.append('orderIndex', orderIndex.toString());
+    formData.append('file', file);
+
+    return this.http
+      .post<LessonContentResponse>(`${this.apiUrl}/lessons/${lessonId}/contents/media`, formData)
+      .pipe(
+        map(response => ({
+          id: response.id,
+          lessonId: response.lessonId,
+          contentType: response.contentType,
+          contentValue: response.contentValue,
+          orderIndex: response.orderIndex,
+          createdAt: new Date(response.createdAt),
+        })),
+        catchError(error => {
+          console.error('Error creating media content:', error);
+          throw error;
+        })
+      );
+  }
+
+  /**
+   * Create lesson content (automatically routes to correct endpoint)
+   */
+  createLessonContent(
+    contentData: Omit<LessonContent, 'id' | 'createdAt'>,
+    file?: File
+  ): Observable<LessonContent> {
+    // Route to appropriate endpoint based on content type
+    if (contentData.contentType === 'text') {
+      return this.createTextContent(contentData);
+    } else if ((contentData.contentType === 'image' || contentData.contentType === 'video') && file) {
+      return this.createMediaContent(
+        contentData.lessonId,
+        contentData.contentType,
+        contentData.orderIndex,
+        file
+      );
+    } else {
+      throw new Error('Invalid content type or missing file for media content');
+    }
+  }
   /**
    * Update an existing lesson content
    */
