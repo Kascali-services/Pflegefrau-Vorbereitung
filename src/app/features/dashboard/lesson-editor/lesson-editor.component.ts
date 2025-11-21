@@ -113,17 +113,19 @@ export class LessonEditorComponent implements OnInit {
     const reorderData = this.contents.map(content => ({
       id: content.id,
       orderIndex: content.orderIndex,
+      contentType: content.contentType as 'text' | 'image' | 'video',
     }));
 
     this.lessonEditorService.reorderLessonContents(reorderData).subscribe({
       next: () => {
-        this.showSuccess('Ordre mis à jour avec succès');
+        this.showSuccess('Reihenfolge erfolgreich aktualisiert'); // succès
       },
       error: () => {
-        this.showError('Erreur lors de la mise à jour de l\'ordre');
+        this.showError('Fehler beim Aktualisieren der Reihenfolge'); // erreur
       },
     });
   }
+
 
   editContent(content: LessonContent): void {
     // For text content, make it editable in place
@@ -133,23 +135,23 @@ export class LessonEditorComponent implements OnInit {
     }
   }
 
-  saveContent(content: LessonContent): void {
+  saveContent(content: LessonContent, file?: File): void {
     this.isSaving = true;
+
     this.lessonEditorService
-      .updateLessonContent(content.id, {
-        contentValue: content.contentValue,
-      })
+      .updateLessonContent(content.id, content.contentType, { contentValue: content.contentValue }, file)
       .subscribe({
         next: () => {
-          this.showSuccess('Contenu mis à jour avec succès');
+          this.showSuccess('Inhalt erfolgreich aktualisiert'); // succès en allemand
           this.isSaving = false;
         },
         error: () => {
-          this.showError('Erreur lors de la mise à jour du contenu');
+          this.showError('Fehler beim Aktualisieren des Inhalts'); // erreur en allemand
           this.isSaving = false;
         },
       });
   }
+
 
   deleteContent(contentId: string): void {
     this.dialogService
@@ -187,18 +189,10 @@ export class LessonEditorComponent implements OnInit {
   }
 
   uploadFile(file: File, content: LessonContent): void {
-    this.isSaving = true;
-    this.lessonEditorService.uploadFile(file).subscribe({
-      next: url => {
-        content.contentValue = url;
-        this.saveContent(content);
-      },
-      error: () => {
-        this.showError('Erreur lors du téléchargement du fichier');
-        this.isSaving = false;
-      },
-    });
+    // use directly the saveContent methode
+    this.saveContent(content, file);
   }
+
 
   toggleAddContent(): void {
     this.showAddContent = !this.showAddContent;

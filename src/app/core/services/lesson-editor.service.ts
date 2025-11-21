@@ -31,7 +31,10 @@ export class LessonEditorService {
   /**
    * Create a new course
    */
-  createCourse(courseData: Omit<Course, 'id' | 'createdAt' | 'updatedAt'>, thumbnailFile?: File): Observable<Course> {
+  createCourse(
+    courseData: Omit<Course, 'id' | 'createdAt' | 'updatedAt'>,
+    thumbnailFile?: File
+  ): Observable<Course> {
     // Use FormData for multipart upload when thumbnail file is provided
     const formData = new FormData();
     formData.append('title', courseData.title);
@@ -66,7 +69,11 @@ export class LessonEditorService {
   /**
    * Update an existing course
    */
-  updateCourse(courseId: string, updates: Partial<Course>, thumbnailFile?: File): Observable<Course> {
+  updateCourse(
+    courseId: string,
+    updates: Partial<Course>,
+    thumbnailFile?: File
+  ): Observable<Course> {
     // Use FormData for multipart upload when thumbnail file is provided
     const formData = new FormData();
 
@@ -199,7 +206,9 @@ export class LessonEditorService {
   /**
    * Create a new TEXT lesson content
    */
-  createTextContent(contentData: Omit<LessonContent, 'id' | 'createdAt'>): Observable<LessonContent> {
+  createTextContent(
+    contentData: Omit<LessonContent, 'id' | 'createdAt'>
+  ): Observable<LessonContent> {
     if (contentData.contentType !== 'text') {
       throw new Error('This method is for text content only. Use createMediaContent for media.');
     }
@@ -211,7 +220,10 @@ export class LessonEditorService {
     };
 
     return this.http
-      .post<LessonContentResponse>(`${this.apiUrl}/lessons/${contentData.lessonId}/contents/text`, request)
+      .post<LessonContentResponse>(
+        `${this.apiUrl}/lessons/${contentData.lessonId}/contents/text`,
+        request
+      )
       .pipe(
         map(response => ({
           id: response.id,
@@ -270,7 +282,10 @@ export class LessonEditorService {
     // Route to appropriate endpoint based on content type
     if (contentData.contentType === 'text') {
       return this.createTextContent(contentData);
-    } else if ((contentData.contentType === 'image' || contentData.contentType === 'video') && file) {
+    } else if (
+      (contentData.contentType === 'image' || contentData.contentType === 'video') &&
+      file
+    ) {
       return this.createMediaContent(
         contentData.lessonId,
         contentData.contentType,
@@ -281,28 +296,70 @@ export class LessonEditorService {
       throw new Error('Invalid content type or missing file for media content');
     }
   }
-  /**
-   * Update an existing lesson content
-   */
-  updateLessonContent(contentId: string, updates: Partial<LessonContent>): Observable<LessonContent> {
-    const request: UpdateLessonContentRequest = {
-      contentValue: updates.contentValue,
-      orderIndex: updates.orderIndex,
-    };
 
-    return this.http.put<LessonContentResponse>(`${this.apiUrl}/contents/${contentId}`, request).pipe(
-      map(response => ({
-        id: response.id,
-        lessonId: response.lessonId,
-        contentType: response.contentType,
-        contentValue: response.contentValue,
-        orderIndex: response.orderIndex,
-        createdAt: new Date(response.createdAt),
-      })),
-      catchError(error => {
-        console.error('Error updating lesson content:', error);
-        throw error;
-      })
+  /**
+   * Update an existing lesson content (text or media), automatically routes to correct endpoint
+   */
+  updateLessonContent(
+    contentId: string, // juste l'ID du contenu
+    contentType: 'text' | 'image' | 'video', // type du contenu
+    updates: Partial<LessonContent>, // changements
+    file?: File // seulement pour image/video
+  ): Observable<LessonContent> {
+    // --- TEXT CONTENT UPDATE ---
+    if (contentType === 'text') {
+      const request: UpdateLessonContentRequest = {
+        contentValue: updates.contentValue,
+        orderIndex: updates.orderIndex,
+      };
+
+      return this.http
+        .put<LessonContentResponse>(`${this.apiUrl}/contents/${contentId}/text`, request)
+        .pipe(
+          map(response => ({
+            id: response.id,
+            lessonId: response.lessonId,
+            contentType: response.contentType,
+            contentValue: response.contentValue,
+            orderIndex: response.orderIndex,
+            createdAt: new Date(response.createdAt),
+          })),
+          catchError(error => {
+            console.error('Error updating text content:', error);
+            throw error;
+          })
+        );
+    }
+
+    // --- MEDIA CONTENT UPDATE (image/video) ---
+    if ((contentType === 'image' || contentType === 'video') && file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      if (updates.orderIndex !== undefined) {
+        formData.append('orderIndex', updates.orderIndex.toString());
+      }
+
+      return this.http
+        .put<LessonContentResponse>(`${this.apiUrl}/contents/${contentId}/media`, formData)
+        .pipe(
+          map(response => ({
+            id: response.id,
+            lessonId: response.lessonId,
+            contentType: response.contentType,
+            contentValue: response.contentValue,
+            orderIndex: response.orderIndex,
+            createdAt: new Date(response.createdAt),
+          })),
+          catchError(error => {
+            console.error('Error updating media content:', error);
+            throw error;
+          })
+        );
+    }
+
+    // --- INVALID CASE ---
+    throw new Error(
+      'Invalid update request: text requires contentValue, media requires attached file.'
     );
   }
 
@@ -322,14 +379,18 @@ export class LessonEditorService {
    * Reorder lesson contents
    * Updates orderIndex for multiple contents
    */
-  reorderLessonContents(contents: { id: string; orderIndex: number }[]): Observable<void> {
-    // Update each content's order one by one
-    // In a real implementation, the backend might have a batch update endpoint
+  reorderLessonContents(
+    contents: {
+      id: string;
+      orderIndex: number;
+      contentType: 'text' | 'image' | 'video';
+    }[]
+  ): Observable<void> {
     const updates = contents.map(content =>
-      this.updateLessonContent(content.id, { orderIndex: content.orderIndex })
+      this.updateLessonContent(content.id, content.contentType, { orderIndex: content.orderIndex })
     );
 
-    return new Observable(observer => {
+    return new Observable<void>(observer => {
       Promise.all(updates.map(obs => obs.toPromise()))
         .then(() => {
           observer.next();
@@ -353,14 +414,12 @@ export class LessonEditorService {
     const type = file.type.startsWith('image/') ? 'image' : 'video';
     formData.append('type', type);
 
-    return this.http
-      .post<{ url: string }>(`${this.apiUrl}/media/upload`, formData)
-      .pipe(
-        map(response => response.url),
-        catchError(error => {
-          console.error('Error uploading file:', error);
-          throw error;
-        })
-      );
+    return this.http.post<{ url: string }>(`${this.apiUrl}/media/upload`, formData).pipe(
+      map(response => response.url),
+      catchError(error => {
+        console.error('Error uploading file:', error);
+        throw error;
+      })
+    );
   }
 }
