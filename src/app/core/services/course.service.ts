@@ -563,6 +563,11 @@ export class CourseService {
 
   /**
    * Get user's enrolled courses with progress
+   * 
+   * NOTE: This method makes multiple API calls (N+1 pattern) because the backend
+   * returns a simple enrollment array instead of the documented nested structure.
+   * For optimal performance, the backend should be updated to return enriched data
+   * in a single call. This is a frontend workaround for the API mismatch.
    */
   getUserEnrolledCourses(): Observable<
     {
@@ -637,6 +642,10 @@ export class CourseService {
 
   /**
    * Check if user is enrolled in a course
+   * 
+   * NOTE: This method calls getUserEnrolledCourses() which makes multiple API calls.
+   * For better performance, consider implementing a dedicated backend endpoint to check
+   * enrollment status for a specific course (e.g., GET /api/enrollments/check/:courseId).
    */
   isUserEnrolledInCourse(courseId: string): Observable<boolean> {
     return this.getUserEnrolledCourses().pipe(
