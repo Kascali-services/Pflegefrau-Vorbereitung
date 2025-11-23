@@ -83,7 +83,7 @@ export class CourseService {
    */
   private convertLessonResponseToLesson(response: LessonResponse): Lesson {
     // Handle both camelCase and snake_case for courseId (backend inconsistency)
-    const courseId = response.courseId || (response as { course_id?: string }).course_id || '';
+    const courseId = response.courseId || response.course_id || '';
     
     if (!this.isValidCourseId(courseId)) {
       console.error('Invalid courseId in lesson response:', response);
@@ -201,7 +201,13 @@ export class CourseService {
    * Validate that a course ID is valid and not undefined/empty
    */
   private isValidCourseId(courseId: string | undefined | null): boolean {
-    return !!courseId && courseId !== 'undefined' && courseId !== 'null' && courseId.trim() !== '';
+    return (
+      !!courseId &&
+      courseId !== 'undefined' &&
+      courseId !== 'null' &&
+      typeof courseId === 'string' &&
+      courseId.trim() !== ''
+    );
   }
 
   /**
