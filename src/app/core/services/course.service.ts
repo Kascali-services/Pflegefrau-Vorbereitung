@@ -83,10 +83,15 @@ export class CourseService {
    */
   private convertLessonResponseToLesson(response: LessonResponse): Lesson {
     // Handle both camelCase and snake_case for courseId (backend inconsistency)
-    const courseId = response.courseId || (response as { course_id?: string }).course_id;
+    const courseId = response.courseId || (response as { course_id?: string }).course_id || '';
+    
+    if (!this.isValidCourseId(courseId)) {
+      console.error('Invalid courseId in lesson response:', response);
+    }
+    
     return {
       id: response.id,
-      courseId: courseId || '',
+      courseId: courseId,
       title: response.title,
       description: response.description,
       durationMinutes: response.duration_minutes,
@@ -193,6 +198,13 @@ export class CourseService {
   }
 
   /**
+   * Validate that a course ID is valid and not undefined/empty
+   */
+  private isValidCourseId(courseId: string | undefined | null): boolean {
+    return !!courseId && courseId !== 'undefined' && courseId !== 'null' && courseId.trim() !== '';
+  }
+
+  /**
    * Load all courses (initial load and refresh)
    */
   private loadCourses(): void {
@@ -224,7 +236,7 @@ export class CourseService {
    * Get a specific course by ID
    */
   getCourseById(courseId: string): Observable<Course | undefined> {
-    if (!courseId || courseId === 'undefined') {
+    if (!this.isValidCourseId(courseId)) {
       console.error('getCourseById called with invalid courseId:', courseId);
       return of(undefined);
     }
@@ -247,7 +259,7 @@ export class CourseService {
    * Get all lessons for a specific course (sorted by orderIndex)
    */
   getLessonsByCourseId(courseId: string): Observable<Lesson[]> {
-    if (!courseId || courseId === 'undefined') {
+    if (!this.isValidCourseId(courseId)) {
       console.error('getLessonsByCourseId called with invalid courseId:', courseId);
       return of([]);
     }
