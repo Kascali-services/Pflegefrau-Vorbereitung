@@ -266,6 +266,18 @@ export interface EnrollmentResponse {
   enrolledAt: string;
 }
 
+// Actual backend response format
+export interface ActualEnrolledCoursesResponse {
+  enrollments: {
+    id: string;
+    user_id: string;
+    course_id: string;
+    enrolled_at: string;
+    last_accessed_at?: string;
+  }[];
+}
+
+// Expected format (for backward compatibility)
 export interface EnrolledCoursesResponse {
   enrollments: {
     course: CourseResponse;

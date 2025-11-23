@@ -33,7 +33,7 @@ import {
   CourseProgressResponse,
   LessonProgressResponse,
   CompleteLessonResponse,
-  EnrolledCoursesResponse,
+  ActualEnrolledCoursesResponse,
 } from '../interfaces/learning-api.interface';
 
 /**
@@ -350,25 +350,35 @@ export class CourseService {
         if (!lesson) {
           return of(false);
         }
-        return combineLatest([
-          of(lesson),
-          this.getLessonsByCourseId(lesson.courseId),
-          this.getLessonProgress(lessonId),
-        ]).pipe(
-          switchMap(([_currentLesson, courseLessons, currentProgress]) => {
-            const currentIndex = courseLessons.findIndex((l: Lesson) => l.id === lessonId);
-            if (currentIndex === -1) return of(false);
+        
+        // Check if user is enrolled in the course first
+        return this.isUserEnrolledInCourse(lesson.courseId).pipe(
+          switchMap(isEnrolled => {
+            if (!isEnrolled) {
+              return of(false);
+            }
 
-            // First lesson is always accessible
-            if (currentIndex === 0) return of(true);
+            return combineLatest([
+              of(lesson),
+              this.getLessonsByCourseId(lesson.courseId),
+              this.getLessonProgress(lessonId),
+            ]).pipe(
+              switchMap(([_currentLesson, courseLessons, currentProgress]) => {
+                const currentIndex = courseLessons.findIndex((l: Lesson) => l.id === lessonId);
+                if (currentIndex === -1) return of(false);
 
-            // Check if current lesson is already completed (allow review)
-            if (currentProgress?.isCompleted) return of(true);
+                // First lesson is always accessible if enrolled
+                if (currentIndex === 0) return of(true);
 
-            // Check if previous lesson is completed
-            const previousLesson = courseLessons[currentIndex - 1];
-            return this.getLessonProgress(previousLesson.id).pipe(
-              map(previousProgress => previousProgress?.isCompleted || false)
+                // Check if current lesson is already completed (allow review)
+                if (currentProgress?.isCompleted) return of(true);
+
+                // Check if previous lesson is completed
+                const previousLesson = courseLessons[currentIndex - 1];
+                return this.getLessonProgress(previousLesson.id).pipe(
+                  map(previousProgress => previousProgress?.isCompleted || false)
+                );
+              })
             );
           })
         );
@@ -553,6 +563,11 @@ export class CourseService {
 
   /**
    * Get user's enrolled courses with progress
+   * 
+   * NOTE: This method makes multiple API calls (N+1 pattern) because the backend
+   * returns a simple enrollment array instead of the documented nested structure.
+   * For optimal performance, the backend should be updated to return enriched data
+   * in a single call. This is a frontend workaround for the API mismatch.
    */
   getUserEnrolledCourses(): Observable<
     {
@@ -563,23 +578,55 @@ export class CourseService {
       totalLessons: number;
     }[]
   > {
-    return this.http.get<EnrolledCoursesResponse>(`${this.apiUrl}/enrollments/my-courses`).pipe(
-      map(response =>
-        response.enrollments.map(e => ({
-          course: this.convertCourseResponseToCourse(e.course),
-          enrollment: {
-            id: e.enrollment.id,
-            userId: '', // Will be set by backend
-            courseId: e.course.id,
-            enrolledAt: new Date(e.enrollment.enrolledAt),
-            lastAccessedAt: e.enrollment.lastAccessedAt ? new Date(e.enrollment.lastAccessedAt) : undefined,
-          },
-          progressPercentage: e.progress.progressPercentage,
-          completedLessons: e.progress.completedLessons,
-          totalLessons: e.progress.totalLessons,
-        }))
-      ),
-      catchError(() => of([]))
+    return this.http.get<ActualEnrolledCoursesResponse>(`${this.apiUrl}/enrollments/my-courses`).pipe(
+      switchMap(response => {
+        if (response.enrollments.length === 0) {
+          return of([]);
+        }
+
+        // For each enrollment, fetch the course details and progress
+        const enrichedEnrollments = response.enrollments.map(enrollment =>
+          combineLatest([
+            this.getCourseById(enrollment.course_id),
+            this.getCourseProgress(enrollment.course_id),
+          ]).pipe(
+            map(([course, progress]) => {
+              if (!course) {
+                return null;
+              }
+              return {
+                course,
+                enrollment: {
+                  id: enrollment.id,
+                  userId: enrollment.user_id,
+                  courseId: enrollment.course_id,
+                  enrolledAt: new Date(enrollment.enrolled_at),
+                  lastAccessedAt: enrollment.last_accessed_at
+                    ? new Date(enrollment.last_accessed_at)
+                    : undefined,
+                },
+                progressPercentage: progress.progress,
+                completedLessons: progress.completedLessons,
+                totalLessons: progress.totalLessons,
+              };
+            })
+          )
+        );
+
+        return combineLatest(enrichedEnrollments).pipe(
+          map(results => results.filter(r => r !== null) as {
+            course: Course;
+            enrollment: UserCourseEnrollment;
+            progressPercentage: number;
+            completedLessons: number;
+            totalLessons: number;
+          }[])
+        );
+      }),
+      catchError(error => {
+        console.error('Error fetching enrolled courses:', error);
+        return of([]);
+      })
     );
   }
 
@@ -595,6 +642,10 @@ export class CourseService {
 
   /**
    * Check if user is enrolled in a course
+   * 
+   * NOTE: This method calls getUserEnrolledCourses() which makes multiple API calls.
+   * For better performance, consider implementing a dedicated backend endpoint to check
+   * enrollment status for a specific course (e.g., GET /api/enrollments/check/:courseId).
    */
   isUserEnrolledInCourse(courseId: string): Observable<boolean> {
     return this.getUserEnrolledCourses().pipe(
