@@ -76,4 +76,48 @@ describe('CourseService', () => {
       done();
     });
   });
+
+  it('should check if user is enrolled in course', done => {
+    // First enroll in a course
+    service.getAllCourses().subscribe(courses => {
+      if (courses.length > 0) {
+        const courseId = courses[0].id;
+        service.enrollUserInCourse(courseId).subscribe(() => {
+          // Then check enrollment
+          service.isUserEnrolledInCourse(courseId).subscribe(isEnrolled => {
+            expect(isEnrolled).toBe(true);
+            done();
+          });
+        });
+      } else {
+        done();
+      }
+    });
+  });
+
+  it('should allow access to first lesson after enrollment', done => {
+    // Get a course and enroll
+    service.getAllCourses().subscribe(courses => {
+      if (courses.length > 0) {
+        const courseId = courses[0].id;
+        service.enrollUserInCourse(courseId).subscribe(() => {
+          // Get first lesson
+          service.getLessonsByCourseId(courseId).subscribe(lessons => {
+            if (lessons.length > 0) {
+              const firstLessonId = lessons[0].id;
+              // Check if first lesson is accessible
+              service.isLessonAccessible(firstLessonId).subscribe(isAccessible => {
+                expect(isAccessible).toBe(true);
+                done();
+              });
+            } else {
+              done();
+            }
+          });
+        });
+      } else {
+        done();
+      }
+    });
+  });
 });
