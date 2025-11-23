@@ -82,9 +82,11 @@ export class CourseService {
    * Convert API response to Lesson model
    */
   private convertLessonResponseToLesson(response: LessonResponse): Lesson {
+    // Handle both camelCase and snake_case for courseId (backend inconsistency)
+    const courseId = response.courseId || (response as { course_id?: string }).course_id;
     return {
       id: response.id,
-      courseId: response.courseId,
+      courseId: courseId || '',
       title: response.title,
       description: response.description,
       durationMinutes: response.duration_minutes,
