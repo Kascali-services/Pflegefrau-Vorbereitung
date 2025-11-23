@@ -643,13 +643,12 @@ export class CourseService {
   /**
    * Check if user is enrolled in a course
    * 
-   * NOTE: This method calls getUserEnrolledCourses() which makes multiple API calls.
-   * For better performance, consider implementing a dedicated backend endpoint to check
-   * enrollment status for a specific course (e.g., GET /api/enrollments/check/:courseId).
+   * This method directly queries the enrollments endpoint for better performance
+   * and accuracy, especially for recently enrolled courses.
    */
   isUserEnrolledInCourse(courseId: string): Observable<boolean> {
-    return this.getUserEnrolledCourses().pipe(
-      map(enrollments => enrollments.some(e => e.course.id === courseId)),
+    return this.http.get<ActualEnrolledCoursesResponse>(`${this.apiUrl}/enrollments/my-courses`).pipe(
+      map(response => response.enrollments.some(e => e.course_id === courseId)),
       catchError(() => of(false))
     );
   }
