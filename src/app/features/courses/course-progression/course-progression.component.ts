@@ -47,7 +47,7 @@ export class CourseProgressionComponent implements OnInit {
   private loadLesson(lessonId: string): void {
     this.courseService.getLessonById(lessonId).subscribe(lesson => {
       this.lesson = lesson;
-      if (lesson) {
+      if (lesson && lesson.courseId) {
         // Load course
         this.courseService.getCourseById(lesson.courseId).subscribe(course => {
           this.course = course;

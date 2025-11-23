@@ -63,6 +63,7 @@ export interface UpdateCourseRequest {
 export interface LessonResponse {
   id: string;
   courseId: string;
+  course_id?: string; // Backend inconsistency: some endpoints may return snake_case
   title: string;
   description?: string;
   duration_minutes: number;

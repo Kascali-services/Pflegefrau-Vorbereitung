@@ -82,9 +82,16 @@ export class CourseService {
    * Convert API response to Lesson model
    */
   private convertLessonResponseToLesson(response: LessonResponse): Lesson {
+    // Handle both camelCase and snake_case for courseId (backend inconsistency)
+    const courseId = response.courseId || response.course_id || '';
+    
+    if (!this.isValidCourseId(courseId)) {
+      console.error('Invalid courseId in lesson response:', response);
+    }
+    
     return {
       id: response.id,
-      courseId: response.courseId,
+      courseId: courseId,
       title: response.title,
       description: response.description,
       durationMinutes: response.duration_minutes,
@@ -191,6 +198,19 @@ export class CourseService {
   }
 
   /**
+   * Validate that a course ID is valid and not undefined/empty
+   */
+  private isValidCourseId(courseId: string | undefined | null): boolean {
+    return (
+      !!courseId &&
+      courseId !== 'undefined' &&
+      courseId !== 'null' &&
+      typeof courseId === 'string' &&
+      courseId.trim() !== ''
+    );
+  }
+
+  /**
    * Load all courses (initial load and refresh)
    */
   private loadCourses(): void {
@@ -222,6 +242,10 @@ export class CourseService {
    * Get a specific course by ID
    */
   getCourseById(courseId: string): Observable<Course | undefined> {
+    if (!this.isValidCourseId(courseId)) {
+      console.error('getCourseById called with invalid courseId:', courseId);
+      return of(undefined);
+    }
     return this.http.get<CourseResponse>(`${this.apiUrl}/courses/${courseId}`).pipe(
       map(response => this.convertCourseResponseToCourse(response)),
       catchError(error => {
@@ -241,6 +265,10 @@ export class CourseService {
    * Get all lessons for a specific course (sorted by orderIndex)
    */
   getLessonsByCourseId(courseId: string): Observable<Lesson[]> {
+    if (!this.isValidCourseId(courseId)) {
+      console.error('getLessonsByCourseId called with invalid courseId:', courseId);
+      return of([]);
+    }
     return this.http.get<LessonsListResponse>(`${this.apiUrl}/courses/${courseId}/lessons`).pipe(
       map(response =>
         response.lessons
