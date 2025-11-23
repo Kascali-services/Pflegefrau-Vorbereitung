@@ -222,6 +222,10 @@ export class CourseService {
    * Get a specific course by ID
    */
   getCourseById(courseId: string): Observable<Course | undefined> {
+    if (!courseId || courseId === 'undefined') {
+      console.error('getCourseById called with invalid courseId:', courseId);
+      return of(undefined);
+    }
     return this.http.get<CourseResponse>(`${this.apiUrl}/courses/${courseId}`).pipe(
       map(response => this.convertCourseResponseToCourse(response)),
       catchError(error => {
@@ -241,6 +245,10 @@ export class CourseService {
    * Get all lessons for a specific course (sorted by orderIndex)
    */
   getLessonsByCourseId(courseId: string): Observable<Lesson[]> {
+    if (!courseId || courseId === 'undefined') {
+      console.error('getLessonsByCourseId called with invalid courseId:', courseId);
+      return of([]);
+    }
     return this.http.get<LessonsListResponse>(`${this.apiUrl}/courses/${courseId}/lessons`).pipe(
       map(response =>
         response.lessons
