@@ -6,14 +6,16 @@
     <script>
       // This script redirects from 404 to index.html for SPA routing on GitHub Pages
       // It preserves the path and query string for client-side routing
+      // pathSegmentsToKeep = 1 keeps the repository name segment (/Pflegefrau-Vorbereitung)
       var pathSegmentsToKeep = 1;
       var l = window.location;
+      // Encode ampersands as ~and~ to preserve query parameters during redirect
+      var encodedPath = l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~');
+      var encodedSearch = l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '';
       l.replace(
         l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
         l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
-        l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
-        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-        l.hash
+        encodedPath + encodedSearch + l.hash
       );
     </script>
   </head>
