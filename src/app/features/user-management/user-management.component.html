@@ -136,14 +136,26 @@
               </button>
             </div>
 
-            <mat-chip-set class="specialties-list" *ngIf="specialtiesList.length > 0">
-              <mat-chip *ngFor="let specialty of specialtiesList" [removable]="true">
+            <div
+              cdkDropList
+              cdkDropListOrientation="horizontal"
+              (cdkDropListDropped)="onSpecialtyDrop($event)"
+              class="specialties-list"
+              *ngIf="specialtiesList.length > 0"
+            >
+              <mat-chip
+                *ngFor="let specialty of specialtiesList"
+                cdkDrag
+                [removable]="true"
+                class="draggable-chip"
+              >
+                <mat-icon cdkDragHandle class="drag-handle">drag_indicator</mat-icon>
                 {{ specialty }}
                 <button matChipRemove (click)="removeSpecialty(specialty)">
                   <mat-icon>cancel</mat-icon>
                 </button>
               </mat-chip>
-            </mat-chip-set>
+            </div>
           </div>
 
           <div class="info-note">

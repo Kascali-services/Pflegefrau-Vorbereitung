@@ -15,6 +15,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -32,6 +33,7 @@ import { AuthService } from '../../core/services/auth.service';
     MatRadioModule,
     MatChipsModule,
     MatIconModule,
+    DragDropModule,
   ],
   templateUrl: './user-management.component.html',
   styleUrl: './user-management.component.scss',
@@ -102,6 +104,10 @@ export class UserManagementComponent {
     if (index >= 0) {
       this.specialtiesList.splice(index, 1);
     }
+  }
+
+  onSpecialtyDrop(event: CdkDragDrop<string[]>): void {
+    moveItemInArray(this.specialtiesList, event.previousIndex, event.currentIndex);
   }
 
   onSubmit(): void {
